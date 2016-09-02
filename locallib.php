@@ -874,8 +874,8 @@ function attendanceregister__areCompletionConditionsMet($register, $trackedValue
  */
 function attendanceregister__didCronRanAfterInstanceCreation($cm) {
     global $DB;
-    $module = $DB->get_record('modules', array('name'=>'attendanceregister'), '*', MUST_EXIST);
-    return ( $cm->added < $module->lastcron );
+    $module = $DB->get_record('task_scheduled', array('component'=>'mod_attendanceregister'), '*', MUST_EXIST);
+    return ( $cm->added < $module->lastruntime );
 }
 
 /**
