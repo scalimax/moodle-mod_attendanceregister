@@ -92,8 +92,7 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
 
         // Execute recalculate all
         $register = $DB->get_record('attendanceregister', array('id' => $this->task->get_activityid()), '*', MUST_EXIST);
-        $this->log('Recalculating Session of restored AttendanceRegister (id:' . $this->task->get_activityid() . ')', LOG_INFO);
-        attendanceregister_force_recalc_all($register);
+        attendanceregister_set_pending_recalc($register, true);
     }
 
 }

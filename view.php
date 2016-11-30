@@ -137,7 +137,7 @@ if ( $register->offlinesessions &&  !$doShowPrintableVersion  ) {
 $doDeleteOfflineSession = false;
 if ($sessionToDelete) {
     // Check if logged-in-as Session Delete
-    if (session_is_loggedinas() && !ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION) {
+    if (\core\session\manager::is_loggedinas() && !ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION) {
         print_error('onlyrealusercandeleteofflinesessions', 'attendanceregister');
     } else if ( attendanceregister__isCurrentUser($userId) ) {
         require_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OWN_OFFLINE_SESSIONS, $context);
