@@ -1,11 +1,27 @@
 Attendance Register Module - What's New
+## RELEASE 3.1 (2016113000)
+New features
+*	Support for moodle 3.1
+
+Fixes
+*	session_is_loggedinas() is removed, use \core\session\manager::is_loggedinas() instead
+*	Removed log recalc just after a course backup restore and added a scheduled recalc
+	at next cron because during the restore process, when the function after_execute() 
+	is called some log are missing (moodle bug?) causing wrong report values.
+
+Warning
+*	During a course restore (with logs) do not change the "Course start date", because 
+	the logs of the new course will shift in the time adding or subtracting the time 
+	difference between the old "Course start date" and the new one. In that case the
+	attendance report values could change. (tested on Moodle 3.1)
+
 ## RELEASE 2.5.1 (2016050900)
 Fixes
-*		Support for scheduled tasks
+*	Support for scheduled tasks
 
 ## RELEASE 2.5.0 (2015111200) Moodle 2.7 compatibility release 2015.11.12.00
 New features
-*		Support for new logging system 
+*	Support for new logging system 
 # Bugfix and performance 2014.03.08.05
 Fixes
 * [#67] User session could be delayed until next login if user pauses activities
