@@ -1,4 +1,7 @@
 Attendance Register Module - What's New
+## RELEASE 2.6 (2016113001)
+*   [#2] Optimization for AMOS, the central repository of Moodle strings. Now you can
+    download availables module translations simply adding/updating moodle language pack.
 ## RELEASE 2.6 (2016113000)
 New features
 *	Support for moodle 3.1
