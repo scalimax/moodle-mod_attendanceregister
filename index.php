@@ -28,7 +28,7 @@
 
     $usesections = course_format_uses_sections($course->format);
     if ($usesections) {
-        $sections = get_all_sections($course->id);
+        $sections = get_fast_modinfo($course->id)->get_section_info_all();
     }
 
     // XXX Count tracked users
