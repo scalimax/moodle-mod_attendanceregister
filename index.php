@@ -13,21 +13,21 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 /**
- * The course_module_instance_list_viewed event.
+ * Attendance register index file.
  *
- * @package   mod_attendanceregister
- * @copyright 2015 CINECA
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_attendanceregister
+ * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once "../../config.php";
-require_once "lib.php";
+require_once("../../config.php");
+require_once("lib.php");
 
-$id = required_param('id', PARAM_INT);   // course
-
-$PAGE->set_url('/mod/choice/index.php', ['id' => $id]);
+$id = required_param('id', PARAM_INT);
+$PAGE->set_url('/mod/attendanceregister/index.php', ['id' => $id]);
 
 if (!$course = $DB->get_record('course', ['id' => $id])) {
     print_error('invalidcourseid');
@@ -53,10 +53,7 @@ if ($usesections) {
     $sections = get_all_sections($course->id);
 }
 
-// XXX Count tracked users
-
 $timenow = time();
-
 $table = new html_table();
 
 if ($usesections) {
@@ -72,10 +69,10 @@ if ($usesections) {
 $currentsection = "";
 
 foreach ($registers as $register) {
-    $trackedUsers = attendanceregister_get_tracked_users($register);
+    $trackedusers = attendanceregister_get_tracked_users($register);
     $aa = 0;
-    if (is_array($trackedUsers) ) {
-        $aa = count($trackedUsers);
+    if (is_array($trackedusers) ) {
+        $aa = count($trackedusers);
     }
 
     if ($usesections) {
@@ -90,18 +87,19 @@ foreach ($registers as $register) {
             $currentsection = $register->section;
         }
     }
-    // Calculate the href
+    // Calculate the href.
     if (!$register->visible) {
-        // Show dimmed if the mod is hidden
-        $tt_href = "<a class=\"dimmed\" href=\"view.php?id=$register->coursemodule\">" . format_string($register->name, true)."</a>";
+        // Show dimmed if the mod is hidden.
+        $tthref = "<a class=\"dimmed\" href=\"view.php?id=$register->coursemodule\">" .
+           format_string($register->name, true)."</a>";
     } else {
-        // Show normal if the mod is visible
-        $tt_href = "<a href=\"view.php?id=$register->coursemodule\">".format_string($register->name, true)."</a>";
+        // Show normal if the mod is visible.
+        $tthref = "<a href=\"view.php?id=$register->coursemodule\">".format_string($register->name, true)."</a>";
     }
     if ($usesections) {
-        $table->data[] = [$printsection, $tt_href, get_string('type_'.$register->type, 'attendanceregister'),  $aa];
+        $table->data[] = [$printsection, $tthref, get_string('type_'.$register->type, 'attendanceregister'),  $aa];
     } else {
-        $table->data[] = [$tt_href, get_string($register->type, 'attendanceregister'), $aa];
+        $table->data[] = [$tthref, get_string($register->type, 'attendanceregister'), $aa];
     }
 }
 echo "<br />";

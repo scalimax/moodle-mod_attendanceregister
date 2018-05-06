@@ -1,16 +1,28 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * attendanceregister_user_aggregates_summary.class.php
- * Class containing User's Aggregate in an AttendanceRegister (only for summary aggregates)
+ * Attendance register user aggregates summary.
  *
- * @package    mod
- * @subpackage attendanceregister
- * @version    $Id
- * @author     Lorenzo Nicora <fad@nicus.it>
- *
+ * @package mod_attendanceregister
+ * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <rdebleu@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Represents a User's Aggregate for a Register
@@ -20,8 +32,7 @@
  *
  * @author nicus
  */
-class attendanceregister_user_aggregates_summary
-{
+class attendanceregister_user_aggregates_summary {
 
     /**
      * Grandtotal of all sessions
@@ -42,5 +53,4 @@ class attendanceregister_user_aggregates_summary
      * Last calculated Session Logout
      */
     public $lastSassionLogout = 0;
-
 }
