@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once $CFG->dirroot . '/mod/attendanceregister/backup/moodle2/restore_attendanceregister_stepslib.php';
+require_once($CFG->dirroot . '/mod/attendanceregister/backup/moodle2/restore_attendanceregister_stepslib.php');
 
 /**
  * Restore activity task
@@ -40,15 +40,15 @@ class restore_attendanceregister_activity_task extends restore_activity_task {
      * Define (add) particular settings this activity can have
      */
     protected function define_my_settings() {
-        // No particular settings for this activity
+        // No particular settings for this activity.
     }
 
     /**
      * Define (add) particular steps this activity can have
      */
     protected function define_my_steps() {
-        $this->add_step(new restore_attendanceregister_activity_structure_step('attendanceregister_structure',
-            'attendanceregister.xml'));
+        $this->add_step(
+           new restore_attendanceregister_activity_structure_step('attendanceregister_structure', 'attendanceregister.xml'));
     }
 
     /**
@@ -79,7 +79,6 @@ class restore_attendanceregister_activity_task extends restore_activity_task {
             '/mod/attendanceregister/view.php?a=$1&userid=$2', ['attendanceregister', 'user']);
         return $rules;
     }
-
 
     /**
      * Define the restore log rules that will be applied
@@ -118,4 +117,4 @@ class restore_attendanceregister_activity_task extends restore_activity_task {
     static public function define_restore_log_rules_for_course() {
         return [];
     }
-}"
+}

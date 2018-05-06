@@ -311,7 +311,7 @@ function attendanceregister_cron() {
         } else {
             mtrace('Calculating new sessions of AttendanceRegister ID ' . $register->id . '...');
             $nupdates = attendanceregister_updates_all_users_sessions($register);
-            mtrace($nupdates . ' Users updated on Attendance Register ID ' . $register->id);      
+            mtrace($nupdates . ' Users updated on Attendance Register ID ' . $register->id);
         }
     }
     return true;
@@ -495,14 +495,14 @@ function attendanceregister_force_recalc_all($register) {
  * @return int number of updated users
  */
 function attendanceregister_updates_all_users_sessions($register) {
-    $users = attendanceregister__get_tracked_users_need_update($register); 
+    $users = attendanceregister__get_tracked_users_need_update($register);
     mtrace('Found ' . count($users) . ' Users whose AttendanceRegister Sessions need updating');
     $updatedcount = 0;
     foreach ($users as $user) {
         if (attendanceregister_update_user_sessions($register, $user->id)) {
             mtrace('Updated AttendanceRegister Sessions for User: ' . $user->id . ',' . $user->username);
             $updatedcount++;
-        }  else {
+        } else {
             mtrace('No actual update of AttendanceRegister Sessions for User: ' . $user->id . ',' .  $user->username);
         }
     }
@@ -731,7 +731,7 @@ function attendanceregister_add_to_log($register, $cmid, $action, $userid = null
 /**
  * Implements activity completion conditions
  * [feature #7]
- * 
+ *
  * @param  object $course Course
  * @param  object $cm     Course-module
  * @param  int    $userid User ID
@@ -739,13 +739,13 @@ function attendanceregister_add_to_log($register, $cmid, $action, $userid = null
  * @return bool True if completed, false if not, $type if conditions not set.
  */
 function attendanceregister_get_completion_state($course, $cm, $userid, $type) {
-    global $CFG, $DB;
-    if(!($register=$DB->get_record('attendanceregister', ['id' => $cm->instance]))) {
+    global $DB;
+    if (!($register = $DB->get_record('attendanceregister', ['id' => $cm->instance]))) {
         throw new Exception("Can't find attendanceregister {$cm->instance}");
     }
     if ($register->completiontotaldurationmins ) {
         return attendanceregister__calculateUserCompletion($register, $userid);
     } else {
         return $type;
-    }    
+    }
 }

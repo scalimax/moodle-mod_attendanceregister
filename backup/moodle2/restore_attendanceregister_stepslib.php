@@ -50,9 +50,9 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         $data = (object) $data;
         $oldid = $data->id;
         $data->course = $this->get_courseid();
-        
+
         if (!isset($data->completiontotaldurationmins)) {
-            $data->completiontotaldurationmins = 0; 
+            $data->completiontotaldurationmins = 0;
         }
 
         $newitemid = $DB->insert_record('attendanceregister', $data);
@@ -67,13 +67,13 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->addedbyuserid = $this->get_mappingid('user', $data->addedbyuserid);
 
-        // issue #36 and #41.
+        // Issue #36 and #41.
         // If 'online' field is defined (i.e. the backup is of an older version), rename it to 'onlinesess'.
         if (isset($data->online) ) {
             $data->onlinesess = $data->online;
             unset($data->online);
         }
-        
+
         // Lookup RefCourse by ShortName, if exists on destination.
         if ($data->refcourseshortname) {
             $refcourse = $DB->get_record('course', ['shortname' => $data->refcourseshortname], '*', IGNORE_MISSING);
@@ -83,7 +83,6 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         }
 
         $newitemid = $DB->insert_record('attendanceregister_session', $data);
-        // No need to save this mapping as far as nothing depend on it (child paths, file areas nor links decoder)
     }
 
     protected function apply_activity_instance($newitemid) {

@@ -177,7 +177,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
     public function data_preprocessing(&$defaultvalues) {
         parent::data_preprocessing($defaultvalues);
         $defaultvalues['completiontotaldurationenabled'] = !empty($defaultvalues['completiontotaldurationmins']) ? 1 : 0;
-        if(empty($defaultvalues['completiontotaldurationmins'])) {
+        if (empty($defaultvalues['completiontotaldurationmins'])) {
             $defaultvalues['completiontotaldurationmins'] = ATTENDANCEREGISTER_DEFAULT_COMPLETION_TOTAL_DURATION_MINS;
         }
     }

@@ -59,7 +59,7 @@ function xmldb_attendanceregister_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2012081004, 'attendanceregister');
     }
 
-    if ($oldversion < 2013020604 ) {
+    if ($oldversion < 2013020604) {
         // Issue #36 and #42.
         // Rename field attendanceregister_session.online to onlinessess.
         $table = new xmldb_table('attendanceregister_session');
@@ -76,6 +76,7 @@ function xmldb_attendanceregister_upgrade($oldversion) {
             // Rename field.
             $dbman->rename_field($table, $field, 'onlinesess');
         }
+        upgrade_mod_savepoint(true, 2013020604, 'attendanceregister');
     }
 
     if ($oldversion < 2013040605 ) {
