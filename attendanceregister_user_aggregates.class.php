@@ -4,10 +4,10 @@
  *
  * @package    mod
  * @subpackage attendanceregister
- * @version $Id
- * @author Lorenzo Nicora <fad@nicus.it>
+ * @version    $Id
+ * @author     Lorenzo Nicora <fad@nicus.it>
  *
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
@@ -21,7 +21,8 @@
  *
  * @author nicus
  */
-class attendanceregister_user_aggregates  {
+class attendanceregister_user_aggregates
+{
 
     /**
      * Grandtotal of all sessions
@@ -65,11 +66,13 @@ class attendanceregister_user_aggregates  {
 
     /**
      * Create an instance for a given register and user
-     * @param object $register
-     * @param int $userId
+     *
+     * @param object                           $register
+     * @param int                              $userId
      * @param attendanceregister_user_sessions $userSessions
      */
-    public function __construct($register, $userId, attendanceregister_user_sessions $userSessions) {
+    public function __construct($register, $userId, attendanceregister_user_sessions $userSessions) 
+    {
         global $DB;
 
         $this->userSessions = $userSessions;
@@ -81,12 +84,12 @@ class attendanceregister_user_aggregates  {
         $aggregates = attendanceregister__get_user_aggregates($register, $userId);
 
         foreach ($aggregates as $aggregate) {
-            if( $aggregate->grandtotal ) {
+            if($aggregate->grandtotal ) {
                 $this->grandTotalDuration = $aggregate->duration;
                 $this->lastSassionLogout = $aggregate->lastsessionlogout;
-            } else if ( $aggregate->total && $aggregate->onlinesess == 1 ) {
+            } else if ($aggregate->total && $aggregate->onlinesess == 1 ) {
                 $this->onlineTotalDuration = $aggregate->duration;
-            } else if ( $aggregate->total && $aggregate->onlinesess == 0 ) {
+            } else if ($aggregate->total && $aggregate->onlinesess == 0 ) {
                 $this->offlineTotalDuration = $aggregate->duration;
             } else if (!$aggregate->total && $aggregate->onlinesess == 0 && $aggregate->refcourse != null ) {
                 $this->perCourseOfflineSessions[ $aggregate->refcourse ] = $aggregate->duration;
@@ -102,9 +105,11 @@ class attendanceregister_user_aggregates  {
 
     /**
      * Build the html_table object to represent summary
+     *
      * @return html_table
      */
-    public function html_table() {
+    public function html_table() 
+    {
         global $OUTPUT, $doShowPrintableVersion;
 
         $table = new html_table();
@@ -175,13 +180,13 @@ class attendanceregister_user_aggregates  {
         $row->cells[] = $labelCell;
 
         $valueCell = new html_table_cell();
-        $valueCell->text = attendanceregister_format_duration( $this->onlineTotalDuration );
+        $valueCell->text = attendanceregister_format_duration($this->onlineTotalDuration);
         $row->cells[] = $valueCell;
 
         $table->data[] = $row;
 
         // Offline
-        if ( $this->offlineTotalDuration ) {
+        if ($this->offlineTotalDuration ) {
             // Separator
             $table->data[] = 'hr';
 
@@ -194,22 +199,22 @@ class attendanceregister_user_aggregates  {
                 $row->cells[] = $labelCell;
 
                 $courseCell = new html_table_cell();
-                if ( $refCourseId ) {
+                if ($refCourseId ) {
                     $courseCell->text = $this->userSessions->trackedCourses->courses[ $refCourseId ]->fullname;
                 } else {
-                   $courseCell->text = get_string('not_specified', 'attendanceregister');
+                    $courseCell->text = get_string('not_specified', 'attendanceregister');
                 }
                 $row->cells[] = $courseCell;
 
                 $valueCell = new html_table_cell();
-                $valueCell->text = attendanceregister_format_duration( $courseOfflineSessions );
+                $valueCell->text = attendanceregister_format_duration($courseOfflineSessions);
                 $row->cells[] = $valueCell;
 
                 $table->data[] = $row;
             }
 
             // Offline no-RefCourse (if any)
-            if ( $this->noCourseOfflineSessions ) {
+            if ($this->noCourseOfflineSessions ) {
                 $row = new html_table_row();
                  $row->attributes['class'] .= '';
                 $labelCell = new html_table_cell();
@@ -221,7 +226,7 @@ class attendanceregister_user_aggregates  {
                 $row->cells[] = $courseCell;
 
                 $valueCell = new html_table_cell();
-                $valueCell->text = attendanceregister_format_duration( $this->noCourseOfflineSessions );
+                $valueCell->text = attendanceregister_format_duration($this->noCourseOfflineSessions);
                 $row->cells[] = $valueCell;
 
                 $table->data[] = $row;
@@ -236,7 +241,7 @@ class attendanceregister_user_aggregates  {
             $row->cells[] = $labelCell;
 
             $valueCell = new html_table_cell();
-            $valueCell->text = attendanceregister_format_duration( $this->offlineTotalDuration );
+            $valueCell->text = attendanceregister_format_duration($this->offlineTotalDuration);
             $row->cells[] = $valueCell;
 
             $table->data[] = $row;
@@ -251,7 +256,7 @@ class attendanceregister_user_aggregates  {
             $row->cells[] = $labelCell;
 
             $valueCell = new html_table_cell();
-            $valueCell->text = attendanceregister_format_duration( $this->grandTotalDuration );
+            $valueCell->text = attendanceregister_format_duration($this->grandTotalDuration);
             $row->cells[] = $valueCell;
 
             $table->data[] = $row;

@@ -6,10 +6,10 @@
  *
  * @package    mod
  * @subpackage attendanceregister
- * @version $Id
- * @author Lorenzo Nicora <fad@nicus.it>
+ * @version    $Id
+ * @author     Lorenzo Nicora <fad@nicus.it>
  *
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
@@ -20,7 +20,8 @@
  *
  * @author nicus
  */
-class attendanceregister_user_aggregates_summary {
+class attendanceregister_user_aggregates_summary
+{
 
     /**
      * Grandtotal of all sessions

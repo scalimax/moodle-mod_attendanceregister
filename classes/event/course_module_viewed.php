@@ -17,9 +17,9 @@
 /**
  * The mod_page course module viewed event.
  *
- * @package    mod_attendanceregister
+ * @package   mod_attendanceregister
  * @copyright  
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_attendanceregister\event;
@@ -29,17 +29,19 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * The mod_attendanceregister course module viewed event class.
  *
- * @package    mod_attendanceregister
- * @since      Moodle 2.6
- * @copyright  2013 
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @since     Moodle 2.6
+ * @copyright 2013 
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_module_viewed extends \core\event\course_module_viewed {
+class course_module_viewed extends \core\event\course_module_viewed
+{
 
     /**
      * Init method.
      */
-    protected function init() {
+    protected function init() 
+    {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'attendanceregister';

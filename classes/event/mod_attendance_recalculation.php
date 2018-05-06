@@ -17,9 +17,9 @@
 /**
  * The mod_attendance_recalculation event.
  *
- * @package    mod_attendanceregister
- * @copyright  2015 CINECA
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2015 CINECA
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_attendanceregister\event;
 
@@ -28,15 +28,17 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * The mod_attendance_recalculation event.
  *
- * @package    mod_attendanceregister
- * @copyright  2015 CINECA
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2015 CINECA
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_attendance_recalculation extends \core\event\base {
+class mod_attendance_recalculation extends \core\event\base
+{
     /**
      * Init method.
      */
-    protected function init() {
+    protected function init() 
+    {
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_OTHER;
         $this->data['objecttable'] = 'attendanceregister';

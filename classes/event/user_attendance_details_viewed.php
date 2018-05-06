@@ -17,9 +17,9 @@
 /**
  * The user_attendance_details_viewed event.
  *
- * @package    mod_attendanceregister
- * @copyright  2015 CINECA
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2015 CINECA
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_attendanceregister\event;
 
@@ -28,16 +28,18 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * The user_attendance_details_viewed event.
  *
- * @package    mod_attendanceregister
- * @copyright  2015 CINECA
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2015 CINECA
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class user_attendance_details_viewed extends \core\event\base {
+class user_attendance_details_viewed extends \core\event\base
+{
 
     /**
      * Init method.
      */
-    protected function init() {
+    protected function init() 
+    {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'attendanceregister';

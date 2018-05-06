@@ -5,19 +5,21 @@
  *
  * @package    mod
  * @subpackage attendanceregister
- * @author Lorenzo Nicora <fad@nicus.it>
+ * @author     Lorenzo Nicora <fad@nicus.it>
  *
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
 }
 
-require_once ($CFG->dirroot . '/course/moodleform_mod.php');
+require_once $CFG->dirroot . '/course/moodleform_mod.php';
 
-class mod_attendanceregister_mod_form extends moodleform_mod {
+class mod_attendanceregister_mod_form extends moodleform_mod
+{
 
-    function definition() {
+    function definition() 
+    {
         global $CFG, $COURSE, $DB;
         $mform = $this->_form;
 
@@ -39,10 +41,10 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         $this->standard_intro_elements();
 
         // Register Type
-        $register_types = attendanceregister_get_register_types( );
+        $register_types = attendanceregister_get_register_types();
         $mform->addElement('select', 'type', get_string('registertype', 'attendanceregister'), $register_types);
         $mform->addHelpButton('type', 'registertype', 'attendanceregister');
-        $mform->setDefault('type', ATTENDANCEREGISTER_TYPE_COURSE );
+        $mform->setDefault('type', ATTENDANCEREGISTER_TYPE_COURSE);
 
 
         // Session timeout
@@ -58,7 +60,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
             );
         $mform->addElement('select', 'sessiontimeout', get_string('sessiontimeout', 'attendanceregister'), $session_duration_choices);
         $mform->addHelpButton('sessiontimeout', 'sessiontimeout', 'attendanceregister');
-        $mform->setDefault('sessiontimeout', ATTENDANCEREGISTER_DEFAULT_SESSION_TIMEOUT );
+        $mform->setDefault('sessiontimeout', ATTENDANCEREGISTER_DEFAULT_SESSION_TIMEOUT);
 
 
         // Offline Session self-certification
@@ -67,7 +69,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         // Enable self-certifications
         $mform->addElement('checkbox', 'offlinesessions', get_string('enable_offline_sessions_certification', 'attendanceregister'));
         $mform->addHelpButton('offlinesessions', 'offline_sessions_certification', 'attendanceregister');
-        $mform->setDefault('offlinesessions', false );
+        $mform->setDefault('offlinesessions', false);
 
         // Number of day before a self-certification will be accepted
         $day = ' '.get_string('day');
@@ -92,38 +94,38 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         );
         $mform->addElement('select', 'dayscertificable', get_string('dayscertificable', 'attendanceregister'), $dayscertificable);
         $mform->addHelpButton('dayscertificable', 'dayscertificable', 'attendanceregister');
-        $mform->setDefault('dayscertificable', ATTENDANCEREGISTER_DEFAULT_DAYS_CERTIFICABLE );
+        $mform->setDefault('dayscertificable', ATTENDANCEREGISTER_DEFAULT_DAYS_CERTIFICABLE);
         $mform->disabledIf('dayscertificable', 'offlinesessions');
 
 
         // Offline Sessions self-cert comments
         $mform->addElement('checkbox', 'offlinecomments', get_string('offlinecomments', 'attendanceregister'));
         $mform->addHelpButton('offlinecomments', 'offlinecomments', 'attendanceregister');
-        $mform->setDefault('offlinecomments', false );
+        $mform->setDefault('offlinecomments', false);
         $mform->disabledIf('offlinecomments', 'offlinesessions');
 
         // Mandatory Offline Sessions self-cert comments
         $mform->addElement('checkbox', 'mandatoryofflinecomm', get_string('mandatory_offline_sessions_comments', 'attendanceregister'));
-        $mform->setDefault('mandatoryofflinecomm', false );
+        $mform->setDefault('mandatoryofflinecomm', false);
         $mform->disabledIf('mandatoryofflinecomm', 'offlinesessions');
         $mform->disabledIf('mandatoryofflinecomm', 'offlinecomments');
 
         // Offline Certifiations allow to specify Course
         $mform->addElement('checkbox', 'offlinespecifycourse', get_string('offlinespecifycourse', 'attendanceregister'));
         $mform->addHelpButton('offlinespecifycourse', 'offlinespecifycourse', 'attendanceregister');
-        $mform->setDefault('offlinespecifycourse', false );
+        $mform->setDefault('offlinespecifycourse', false);
         $mform->disabledIf('offlinespecifycourse', 'offlinesessions');
 
         // Mandatory Offline Certification Course specification
         $mform->addElement('checkbox', 'mandofflspeccourse', get_string('mandatoryofflinespecifycourse', 'attendanceregister'));
         $mform->addHelpButton('mandofflspeccourse', 'mandatoryofflinespecifycourse', 'attendanceregister');
-        $mform->setDefault('mandofflspeccourse', false );
+        $mform->setDefault('mandofflspeccourse', false);
         $mform->disabledIf('mandofflspeccourse', 'offlinesessions');
         $mform->disabledIf('mandofflspeccourse', 'offlinespecifycourse');
 
 
         // Standard controls
-        $this->standard_coursemodule_elements( );
+        $this->standard_coursemodule_elements();
 
         // Buttons
         $this->add_action_buttons();
@@ -133,14 +135,15 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
      * Add completion rules
      * [feature #7]
      */
-    function add_completion_rules() {
+    function add_completion_rules() 
+    {
         $mform =& $this->_form;
         $group=array();
-        $group[] =& $mform->createElement('checkbox', 'completiontotaldurationenabled', ' ', get_string('completiontotalduration','attendanceregister'));
+        $group[] =& $mform->createElement('checkbox', 'completiontotaldurationenabled', ' ', get_string('completiontotalduration', 'attendanceregister'));
         $group[] =& $mform->createElement('text', 'completiontotaldurationmins', ' ', array('size'=>4));
-        $mform->setType('completiontotaldurationmins',PARAM_INT);
-        $mform->addGroup($group, 'completiondurationgroup', get_string('completiondurationgroup','attendanceregister'), array(' '), false);
-        $mform->disabledIf('completiontotaldurationmins','completiontotaldurationenabled','notchecked');
+        $mform->setType('completiontotaldurationmins', PARAM_INT);
+        $mform->addGroup($group, 'completiondurationgroup', get_string('completiondurationgroup', 'attendanceregister'), array(' '), false);
+        $mform->disabledIf('completiontotaldurationmins', 'completiontotaldurationenabled', 'notchecked');
         
         // ... when more tracked values will be supported, add fields here
         
@@ -151,7 +154,8 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
      * Validate completion rules
      * [feature #7]
      */
-    function completion_rule_enabled($data) {
+    function completion_rule_enabled($data) 
+    {
         // ... when more tracked values will be supported, put checking here 
         return( (!empty($data['completiontotaldurationenabled']) && $data['completiontotaldurationmins'] != 0) );
     }
@@ -160,7 +164,8 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
      * Extend get_data() to support completion checkbox behaviour
      * [feature #7]
      */
-    function  get_data(){
+    function get_data()
+    {
         $data = parent::get_data();
         if (!$data) {
             return false;
@@ -170,7 +175,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         if (!empty($data->completionunlocked)) {
             $autocompletion = !empty($data->completion) && $data->completion==COMPLETION_TRACKING_AUTOMATIC;
             if (empty($data->completiontotaldurationenabled) || !$autocompletion) {
-               $data->completiontotaldurationmins = 0;
+                $data->completiontotaldurationmins = 0;
             }
         }
         
@@ -182,7 +187,8 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
     /**
      * Prepare completion checkboxes when form is displayed
      */
-    function data_preprocessing(&$default_values){    
+    function data_preprocessing(&$default_values)
+    {    
         parent::data_preprocessing($default_values);
         
         // Set up the completion checkboxes which aren't part of standard data.

@@ -17,13 +17,13 @@
 /**
  * The course_module_instance_list_viewed event.
  *
- * @package    mod_attendanceregister
- * @copyright  2015 CINECA
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2015 CINECA
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once("../../config.php");
-require_once("lib.php");
+require_once "../../config.php";
+require_once "lib.php";
 
 $id = required_param('id', PARAM_INT);   // course
 
@@ -65,7 +65,7 @@ if ($usesections) {
     $table->align = ["center", "left", "left", "center"];
 } else {
     $table->head  = [$strregister, get_string('registertype', 'attendanceregister'),
-        get_string("tracked_users",'attendanceregister')];
+        get_string("tracked_users", 'attendanceregister')];
     $table->align = ["left", "left", "center"];
 }
 
@@ -93,15 +93,15 @@ foreach ($registers as $register) {
     // Calculate the href
     if (!$register->visible) {
         // Show dimmed if the mod is hidden
-        $tt_href = "<a class=\"dimmed\" href=\"view.php?id=$register->coursemodule\">" . format_string($register->name,true)."</a>";
+        $tt_href = "<a class=\"dimmed\" href=\"view.php?id=$register->coursemodule\">" . format_string($register->name, true)."</a>";
     } else {
         // Show normal if the mod is visible
-        $tt_href = "<a href=\"view.php?id=$register->coursemodule\">".format_string($register->name,true)."</a>";
+        $tt_href = "<a href=\"view.php?id=$register->coursemodule\">".format_string($register->name, true)."</a>";
     }
     if ($usesections) {
-        $table->data[] = [$printsection, $tt_href, get_string('type_'.$register->type,'attendanceregister'),  $aa];
+        $table->data[] = [$printsection, $tt_href, get_string('type_'.$register->type, 'attendanceregister'),  $aa];
     } else {
-        $table->data[] = [$tt_href, get_string( $register->type,'attendanceregister'), $aa];
+        $table->data[] = [$tt_href, get_string($register->type, 'attendanceregister'), $aa];
     }
 }
 echo "<br />";

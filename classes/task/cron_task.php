@@ -17,34 +17,37 @@
 /**
  * A scheduled task for attendanceregister cron.
  *
- * @package    mod_attendanceregister
- * @copyright  2016 CINECA
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2016 CINECA
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_attendanceregister\task;
 
 /**
  * A scheduled task for attendanceregister cron.
  *
- * @package    mod_attendanceregister
- * @copyright  2016 CINECA
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2016 CINECA
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cron_task extends \core\task\scheduled_task {
+class cron_task extends \core\task\scheduled_task
+{
     /**
      * Get a descriptive name for this task (shown to admins).
      *
      * @return string
      */
-    public function get_name() {
+    public function get_name() 
+    {
         return get_string('crontask', 'mod_attendanceregister');
     }
     /**
      * Run attendanceregister cron.
      */
-    public function execute() {
+    public function execute() 
+    {
         global $CFG;
-        require_once($CFG->dirroot . '/mod/attendanceregister/lib.php');
+        include_once $CFG->dirroot . '/mod/attendanceregister/lib.php';
         attendanceregister_cron();
     }
 }

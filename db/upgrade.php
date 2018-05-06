@@ -17,11 +17,12 @@
 /**
  * The attendance upgrade.
  *
- * @package    mod_attendanceregister
- * @copyright  2015 CINECA
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2015 CINECA
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function xmldb_attendanceregister_upgrade($oldversion) {
+function xmldb_attendanceregister_upgrade($oldversion) 
+{
     global $DB;
 
     $dbman = $DB->get_manager();
@@ -31,7 +32,7 @@ function xmldb_attendanceregister_upgrade($oldversion) {
 
         // Define field addedbyuser to be added to attendanceregister_session.
         $table = new xmldb_table('attendanceregister_session');
-        $field = new xmldb_field('addedbyuserid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED );
+        $field = new xmldb_field('addedbyuserid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED);
 
         // Launch add field addedbyuserid.
         if (!$dbman->field_exists($table, $field)) {
@@ -41,7 +42,7 @@ function xmldb_attendanceregister_upgrade($oldversion) {
         // Add attendanceregister.pendingrecalc column.
         // Define field addedbyuser to be added to attendanceregister.
         $table = new xmldb_table('attendanceregister');
-        $field = new xmldb_field('pendingrecalc', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1 );
+        $field = new xmldb_field('pendingrecalc', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1);
 
         // Launch add field addedbyuserid.
         if (!$dbman->field_exists($table, $field)) {
@@ -50,30 +51,30 @@ function xmldb_attendanceregister_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2012081004, 'attendanceregister');
     }
 
-    if ( $oldversion < 2013020604 ) {
+    if ($oldversion < 2013020604 ) {
         // Issue #36 and #42.
         // Rename field attendanceregister_session.online to onlinessess.
         $table = new xmldb_table('attendanceregister_session');
-        $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1 );
-        if ( $dbman->field_exists($table, $field) ) {
+        $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1);
+        if ($dbman->field_exists($table, $field) ) {
             // Rename field
             $dbman->rename_field($table, $field, 'onlinesess');
         }
         
         // Rename field attendanceregister_aggregate.online to onlinessess.
         $table = new xmldb_table('attendanceregister_aggregate');
-        $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, null, null, 1  );
-        if ( $dbman->field_exists($table, $field) ) {
+        $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, null, null, 1);
+        if ($dbman->field_exists($table, $field) ) {
             // Rename field
             $dbman->rename_field($table, $field, 'onlinesess');
         }        
     }
     
-    if ( $oldversion < 2013040605 ) {
+    if ($oldversion < 2013040605 ) {
         // Feature #7.
         // Add field attendanceregister.completiontotaldurationmins.
         $table = new xmldb_table('attendanceregister');
-        $field = new xmldb_field('completiontotaldurationmins', XMLDB_TYPE_INTEGER, 10 , XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 0 );
+        $field = new xmldb_field('completiontotaldurationmins', XMLDB_TYPE_INTEGER, 10, XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 0);
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }

@@ -1,13 +1,13 @@
 .attendanceregister_offlinesessionform {
-    background-color: #F0F0F0;
+    background-color: #f0f0f0;
 }
 
 .attendanceregister_courselist .lastrow {
-    border-bottom: 1px solid #C0C0C0;
+    border-bottom: 1px solid #c0c0c0;
 }
 
 .attendanceregister_userlist .lastrow {
-    border-bottom: 1px solid #C0C0C0;
+    border-bottom: 1px solid #c0c0c0;
 }
 
 .attendanceregister_usersummary .attendanceregister_onlinesubtotal {
@@ -16,17 +16,17 @@
 
 .attendanceregister_usersummary .attendanceregister_offlinesubtotal {
     font-weight: bold;
-    border-top: 1px solid #C0C0C0;
+    border-top: 1px solid #c0c0c0;
 }
 
 .attendanceregister_usersummary .attendanceregister_grandtotal {
     font-weight: bold;
-    background-color: #F0F0F0;
-    border-top: 1px double #C0C0C0;
+    background-color: #f0f0f0;
+    border-top: 1px double #c0c0c0;
 }
 
 .attendanceregister_usersummary .lastrow {
-    border-bottom: 1px solid #C0C0C0;
+    border-bottom: 1px solid #c0c0c0;
 }
 
 .attendanceregister_sessionlist .offline_label {
@@ -34,7 +34,7 @@
 }
 
 .attendanceregister_sessionlist .lastrow {
-    border-bottom: 1px solid #C0C0C0;
+    border-bottom: 1px solid #c0c0c0;
 }
 
 .attendanceregister_sessionlist .addedbyother {
@@ -44,13 +44,13 @@
 .attendanceregister_sessionlist .attendanceregister_evenrow,
 .attendanceregister_courselist .attendanceregister_evenrow,
 .attendanceregister_userlist .attendanceregister_evenrow {
-    background-color: #F0F0F0;
+    background-color: #f0f0f0;
 }
 
 .attendanceregister_sessionlist .attendanceregister_oddrow,
 .attendanceregister_courselist .attendanceregister_oddrow,
 .attendanceregister_userlist .attendanceregister_oddrow {
-    background-color: #FEFEFE;
+    background-color: #fefefe;
 }
 
 .attendanceregister_buttonbar {
@@ -69,7 +69,8 @@
 }
 
 @media print {
-    .attendanceregister_buttonbar, .action-icon {
+    .attendanceregister_buttonbar,
+    .action-icon {
         display: none;
     }
 
@@ -77,14 +78,14 @@
     table.attendanceregister_courselist,
     table.attendanceregister_userlist,
     table.attendanceregister_usersummary {
-        border: 1px solid #C0C0C0;
+        border: 1px solid #c0c0c0;
     }
 
     table.attendanceregister_sessionlist tr,
     table.attendanceregister_courselist tr,
     table.attendanceregister_userlist tr,
     table.attendanceregister_usersummary tr {
-        border-bottom: 1px solid #C0C0C0;
+        border-bottom: 1px solid #c0c0c0;
         page-break-inside: avoid;
     }
 

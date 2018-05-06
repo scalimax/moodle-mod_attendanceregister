@@ -14,9 +14,11 @@
 /**
  * Structure step to restore one choice activity
  */
-class restore_attendanceregister_activity_structure_step extends restore_activity_structure_step {
+class restore_attendanceregister_activity_structure_step extends restore_activity_structure_step
+{
 
-    protected function define_structure() {
+    protected function define_structure() 
+    {
 
         $paths = array();
         $userinfo = $this->get_setting_value('userinfo');
@@ -30,7 +32,8 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         return $this->prepare_activity_structure($paths);
     }
 
-    protected function process_attendanceregister($data) {
+    protected function process_attendanceregister($data) 
+    {
         global $DB;
 
         $data = (object) $data;
@@ -38,8 +41,8 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         $data->course = $this->get_courseid();
         
         // [feature #7] Set completiontotaldurationmins = 0 if not defined in backup
-        if ( !isset($data->completiontotaldurationmins)) {
-           $data->completiontotaldurationmins = 0; 
+        if (!isset($data->completiontotaldurationmins)) {
+            $data->completiontotaldurationmins = 0; 
         }
 
         // Insert the attendanceregister record
@@ -49,7 +52,8 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         $this->apply_activity_instance($newitemid);
     }
 
-    protected function process_attendanceregister_session($data) {
+    protected function process_attendanceregister_session($data) 
+    {
         global $DB;
 
         $data = (object) $data;
@@ -61,7 +65,7 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
 
         // issue #36 and #41
         // If 'online' field is defined (i.e. the backup is of an older version), rename it to 'onlinesess'
-        if ( isset($data->online) ) {
+        if (isset($data->online) ) {
             $data->onlinesess = $data->online;
             unset($data->online);
         }
@@ -80,12 +84,14 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         // (child paths, file areas nor links decoder)
     }
 
-    protected function apply_activity_instance($newitemid) {
+    protected function apply_activity_instance($newitemid) 
+    {
         // Call parent setup to adjust the restore register instance
         parent::apply_activity_instance($newitemid);
     }
 
-    protected function after_execute() {
+    protected function after_execute() 
+    {
         global $DB;
         // Add attendanceregister related files, no need to match by itemname (just internally handled context)
         $this->add_related_files('mod_attendanceregister', 'intro', null);
