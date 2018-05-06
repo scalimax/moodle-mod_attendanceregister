@@ -268,8 +268,7 @@ function attendanceregister_get_post_actions() {
  * @return array status array
  */
 function attendanceregister_reset_userdata($data) {
-    // XXX capire se necessario cancellare i dati dalle tabelle sessions, aggregates etc.
-    return []);
+    return [];
 }
 
 /**

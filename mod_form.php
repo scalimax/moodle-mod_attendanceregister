@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once $CFG->dirroot . '/course/moodleform_mod.php';
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
 /**
  * Attendance form
@@ -37,8 +37,8 @@ require_once $CFG->dirroot . '/course/moodleform_mod.php';
  */
 class mod_attendanceregister_mod_form extends moodleform_mod {
 
-    function definition() {
-        global $CFG, $COURSE, $DB;
+    public function definition() {
+        global $CFG;
         $mform = $this->_form;
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -52,31 +52,32 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
         $this->standard_intro_elements();
-        $register_types = attendanceregister_get_register_types();
-        $mform->addElement('select', 'type', get_string('registertype', 'attendanceregister'), $register_types);
+        $registertypes = attendanceregister_get_register_types();
+        $mform->addElement('select', 'type', get_string('registertype', 'attendanceregister'), $registertypes);
         $mform->addHelpButton('type', 'registertype', 'attendanceregister');
         $mform->setDefault('type', ATTENDANCEREGISTER_TYPE_COURSE);
-        $minutes = ' '.get_string('minutes');
-        $session_duration_choices = array (
+        $minutes = ' ' . get_string('minutes');
+        $sessionchoices = [
                 5  => (' 5' . $minutes),
                 10 => ('10' . $minutes),
                 15 => ('15' . $minutes),
                 20 => ('20' . $minutes),
                 30 => ('30' . $minutes),
                 45 => ('45' . $minutes),
-                60 => ('60' . $minutes),
-            );
-        $mform->addElement('select', 'sessiontimeout', get_string('sessiontimeout', 'attendanceregister'), $session_duration_choices);
+                60 => ('60' . $minutes)];
+        $mform->addElement('select', 'sessiontimeout',
+            get_string('sessiontimeout', 'attendanceregister'), $sessionchoices);
         $mform->addHelpButton('sessiontimeout', 'sessiontimeout', 'attendanceregister');
         $mform->setDefault('sessiontimeout', ATTENDANCEREGISTER_DEFAULT_SESSION_TIMEOUT);
 
         $mform->addElement('header', '', get_string('offline_sessions_certification', 'attendanceregister'));
 
-        $mform->addElement('checkbox', 'offlinesessions', get_string('enable_offline_sessions_certification', 'attendanceregister'));
+        $mform->addElement('checkbox', 'offlinesessions',
+          get_string('enable_offline_sessions_certification', 'attendanceregister'));
         $mform->addHelpButton('offlinesessions', 'offline_sessions_certification', 'attendanceregister');
         $mform->setDefault('offlinesessions', false);
 
-        // Number of day before a self-certification will be accepted
+        // Number of day before a self-certification will be accepted.
         $day = ' '.get_string('day');
         $days = ' '.get_string('days');
         $dayscertificable = [
@@ -106,7 +107,8 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         $mform->setDefault('offlinecomments', false);
         $mform->disabledIf('offlinecomments', 'offlinesessions');
 
-        $mform->addElement('checkbox', 'mandatoryofflinecomm', get_string('mandatory_offline_sessions_comments', 'attendanceregister'));
+        $mform->addElement('checkbox', 'mandatoryofflinecomm',
+            get_string('mandatory_offline_sessions_comments', 'attendanceregister'));
         $mform->setDefault('mandatoryofflinecomm', false);
         $mform->disabledIf('mandatoryofflinecomm', 'offlinesessions');
         $mform->disabledIf('mandatoryofflinecomm', 'offlinecomments');
@@ -130,52 +132,53 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
      * Add completion rules
      * [feature #7]
      */
-    function add_completion_rules() {
+    public function add_completion_rules() {
         $mform =& $this->_form;
         $group = [];
         $group[] =& $mform->createElement('checkbox', 'completiontotaldurationenabled', ' ',
             get_string('completiontotalduration', 'attendanceregister'));
         $group[] =& $mform->createElement('text', 'completiontotaldurationmins', ' ', ['size' => 4]);
         $mform->setType('completiontotaldurationmins', PARAM_INT);
-        $mform->addGroup($group, 'completiondurationgroup', get_string('completiondurationgroup', 'attendanceregister'), [' '], false);
+        $mform->addGroup($group, 'completiondurationgroup', get_string('completiondurationgroup', 'attendanceregister'),
+            [' '], false);
         $mform->disabledIf('completiontotaldurationmins', 'completiontotaldurationenabled', 'notchecked');
         return ['completiondurationgroup'];
     }
-    
+
     /**
      * Validate completion rules
      * [feature #7]
      */
-    function completion_rule_enabled($data) {
-        return( (!empty($data['completiontotaldurationenabled']) && $data['completiontotaldurationmins'] != 0) );
+    public function completion_rule_enabled($data) {
+        return((!empty($data['completiontotaldurationenabled']) && $data['completiontotaldurationmins'] != 0));
     }
-    
+
     /**
      * Extend get_data() to support completion checkbox behaviour
      * [feature #7]
      */
-    function get_data() {
+    public function get_data() {
         $data = parent::get_data();
         if (!$data) {
             return false;
         }
         if (!empty($data->completionunlocked)) {
-            $autocompletion = !empty($data->completion) && $data->completion==COMPLETION_TRACKING_AUTOMATIC;
+            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
             if (empty($data->completiontotaldurationenabled) || !$autocompletion) {
                 $data->completiontotaldurationmins = 0;
             }
         }
         return $data;
     }
-    
+
     /**
      * Prepare completion checkboxes when form is displayed
      */
-    function data_preprocessing(&$default_values) {    
-        parent::data_preprocessing($default_values);
-        $default_values['completiontotaldurationenabled'] = !empty($default_values['completiontotaldurationmins']) ? 1 : 0;
-        if(empty($default_values['completiontotaldurationmins'])) {
-            $default_values['completiontotaldurationmins'] = ATTENDANCEREGISTER_DEFAULT_COMPLETION_TOTAL_DURATION_MINS;
-        }       
+    public function data_preprocessing(&$defaultvalues) {
+        parent::data_preprocessing($defaultvalues);
+        $defaultvalues['completiontotaldurationenabled'] = !empty($defaultvalues['completiontotaldurationmins']) ? 1 : 0;
+        if(empty($defaultvalues['completiontotaldurationmins'])) {
+            $defaultvalues['completiontotaldurationmins'] = ATTENDANCEREGISTER_DEFAULT_COMPLETION_TOTAL_DURATION_MINS;
+        }
     }
 }

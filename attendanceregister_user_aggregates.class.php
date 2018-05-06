@@ -1,28 +1,39 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * attendanceregister_user_aggregates.class.php - Class containing User's Aggregate  in an AttendanceRegister
+ * User aggregates
  *
- * @package    mod
- * @subpackage attendanceregister
- * @version    $Id
- * @author     Lorenzo Nicora <fad@nicus.it>
- *
+ * @package mod_attendanceregister
+ * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <rdebleu@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
- * Represents a User's Aggregate for a Register
- * Holds in a single Object all attendanceregister_aggregate records
- * for a User and a Register instance.
+ * User aggregates
  *
- * Implements method to return html_table to render it.
- *
- * Note that class constructor execute a db query for retrieving User's aggregates
- *
- * @author nicus
+ * @package mod_attendanceregister
+ * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class attendanceregister_user_aggregates
-{
+class attendanceregister_user_aggregates {
 
     /**
      * Grandtotal of all sessions
@@ -57,7 +68,7 @@ class attendanceregister_user_aggregates
     /**
      * Ref to attendanceregister_user_sessions instance
      */
-    private $userSessions;
+    private $sessions;
 
     /**
      * User instance
@@ -68,21 +79,14 @@ class attendanceregister_user_aggregates
      * Create an instance for a given register and user
      *
      * @param object                           $register
-     * @param int                              $userId
-     * @param attendanceregister_user_sessions $userSessions
+     * @param int                              $userid
+     * @param attendanceregister_user_sessions $sessions
      */
-    public function __construct($register, $userId, attendanceregister_user_sessions $userSessions) 
-    {
+    public function __construct($register, $userid, attendanceregister_user_sessions $sessions) {
         global $DB;
-
-        $this->userSessions = $userSessions;
-
-        // Retrieve User instance
-        $this->user = attendanceregister__getUser($userId);
-
-        // Retrieve attendanceregister_aggregate records
-        $aggregates = attendanceregister__get_user_aggregates($register, $userId);
-
+        $this->userSessions = $sessions;
+        $this->user = attendanceregister__getUser($userid);
+        $aggregates = attendanceregister__get_user_aggregates($register, $userid);
         foreach ($aggregates as $aggregate) {
             if($aggregate->grandtotal ) {
                 $this->grandTotalDuration = $aggregate->duration;
@@ -97,7 +101,7 @@ class attendanceregister_user_aggregates
                 $this->noCourseOfflineSessions = $aggregate->duration;
             } else {
                 // Should not happen!
-                debugging('Unconsistent Aggregate: '.print_r($aggregate, true), DEBUG_DEVELOPER);
+                debugging('Unconsistent Aggregate: ' . print_r($aggregate, true), DEBUG_DEVELOPER);
             }
         }
     }
@@ -108,10 +112,7 @@ class attendanceregister_user_aggregates
      *
      * @return html_table
      */
-    public function html_table() 
-    {
-        global $OUTPUT, $doShowPrintableVersion;
-
+    public function html_table() {
         $table = new html_table();
         $table->attributes['class'] .= ' attendanceregister_usersummary table table-condensed table-bordered table-striped table-hover';
 
@@ -123,47 +124,47 @@ class attendanceregister_user_aggregates
 
         // Previous Site-wise Login (is Moodle's _last_ login)
         $row = new html_table_row();
-        $labelCell = new html_table_cell();
-        $labelCell->colspan = 2;
-        $labelCell->text = get_string('prev_site_login', 'attendanceregister');
-        $row->cells[] = $labelCell;
-        $valueCell = new html_table_cell();
-        $valueCell->text = attendanceregister__formatDateTime($this->user->lastlogin);
-        $row->cells[] = $valueCell;
+        $label = new html_table_cell();
+        $label->colspan = 2;
+        $label->text = get_string('prev_site_login', 'attendanceregister');
+        $row->cells[] = $label;
+        $cvalue = new html_table_cell();
+        $cvalue->text = attendanceregister__formatDateTime($this->user->lastlogin);
+        $row->cells[] = $cvalue;
         $table->data[] = $row;
 
 
         // Last Site-wise Login (is Moodle's _current_ login)
         $row = new html_table_row();
-        $labelCell = new html_table_cell();
-        $labelCell->colspan = 2;
-        $labelCell->text = get_string('last_site_login', 'attendanceregister');
-        $row->cells[] = $labelCell;
-        $valueCell = new html_table_cell();
-        $valueCell->text = attendanceregister__formatDateTime($this->user->currentlogin);
-        $row->cells[] = $valueCell;
+        $label = new html_table_cell();
+        $label->colspan = 2;
+        $label->text = get_string('last_site_login', 'attendanceregister');
+        $row->cells[] = $label;
+        $cvalue = new html_table_cell();
+        $cvalue->text = attendanceregister__formatDateTime($this->user->currentlogin);
+        $row->cells[] = $cvalue;
         $table->data[] = $row;
 
         // Last Site-wise access
         $row = new html_table_row();
-        $labelCell = new html_table_cell();
-        $labelCell->colspan = 2;
-        $labelCell->text = get_string('last_site_access', 'attendanceregister');
-        $row->cells[] = $labelCell;
-        $valueCell = new html_table_cell();
-        $valueCell->text = attendanceregister__formatDateTime($this->user->lastaccess);
-        $row->cells[] = $valueCell;
+        $label = new html_table_cell();
+        $label->colspan = 2;
+        $label->text = get_string('last_site_access', 'attendanceregister');
+        $row->cells[] = $label;
+        $cvalue = new html_table_cell();
+        $cvalue->text = attendanceregister__formatDateTime($this->user->lastaccess);
+        $row->cells[] = $cvalue;
         $table->data[] = $row;
 
         // Last Calculated Session Logout
         $row = new html_table_row();
-        $labelCell = new html_table_cell();
-        $labelCell->colspan = 2;
-        $labelCell->text = get_string('last_calc_online_session_logout', 'attendanceregister');
-        $row->cells[] = $labelCell;
-        $valueCell = new html_table_cell();
-        $valueCell->text = attendanceregister__formatDateTime($this->lastSassionLogout);
-        $row->cells[] = $valueCell;
+        $label = new html_table_cell();
+        $label->colspan = 2;
+        $label->text = get_string('last_calc_online_session_logout', 'attendanceregister');
+        $row->cells[] = $label;
+        $cvalue = new html_table_cell();
+        $cvalue->text = attendanceregister__formatDateTime($this->lastSassionLogout);
+        $row->cells[] = $cvalue;
         $table->data[] = $row;
 
 
@@ -174,29 +175,26 @@ class attendanceregister_user_aggregates
         // Online Total
         $row = new html_table_row();
         $row->attributes['class'] .= ' attendanceregister_onlinesubtotal success';
-        $labelCell = new html_table_cell();
-        $labelCell->colspan = 2;
-        $labelCell->text = get_string('online_sessions_total_duration', 'attendanceregister');
-        $row->cells[] = $labelCell;
+        $label = new html_table_cell();
+        $label->colspan = 2;
+        $label->text = get_string('online_sessions_total_duration', 'attendanceregister');
+        $row->cells[] = $label;
 
-        $valueCell = new html_table_cell();
-        $valueCell->text = attendanceregister_format_duration($this->onlineTotalDuration);
-        $row->cells[] = $valueCell;
+        $cvalue = new html_table_cell();
+        $cvalue->text = attendanceregister_format_duration($this->onlineTotalDuration);
+        $row->cells[] = $cvalue;
 
         $table->data[] = $row;
 
-        // Offline
         if ($this->offlineTotalDuration ) {
-            // Separator
             $table->data[] = 'hr';
 
-            // Offline per RefCourse (if any)
             foreach($this->perCourseOfflineSessions as $refCourseId => $courseOfflineSessions  ) {
                 $row = new html_table_row();
                 $row->attributes['class'] .= '';
-                $labelCell = new html_table_cell();
-                $labelCell->text = get_string('offline_refcourse_duration', 'attendanceregister');
-                $row->cells[] = $labelCell;
+                $label = new html_table_cell();
+                $label->text = get_string('offline_refcourse_duration', 'attendanceregister');
+                $row->cells[] = $label;
 
                 $courseCell = new html_table_cell();
                 if ($refCourseId ) {
@@ -206,62 +204,56 @@ class attendanceregister_user_aggregates
                 }
                 $row->cells[] = $courseCell;
 
-                $valueCell = new html_table_cell();
-                $valueCell->text = attendanceregister_format_duration($courseOfflineSessions);
-                $row->cells[] = $valueCell;
+                $cvalue = new html_table_cell();
+                $cvalue->text = attendanceregister_format_duration($courseOfflineSessions);
+                $row->cells[] = $cvalue;
 
                 $table->data[] = $row;
             }
 
-            // Offline no-RefCourse (if any)
             if ($this->noCourseOfflineSessions ) {
                 $row = new html_table_row();
                  $row->attributes['class'] .= '';
-                $labelCell = new html_table_cell();
-                $labelCell->text = get_string('offline_refcourse_duration', 'attendanceregister');
-                $row->cells[] = $labelCell;
+                $label = new html_table_cell();
+                $label->text = get_string('offline_refcourse_duration', 'attendanceregister');
+                $row->cells[] = $label;
 
                 $courseCell = new html_table_cell();
                 $courseCell->text = get_string('no_refcourse', 'attendanceregister');
                 $row->cells[] = $courseCell;
 
-                $valueCell = new html_table_cell();
-                $valueCell->text = attendanceregister_format_duration($this->noCourseOfflineSessions);
-                $row->cells[] = $valueCell;
+                $cvalue = new html_table_cell();
+                $cvalue->text = attendanceregister_format_duration($this->noCourseOfflineSessions);
+                $row->cells[] = $cvalue;
 
                 $table->data[] = $row;
             }
 
-            // Offline Total (if any)
             $row = new html_table_row();
             $row->attributes['class'] .= ' attendanceregister_offlinesubtotal';
-            $labelCell = new html_table_cell();
-            $labelCell->colspan = 2;
-            $labelCell->text = get_string('offline_sessions_total_duration', 'attendanceregister');
-            $row->cells[] = $labelCell;
+            $label = new html_table_cell();
+            $label->colspan = 2;
+            $label->text = get_string('offline_sessions_total_duration', 'attendanceregister');
+            $row->cells[] = $label;
 
-            $valueCell = new html_table_cell();
-            $valueCell->text = attendanceregister_format_duration($this->offlineTotalDuration);
-            $row->cells[] = $valueCell;
-
+            $cvalue = new html_table_cell();
+            $cvalue->text = attendanceregister_format_duration($this->offlineTotalDuration);
+            $row->cells[] = $cvalue;
             $table->data[] = $row;
 
-
-            // GrandTotal
             $row = new html_table_row();
             $row->attributes['class'] .= ' attendanceregister_grandtotal active';
-            $labelCell = new html_table_cell();
-            $labelCell->colspan = 2;
-            $labelCell->text = get_string('sessions_grandtotal_duration', 'attendanceregister');
-            $row->cells[] = $labelCell;
+            $label = new html_table_cell();
+            $label->colspan = 2;
+            $label->text = get_string('sessions_grandtotal_duration', 'attendanceregister');
+            $row->cells[] = $label;
 
-            $valueCell = new html_table_cell();
-            $valueCell->text = attendanceregister_format_duration($this->grandTotalDuration);
-            $row->cells[] = $valueCell;
+            $cvalue = new html_table_cell();
+            $cvalue->text = attendanceregister_format_duration($this->grandTotalDuration);
+            $row->cells[] = $cvalue;
 
             $table->data[] = $row;
         }
-
         return $table;
     }
 }

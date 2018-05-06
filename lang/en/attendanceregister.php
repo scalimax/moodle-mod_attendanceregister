@@ -206,7 +206,6 @@ $string['overlaps_old_sessions'] = 'Overlaps another Session, either online or o
 $string['overlaps_current_session'] = 'Overlaps the current online Session (since current Login)';
 $string['unreasoneable_session'] = 'Are you sure? This is more than {$a} hours long!';
 $string['logout_is_future'] = 'May not be in the future';
-
 $string['tracked_users'] = 'Tracked Users';
 
 // Activity Completion tracking.
