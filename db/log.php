@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -27,8 +26,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$logs = [['module'=>'attendanceregister', 'action'=>'recalculate', 'mtable'=>'attendanceregister', 'field'=>'name'],
-         ['module'=>'attendanceregister', 'action'=>'add offline', 'mtable'=>'attendanceregister', 'field'=>'name'],
-         ['module'=>'attendanceregister', 'action'=>'delete offline', 'mtable'=>'attendanceregister', 'field'=>'name'],
-         ['module'=>'attendanceregister', 'action'=>'view', 'mtable'=>'attendanceregister', 'field'=>'name'],
-         ['module'=>'attendanceregister', 'action'=>'view all', 'mtable'=>'attendanceregister', 'field'=>'name']];
+$logs = [['module' => 'attendanceregister', 'action' => 'recalculate', 'mtable' => 'attendanceregister', 'field' => 'name'],
+         ['module' => 'attendanceregister', 'action' => 'add offline', 'mtable' => 'attendanceregister', 'field' => 'name'],
+         ['module' => 'attendanceregister', 'action' => 'delete offline', 'mtable' => 'attendanceregister', 'field' => 'name'],
+         ['module' => 'attendanceregister', 'action' => 'view', 'mtable' => 'attendanceregister', 'field' => 'name'],
+         ['module' => 'attendanceregister', 'action' => 'view all', 'mtable' => 'attendanceregister', 'field' => 'name']];

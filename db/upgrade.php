@@ -1,48 +1,49 @@
 <?php
-
-// This file keeps track of upgrades to
-// the choice module
+// This file is part of Moodle - http://moodle.org/
 //
-// Sometimes, changes between versions involve
-// alterations to database structures and other
-// major things that may break installations.
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
-// The upgrade function in this file will attempt
-// to perform all the necessary actions to upgrade
-// your older installation to the current version.
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
-// If there's something it cannot do itself, it
-// will tell you what you need to do.
-//
-// The commands in here will all be database-neutral,
-// using the methods of database_manager class
-//
-// Please do not forget to use upgrade_set_timeout()
-// before any action that may take longer time to finish.
-
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+ 
+/**
+ * The attendance upgrade.
+ *
+ * @package    mod_attendanceregister
+ * @copyright  2015 CINECA
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 function xmldb_attendanceregister_upgrade($oldversion) {
-    global $CFG, $DB;
+    global $DB;
 
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2012081004) {
-        // Add attendanceregister_session.addedbyuserid column
+        // Add attendanceregister_session.addedbyuserid column.
 
-        // Define field addedbyuser to be added to attendanceregister_session
+        // Define field addedbyuser to be added to attendanceregister_session.
         $table = new xmldb_table('attendanceregister_session');
         $field = new xmldb_field('addedbyuserid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED );
 
-        // Launch add field addedbyuserid
+        // Launch add field addedbyuserid.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        // Add attendanceregister.pendingrecalc column
-        // Define field addedbyuser to be added to attendanceregister
+        // Add attendanceregister.pendingrecalc column.
+        // Define field addedbyuser to be added to attendanceregister.
         $table = new xmldb_table('attendanceregister');
         $field = new xmldb_field('pendingrecalc', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1 );
 
-        // Launch add field addedbyuserid
+        // Launch add field addedbyuserid.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -50,8 +51,8 @@ function xmldb_attendanceregister_upgrade($oldversion) {
     }
 
     if ( $oldversion < 2013020604 ) {
-        // Issue #36 and #42
-        // Rename field attendanceregister_session.online to onlinessess
+        // Issue #36 and #42.
+        // Rename field attendanceregister_session.online to onlinessess.
         $table = new xmldb_table('attendanceregister_session');
         $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1 );
         if ( $dbman->field_exists($table, $field) ) {
@@ -59,7 +60,7 @@ function xmldb_attendanceregister_upgrade($oldversion) {
             $dbman->rename_field($table, $field, 'onlinesess');
         }
         
-        // Rename field attendanceregister_aggregate.online to onlinessess
+        // Rename field attendanceregister_aggregate.online to onlinessess.
         $table = new xmldb_table('attendanceregister_aggregate');
         $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, null, null, 1  );
         if ( $dbman->field_exists($table, $field) ) {
@@ -69,8 +70,8 @@ function xmldb_attendanceregister_upgrade($oldversion) {
     }
     
     if ( $oldversion < 2013040605 ) {
-        // Feature #7
-        // Add field attendanceregister.completiontotaldurationmins
+        // Feature #7.
+        // Add field attendanceregister.completiontotaldurationmins.
         $table = new xmldb_table('attendanceregister');
         $field = new xmldb_field('completiontotaldurationmins', XMLDB_TYPE_INTEGER, 10 , XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 0 );
         if (!$dbman->field_exists($table, $field)) {
