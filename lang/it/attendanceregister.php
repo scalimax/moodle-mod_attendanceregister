@@ -41,7 +41,6 @@ $string['modulename_help'] = 'Il Registro Presenze calcola il tempo passato dal 
 $string['pluginname'] = 'Registro Presenze';
 $string['pluginadministration'] = 'Amministrazione Registro Presenze';
 
-// Mod instance form
 $string['registername'] = 'Nome Registro Presenze';
 $string['registertype'] = 'Modalità di Tracciamento Presenza';
 $string['registertype_help'] = 'La Modalità di Tracciamento Presenza determina
@@ -92,7 +91,6 @@ $string['maynotaddselfcertforother'] = 'Non ti è permesso inserire Sessioni off
 $string['onlyrealusercanaddofflinesessions'] = 'Solo gli utenti _reali_ possono inserire Sessioni offline (no "Login come...")';
 $string['onlyrealusercandeleteofflinesessions'] = 'Solo gli utenti _reali_ possono cancellare Sessioni offline (no "Login come...")';
 
-// Capabilities
 $string['attendanceregister:tracked'] = 'L\'attività dell\'Utente viene tracciata dal Registro Presenze';
 $string['attendanceregister:viewownregister'] = 'Può visualizzare il proprio Registro Presenze';
 $string['attendanceregister:viewotherregisters'] = 'Può visualizzare i Registri Presenze di altri';
@@ -103,7 +101,6 @@ $string['attendanceregister:deleteotherofflinesess'] = 'Può cancellare Sessioni
 $string['attendanceregister:recalcsessions'] = 'Può forzare il Ricalcolo delle Sessioni online del Registro Presenze';
 $string['attendanceregister:addinstance'] = "Aggiungere Registri Presenze";
 
-// Buttons & Links labels
 $string['force_recalc_user_session'] = 'Forza Ricalcolo Sessioni online di questo Utente';
 $string['force_recalc_all_session'] = 'Forza Ricalcolo delle Sessioni online di tutti gli Utenti';
 $string['force_recalc_all_session_now'] = 'Ricalcola Sessioni, ora';
@@ -144,7 +141,6 @@ $string['force_recalc_all_session_help'] = 'Cancella e ricalcola tutte le Sessio
     Il ricalcolo programmato (consigliabile per corsi molto affollati)
     viene eseguito automaticamente alla prossima esecuzione del Cron.';
 
-// Table columns
 $string['count'] = '#';
 $string['start'] = 'Inizio';
 $string['end'] = 'Fine';
@@ -190,15 +186,14 @@ $string['tracked_courses'] = 'Corsi tracciati';
 $string['duration_hh_mm'] = '{$a->hours} h, {$a->minutes} min';
 $string['duration_mm'] = '{$a->minutes} min';
 
-// Offline Session form
 $string['select_a_course_if_any'] = '- Selezionare un Corso (opz.) -';
 $string['select_a_course'] = '- Selezionare un Corso -';
 $string['insert_new_offline_session'] = 'Inserisci una nuova Sessione Offline';
 $string['insert_new_offline_session_for_another_user'] = 'Inserisci una nuova Sessione Offline per {$a->fullname}';
-//$string['offline_session_form_explain'] = 'You may enter an offline session of work.<br/>
-//    The offline work time will be added to the online sessions automatically recorded by the Attendance Register.<br/>
-//    The new session may not overlap with any existing work session, either online or offline, nor it may be more than {$a->dayscertificable} days ago.<br/>
-//    You may delete any offline session later.';
+$string['offline_session_form_explain'] = 'You may enter an offline session of work.<br/>
+    The offline work time will be added to the online sessions automatically recorded by the Attendance Register.<br/>
+    The new session may not overlap with any existing work session, either online or offline, nor it may be more than {$a->dayscertificable} days ago.<br/>
+    You may delete any offline session later.';
 $string['offline_session_start'] = 'Inizio';
 $string['offline_session_start_help'] = 'Selezionare Data e Ora di Inizio e di Fine della Sessione offline.<br />
     Non può sovrapporsi con nessuna Sessione precedente, sia online che offline, né con la Sessione online attuale (dall\'ultimo Login)';
@@ -208,7 +203,6 @@ $string['offline_session_comments_help'] = 'Descrivi il lavoro svolto o l\'argom
 $string['offline_session_ref_course'] = 'Corso di riferimento';
 $string['offline_session_ref_course_help'] = 'Seleziona un Corso al quale si riferisce il lavoro svolto offline';
 
-// Offline Sessions validations
 $string['login_must_be_before_logout'] = 'L\'Inizio della Sessione non può essere dopo la Fine';
 $string['dayscertificable_exceeded'] = 'Non può risalire a più di {$a} giorni fa';
 $string['overlaps_old_sessions'] = 'Non può sovrapporsi con altre sessioni registrate, né online né offline';
@@ -218,6 +212,5 @@ $string['logout_is_future'] = 'Non può essere futura';
 
 $string['tracked_users'] = 'Utenti tracciati';
 
-// Activity Completion tracking
 $string['completiontotalduration'] = 'Tempo minimo [minuti]';
 $string['completiondurationgroup'] = 'Tempo totale tracciato';

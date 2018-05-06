@@ -35,8 +35,7 @@ $string['pluginname'] = 'Attendance Register';
 $string['pluginadministration'] = 'Attendance Register Administration';
 $string['privacy:metadata'] = 'The attendance registry module plugin stores personal data.';
 
-
-// Mod instance form
+// Mod instance form.
 $string['registername'] = 'Attendance Register name';
 $string['registertype'] = 'Attendance Tracking Mode';
 $string['registertype_help'] = 'Attendance Tracking Modes determines Courses tracked by the Register (i.e. where user\'s activity will be monitored):
@@ -85,7 +84,7 @@ $string['maynotaddselfcertforother'] = 'You cannot add an offline sessions for o
 $string['onlyrealusercanaddofflinesessions'] = 'Only real user may add an offline session';
 $string['onlyrealusercandeleteofflinesessions'] = 'Only real user may delete offline sessions';
 
-// Capabilities
+// Capabilities.
 $string['attendanceregister:tracked'] = "Is tracked by Attendance Register";
 $string['attendanceregister:viewownregister'] = "Can view his/her own Attendance Registers";
 $string['attendanceregister:viewotherregisters'] = "Can view other people's Attendance Registers";
@@ -96,7 +95,7 @@ $string['attendanceregister:deleteotherofflinesess'] = "Can delete Offline Sessi
 $string['attendanceregister:recalcsessions'] = "Can force Attendance Register's Sessions recalculations";
 $string['attendanceregister:addinstance'] = "Add new attendance register";
 
-// Buttons & Links labels
+// Buttons & Links labels.
 $string['force_recalc_user_session'] = 'Recalculate this User\'s online Sessions';
 $string['force_recalc_all_session'] = 'Recalculate all online Sessions';
 $string['force_recalc_all_session_now'] = 'Recalculate Sessions, now';
@@ -137,7 +136,7 @@ $string['force_recalc_all_session_help'] = 'Delete and recalculate all online Se
     Scheduled execution could be more efficient for very crowded courses.';
 
 
-// Table columns
+// Table columns.
 $string['count'] = '#';
 $string['start'] = 'Start';
 $string['end'] = 'End';
@@ -150,7 +149,6 @@ $string['click_for_detail'] = 'click for details';
 $string['total_time_online'] = 'Total Time Online';
 $string['total_time_offline'] = 'Total Time Offline';
 $string['grandtotal_time'] = 'Total Time';
-
 $string['online'] = 'Online';
 $string['offline'] = 'Offline';
 $string['not_specified'] = '(not specified)';
@@ -183,15 +181,15 @@ $string['tracked_courses'] = 'Tracked Courses';
 $string['duration_hh_mm'] = '{$a->hours} h, {$a->minutes} min';
 $string['duration_mm'] = '{$a->minutes} min';
 
-// Offline Session form
+// Offline Session form.
 $string['select_a_course_if_any'] = '- Select a Course, if any -';
 $string['select_a_course'] = '- Select a Course -';
 $string['insert_new_offline_session'] = 'Insert a new offline work session';
 $string['insert_new_offline_session_for_another_user'] = 'Insert a new offline work session for {$a->fullname}';
-//$string['offline_session_form_explain'] = 'You may enter an offline session of work.<br/>
-//    The offline work time will be added to the online sessions automatically recorded by the Attendance Register.<br/>
-//    The new session may not overlap with any existing work session, either online or offline, nor it may be more than {$a->dayscertificable} days ago.<br/>
-//    You may delete any offline session later.';
+$string['offline_session_form_explain'] = 'You may enter an offline session of work.<br/>
+    The offline work time will be added to the online sessions automatically recorded by the Attendance Register.<br/>
+    The new session may not overlap with any existing work session, either online or offline, nor it may be more than {$a->dayscertificable} days ago.<br/>
+    You may delete any offline session later.';
 $string['offline_session_start'] = 'Start';
 $string['offline_session_start_help'] = 'Select Start and End Date &amp; Time of the offline work Session you want to submit.<br />
     The Offline Session may not overlap any previously recorded session, either online or offline, nor the current online session.';
@@ -201,7 +199,7 @@ $string['offline_session_comments_help'] = 'Describe the topic of offline work s
 $string['offline_session_ref_course'] = 'Ref.Course';
 $string['offline_session_ref_course_help'] = 'Select the Course the offline work has been done for or the Course covering the work topic.';
 
-// Offline Sessions validations
+// Offline Sessions validations.
 $string['login_must_be_before_logout'] = 'Start after end!';
 $string['dayscertificable_exceeded'] = 'Must be no more than {$a} days ago';
 $string['overlaps_old_sessions'] = 'Overlaps another Session, either online or offline';
@@ -211,6 +209,6 @@ $string['logout_is_future'] = 'May not be in the future';
 
 $string['tracked_users'] = 'Tracked Users';
 
-// Activity Completion tracking
+// Activity Completion tracking.
 $string['completiontotalduration'] = 'Require time [minutes]';
 $string['completiondurationgroup'] = 'Total tracked time';

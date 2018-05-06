@@ -13,7 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 /**
  * The attendance upgrade.
  *
@@ -21,8 +21,16 @@
  * @copyright 2015 CINECA
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function xmldb_attendanceregister_upgrade($oldversion) 
-{
+defined('MOODLE_INTERNAL') || die;
+
+/**
+ * The attendance upgrade.
+ *
+ * @package   mod_attendanceregister
+ * @copyright 2015 CINECA
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+function xmldb_attendanceregister_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
@@ -57,19 +65,19 @@ function xmldb_attendanceregister_upgrade($oldversion)
         $table = new xmldb_table('attendanceregister_session');
         $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1);
         if ($dbman->field_exists($table, $field) ) {
-            // Rename field
+            // Rename field.
             $dbman->rename_field($table, $field, 'onlinesess');
         }
-        
+
         // Rename field attendanceregister_aggregate.online to onlinessess.
         $table = new xmldb_table('attendanceregister_aggregate');
         $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, null, null, 1);
         if ($dbman->field_exists($table, $field) ) {
-            // Rename field
+            // Rename field.
             $dbman->rename_field($table, $field, 'onlinesess');
-        }        
+        }
     }
-    
+
     if ($oldversion < 2013040605 ) {
         // Feature #7.
         // Add field attendanceregister.completiontotaldurationmins.
@@ -79,6 +87,6 @@ function xmldb_attendanceregister_upgrade($oldversion)
             $dbman->add_field($table, $field);
         }
         upgrade_mod_savepoint(true, 2013040605, 'attendanceregister');
-    }    
+    }
     return true;
 }
