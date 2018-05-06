@@ -38,10 +38,10 @@ class user_attendance_deloffline extends \core\event\base {
 
     /**
      * Init method.
-     */    
+     */
     protected function init() {
         $this->data['crud'] = 'd';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'attendanceregister';
-    } 
+    }
 }

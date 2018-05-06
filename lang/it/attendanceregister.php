@@ -69,7 +69,7 @@ $string['offline_sessions_certification_help'] = 'Abilità la possibilità per l
     Questa registrazione è utile se - per ragioni "burocratiche" - il Partecipante
     deve mantenere un registro di tutte le attività di studio.<br />
     Notare che solo gli Utenti reali possono inserire Sessioni Offline: Amministratori
-    in "Login come..." un altro utente NON POSSONO farlo!' ;
+    in "Login come..." un altro utente NON POSSONO farlo!';
 $string['dayscertificable'] = 'Massimo numero di giorni precedenti auto-certificabile';
 $string['dayscertificable_help'] = 'Limita quanti giorni indietro può essere retrodatata
     un\'auto-certificazione di Sessione Offline';

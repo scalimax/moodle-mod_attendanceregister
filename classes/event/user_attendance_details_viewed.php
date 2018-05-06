@@ -43,5 +43,5 @@ class user_attendance_details_viewed extends \core\event\base {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'attendanceregister';
-    } 
+    }
 }

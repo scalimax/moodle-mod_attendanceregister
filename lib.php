@@ -148,8 +148,8 @@ function attendanceregister_update_instance($register) {
     if (!isset($register->mandofflspeccourse)) {
         $register->mandofflspeccourse = 0;
     }
-    $oldRegister = $DB->get_record('attendanceregister', ['id' => $register->id]);
-    if ($oldRegister &&  $oldRegister->sessiontimeout != $register->sessiontimeout ) {
+    $old = $DB->get_record('attendanceregister', ['id' => $register->id]);
+    if ($old &&  $old->sessiontimeout != $register->sessiontimeout ) {
         $register->pendingrecalc = true;
     }
     return $DB->update_record('attendanceregister', $register);
@@ -193,31 +193,31 @@ function attendanceregister_delete_instance($id) {
  */
 function attendanceregister_supports($feature) {
     switch ($feature) {
-    case FEATURE_GROUPS: 
-        return false;
-    case FEATURE_GROUPINGS: 
-        return false;
-    case FEATURE_GROUPMEMBERSONLY: 
-        return false;
-    case FEATURE_MOD_INTRO: 
-        return true;
-    case FEATURE_COMPLETION_TRACKS_VIEWS: 
-        return true;
-    case FEATURE_COMPLETION_HAS_RULES: 
-        return true;
-    case FEATURE_GRADE_HAS_GRADE: 
-        return false;
-    case FEATURE_GRADE_OUTCOMES: 
-        return false;
-    case FEATURE_RATE: 
-        return false;
-    case FEATURE_BACKUP_MOODLE2: 
-        return true;
-    case FEATURE_SHOW_DESCRIPTION: 
-        return false;
+        case FEATURE_GROUPS:
+            return false;
+        case FEATURE_GROUPINGS:
+            return false;
+        case FEATURE_GROUPMEMBERSONLY:
+            return false;
+        case FEATURE_MOD_INTRO:
+            return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
+        case FEATURE_GRADE_HAS_GRADE:
+            return false;
+        case FEATURE_GRADE_OUTCOMES:
+            return false;
+        case FEATURE_RATE:
+            return false;
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
+        case FEATURE_SHOW_DESCRIPTION:
+            return false;
 
-    default: 
-        return null;
+        default:
+            return null;
     }
 }
 
@@ -294,12 +294,10 @@ function attendanceregister_get_extra_capabilities() {
 function attendanceregister_cron() {
     global $DB;
 
-    // Remove orphaned Locks [issue #1]
-    $orphanIfTakenOnBefore = time() - ATTENDANCEREGISTER_ORPHANED_LOCKS_DELAY_SECONDS;
-    $locks = $DB->delete_records_select('attendanceregister_lock', 'takenon < :takenon', [ 'takenon' => $orphanIfTakenOnBefore]);
-
+    // Remove orphaned Locks [issue #1].
+    $orphanbefore = time() - ATTENDANCEREGISTER_ORPHANED_LOCKS_DELAY_SECONDS;
+    $locks = $DB->delete_records_select('attendanceregister_lock', 'takenon < :takenon', [ 'takenon' => $orphanbefore]);
     $registers = $DB->get_records('attendanceregister');
-
     foreach ($registers as $register) {
         $course = get_course($register->course);
         if (!$course->visible) {
@@ -313,11 +311,10 @@ function attendanceregister_cron() {
              attendanceregister_set_pending_recalc($register, false);
         } else {
             mtrace('Calculating new sessions of AttendanceRegister ID ' . $register->id . '...');
-            $nOfUpdates = attendanceregister_updates_all_users_sessions($register);
-            mtrace($nOfUpdates . ' Users updated on Attendance Register ID ' . $register->id);            
+            $nupdates = attendanceregister_updates_all_users_sessions($register);
+            mtrace($nupdates . ' Users updated on Attendance Register ID ' . $register->id);      
         }
     }
-    
     return true;
 }
 
@@ -340,30 +337,30 @@ function attendanceregister_extend_settings_navigation(settings_navigation $sett
 
     $register = $PAGE->activityrecord;
     $params = $PAGE->url->params();
-    $userCapabilities = new attendanceregister_user_capablities($PAGE->cm->context);
+    $usercaps = new attendanceregister_user_capablities($PAGE->cm->context);
 
     // Add Recalc menu entries to Settings Menu.
-    if ($userCapabilities->canRecalcSessions ) {
-        if (!empty($params['userid']) || !$userCapabilities->canViewOtherRegisters ) {
+    if ($usercaps->canRecalcSessions ) {
+        if (!empty($params['userid']) || !$usercaps->canViewOtherRegisters ) {
             // Single User view.
             $userid = clean_param($params['userid'], PARAM_INT);
-            $linkUrl = attendanceregister_makeUrl($register, $userid, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
-            $menuEntryStr = get_string('force_recalc_user_session', 'attendanceregister');
-            $attendanceregisternode->add($menuEntryStr, $linkUrl, navigation_node::TYPE_SETTING);
+            $linkurl = attendanceregister_makeUrl($register, $userid, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
+            $menuentry = get_string('force_recalc_user_session', 'attendanceregister');
+            $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
 
         } else {
             // All Users view.
-            $linkUrl = attendanceregister_makeUrl($register, null, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
-            $menuEntryStr = get_string('force_recalc_all_session_now', 'attendanceregister');
+            $linkurl = attendanceregister_makeUrl($register, null, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
+            $menuentry = get_string('force_recalc_all_session_now', 'attendanceregister');
             if ($register->pendingrecalc ) {
-                $menuEntryStr  = $menuEntryStr . ' ' . get_string('recalc_already_pending', 'attendanceregister');
-                $attendanceregisternode->add($menuEntryStr, $linkUrl, navigation_node::TYPE_SETTING);
+                $menuentry .= ' ' . get_string('recalc_already_pending', 'attendanceregister');
+                $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
             } else {
-                $attendanceregisternode->add($menuEntryStr, $linkUrl, navigation_node::TYPE_SETTING);
+                $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
                 // Also adds Schedule Entry.
-                $linkUrl2 = attendanceregister_makeUrl($register, null, null, ATTENDANCEREGISTER_ACTION_SCHEDULERECALC);
-                $menuEntryStr2 =  get_string('schedule_reclalc_all_session', 'attendanceregister');
-                $attendanceregisternode->add($menuEntryStr2, $linkUrl2, navigation_node::TYPE_SETTING);
+                $linkurl = attendanceregister_makeUrl($register, null, null, ATTENDANCEREGISTER_ACTION_SCHEDULERECALC);
+                $menuentry = get_string('schedule_reclalc_all_session', 'attendanceregister');
+                $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
             }
         }
     }
@@ -377,9 +374,9 @@ function attendanceregister_extend_settings_navigation(settings_navigation $sett
  */
 function attendanceregister_get_register_types() {
     return [
-        ATTENDANCEREGISTER_TYPE_COURSE => get_string('type_'.ATTENDANCEREGISTER_TYPE_COURSE, 'attendanceregister'),
-        ATTENDANCEREGISTER_TYPE_CATEGORY => get_string('type_'.ATTENDANCEREGISTER_TYPE_CATEGORY, 'attendanceregister'),
-        ATTENDANCEREGISTER_TYPE_METAENROL => get_string('type_'.ATTENDANCEREGISTER_TYPE_METAENROL, 'attendanceregister'),
+        ATTENDANCEREGISTER_TYPE_COURSE => get_string('type_' . ATTENDANCEREGISTER_TYPE_COURSE, 'attendanceregister'),
+        ATTENDANCEREGISTER_TYPE_CATEGORY => get_string('type_' . ATTENDANCEREGISTER_TYPE_CATEGORY, 'attendanceregister'),
+        ATTENDANCEREGISTER_TYPE_METAENROL => get_string('type_' . ATTENDANCEREGISTER_TYPE_METAENROL, 'attendanceregister'),
         ATTENDANCEREGISTER_TYPE_GLOBAL => 'global'];
 }
 
@@ -429,17 +426,16 @@ function attendanceregister_update_user_sessions($register, $userid, progress_ba
 
     // Check if Update is needed.
     if ($recalculation) {
-        $lastSessionLogout = 0;
-        $needUpdate = true;
+        $lastlogout = 0;
+        $needupdate = true;
     } else {
-        $lastSessionLogout = 0;
-        $needUpdate = attendanceregister_check_user_sessions_need_update($register, $userid, $lastSessionLogout);
+        $lastlogout = 0;
+        $needupdate = attendanceregister_check_user_sessions_need_update($register, $userid, $lastlogout);
     }
 
-    if ($needUpdate) {
+    if ($needupdate) {
         // Calculate all new sesssions after that timestamp.
-        $newSessionsFound = ( attendanceregister__build_new_user_sessions($register, $userid, $lastSessionLogout, $progressbar) > 0);
-        return $newSessionsFound;
+        return (attendanceregister__build_new_user_sessions($register, $userid, $lastlogout, $progressbar) > 0);
     } else {
         attendanceregister__finalize_progress_bar($progressbar, get_string('online_session_updated', 'attendanceregister'));
         return false;
@@ -470,8 +466,8 @@ function attendanceregister_delete_all_users_online_sessions_and_aggregates($reg
 function attendanceregister_force_recalc_user_sessions($register, $userid, progress_bar $progressbar = null, $deleteold = true) {
     attendanceregister__attain_lock($register, $userid);
     if ($deleteold) {
-        $oldestLogEntryTime = attendanceregister__get_user_oldest_log_entry_timestamp($userid);
-        attendanceregister__delete_user_online_sessions($register, $userid, $oldestLogEntryTime);
+        $oldesttime = attendanceregister__get_user_oldest_log_entry_timestamp($userid);
+        attendanceregister__delete_user_online_sessions($register, $userid, $oldesttime);
         attendanceregister__delete_user_aggregates($register, $userid);
     }
     attendanceregister_update_user_sessions($register, $userid, $progressbar, true);
@@ -502,16 +498,16 @@ function attendanceregister_force_recalc_all($register) {
 function attendanceregister_updates_all_users_sessions($register) {
     $users = attendanceregister__get_tracked_users_need_update($register); 
     mtrace('Found ' . count($users) . ' Users whose AttendanceRegister Sessions need updating');
-    $updatedUsersCount = 0;
+    $updatedcount = 0;
     foreach ($users as $user) {
         if (attendanceregister_update_user_sessions($register, $user->id)) {
             mtrace('Updated AttendanceRegister Sessions for User: ' . $user->id . ',' . $user->username);
-            $updatedUsersCount++;
+            $updatedcount++;
         }  else {
             mtrace('No actual update of AttendanceRegister Sessions for User: ' . $user->id . ',' .  $user->username);
         }
     }
-    return $updatedUsersCount;
+    return $updatedcount;
 }
 
 /**
@@ -609,11 +605,9 @@ function attendanceregister_format_duration($duration, $default = null) {
     $dur->hours = floor($duration / 3600);
     $dur->minutes = floor(($duration % 3600 ) / 60);
     if ($dur->hours) {
-        $durStr = get_string('duration_hh_mm', 'attendanceregister', $dur);
-    } else {
-        $durStr = get_string('duration_mm', 'attendanceregister', $dur);
+        return get_string('duration_hh_mm', 'attendanceregister', $dur);
     }
-    return $durStr;
+    return get_string('duration_mm', 'attendanceregister', $dur);
 }
 
 /**
