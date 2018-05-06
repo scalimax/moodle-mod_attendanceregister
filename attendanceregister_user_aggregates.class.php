@@ -51,7 +51,7 @@ class attendanceregister_user_aggregates {
     public $offlineTotalDuration = 0;
 
     /**
-     * Offline sessions, per RefCourseId
+     * Offline sessions, per refcourseid
      */
     public $perCourseOfflineSessions = array();
 
@@ -115,14 +115,9 @@ class attendanceregister_user_aggregates {
     public function html_table() {
         $table = new html_table();
         $table->attributes['class'] .= ' attendanceregister_usersummary table table-condensed table-bordered table-striped table-hover';
-
-
-        // Header
         $table->head[] =  get_string('user_sessions_summary', 'attendanceregister');
         $table->headspan = array(3);
 
-
-        // Previous Site-wise Login (is Moodle's _last_ login)
         $row = new html_table_row();
         $label = new html_table_cell();
         $label->colspan = 2;
@@ -133,8 +128,6 @@ class attendanceregister_user_aggregates {
         $row->cells[] = $cvalue;
         $table->data[] = $row;
 
-
-        // Last Site-wise Login (is Moodle's _current_ login)
         $row = new html_table_row();
         $label = new html_table_cell();
         $label->colspan = 2;
@@ -145,7 +138,6 @@ class attendanceregister_user_aggregates {
         $row->cells[] = $cvalue;
         $table->data[] = $row;
 
-        // Last Site-wise access
         $row = new html_table_row();
         $label = new html_table_cell();
         $label->colspan = 2;
@@ -156,7 +148,6 @@ class attendanceregister_user_aggregates {
         $row->cells[] = $cvalue;
         $table->data[] = $row;
 
-        // Last Calculated Session Logout
         $row = new html_table_row();
         $label = new html_table_cell();
         $label->colspan = 2;
@@ -167,12 +158,8 @@ class attendanceregister_user_aggregates {
         $row->cells[] = $cvalue;
         $table->data[] = $row;
 
-
-        // Separator
         $table->data[] = 'hr';
 
-
-        // Online Total
         $row = new html_table_row();
         $row->attributes['class'] .= ' attendanceregister_onlinesubtotal success';
         $label = new html_table_cell();
@@ -189,23 +176,23 @@ class attendanceregister_user_aggregates {
         if ($this->offlineTotalDuration ) {
             $table->data[] = 'hr';
 
-            foreach($this->perCourseOfflineSessions as $refCourseId => $courseOfflineSessions  ) {
+            foreach ($this->perCourseOfflineSessions as $refcourseid => $courseofflinesessions) {
                 $row = new html_table_row();
                 $row->attributes['class'] .= '';
                 $label = new html_table_cell();
                 $label->text = get_string('offline_refcourse_duration', 'attendanceregister');
                 $row->cells[] = $label;
 
-                $courseCell = new html_table_cell();
-                if ($refCourseId ) {
-                    $courseCell->text = $this->userSessions->trackedCourses->courses[ $refCourseId ]->fullname;
+                $coursecell = new html_table_cell();
+                if ($refcourseid ) {
+                    $coursecell->text = $this->userSessions->trackedCourses->courses[ $refcourseid ]->fullname;
                 } else {
-                    $courseCell->text = get_string('not_specified', 'attendanceregister');
+                    $coursecell->text = get_string('not_specified', 'attendanceregister');
                 }
-                $row->cells[] = $courseCell;
+                $row->cells[] = $coursecell;
 
                 $cvalue = new html_table_cell();
-                $cvalue->text = attendanceregister_format_duration($courseOfflineSessions);
+                $cvalue->text = attendanceregister_format_duration($courseofflinesessions);
                 $row->cells[] = $cvalue;
 
                 $table->data[] = $row;
@@ -213,14 +200,14 @@ class attendanceregister_user_aggregates {
 
             if ($this->noCourseOfflineSessions ) {
                 $row = new html_table_row();
-                 $row->attributes['class'] .= '';
+                $row->attributes['class'] .= '';
                 $label = new html_table_cell();
                 $label->text = get_string('offline_refcourse_duration', 'attendanceregister');
                 $row->cells[] = $label;
 
-                $courseCell = new html_table_cell();
-                $courseCell->text = get_string('no_refcourse', 'attendanceregister');
-                $row->cells[] = $courseCell;
+                $coursecell = new html_table_cell();
+                $coursecell->text = get_string('no_refcourse', 'attendanceregister');
+                $row->cells[] = $coursecell;
 
                 $cvalue = new html_table_cell();
                 $cvalue->text = attendanceregister_format_duration($this->noCourseOfflineSessions);

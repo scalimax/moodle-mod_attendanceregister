@@ -87,7 +87,7 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
     $prevLogEntry = null;
     $sessionStartTimestamp = null;
     $logentriesCount = 0;
-    $newSessionsCount = 0;
+    $newsessionscount = 0;
     $sessionLastEntryTimestamp = 0;
 
 
@@ -106,66 +106,63 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
             }
 
             // Check if between prev and current log, last more than Session Timeout
-            // if so, the Session ends on the _prev_ log entry
+            // if so, the Session ends on the _prev_ log entry.
             if (($logEntry->timecreated - $prevLogEntry->timecreated) > $sessionTimeoutSeconds) {
-                $newSessionsCount++;
+                $newsessionscount++;
 
                 // Estimate Session ended half the Session Timeout after the prev log entry
-                // (prev log entry is the last entry of the Session)
+                // (prev log entry is the last entry of the Session).
                 $sessionLastEntryTimestamp = $prevLogEntry->timecreated;
                 $estimatedSessionEnd = $sessionLastEntryTimestamp + $sessionTimeoutSeconds / 2;
 
-                // Save a new session to the prev entry
+                // Save a new session to the prev entry.
                 attendanceregister__save_session($register, $userid, $sessionStartTimestamp, $estimatedSessionEnd);
 
-                // Update the progress bar, if any
+                // Update the progress bar, if any.
                 if ($progressbar) {
                     $msg = get_string('updating_online_sessions_of', 'attendanceregister', fullname($user));
-
                     $progressbar->update($logentriesCount, $totalLogEntriesCount, $msg);
                 }
 
-                // Session has ended: session start on current log entry
+                // Session has ended: session start on current log entry.
                 $sessionStartTimestamp = $logEntry->timecreated;
             }
             $prevLogEntry = $logEntry;
         }
 
         // If le last log entry is not the end of the last calculated session and is older than SessionTimeout
-        // create a last session
+        // create a last session.
         if ($logEntry->timecreated > $sessionLastEntryTimestamp && ( time() - $logEntry->timecreated ) > $sessionTimeoutSeconds  ) {
-            $newSessionsCount++;
-
-            // In this case logEntry (and not prevLogEntry is the last entry of the Session)
+            $newsessionscount++;
+            // In this case logEntry (and not prevLogEntry is the last entry of the Session).
             $sessionLastEntryTimestamp = $logEntry->timecreated;
             $estimatedSessionEnd = $sessionLastEntryTimestamp + $sessionTimeoutSeconds / 2;
 
-            // Save a new session to the prev entry
+            // Save a new session to the prev entry.
             attendanceregister__save_session($register, $userid, $sessionStartTimestamp, $estimatedSessionEnd);
 
-            // Update the progress bar, if any
+            // Update the progress bar, if any.
             if ($progressbar) {
                 $msg = get_string('updating_online_sessions_of', 'attendanceregister', fullname($user));
-
                 $progressbar->update($logentriesCount, $totalLogEntriesCount, $msg);
             }
         }
     }
 
-    /// Updates Aggregates
+    // Updates Aggregates.
     attendanceregister__update_user_aggregates($register, $userid);
 
 
-    // Finalize Progress Bar
+    // Finalize Progress Bar.
     if ($progressbar ) {
         $a = new stdClass();
         $a->fullname = fullname($user);
-        $a->numnewsessions = $newSessionsCount;
+        $a->numnewsessions = $newsessionscount;
         $msg = get_string('online_session_updated_report', 'attendanceregister', $a);
         attendanceregister__finalize_progress_bar($progressbar, $msg);
     }
 
-    return $newSessionsCount;
+    return $newsessionscount;
 }
 
 /**
@@ -175,8 +172,7 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
  * @param object $regiser
  * @param int    $userid
  */
-function attendanceregister__update_user_aggregates($register, $userid) 
-{
+function attendanceregister__update_user_aggregates($register, $userid) {
     global $DB;
 
     // Delete old aggregates.
@@ -192,18 +188,18 @@ function attendanceregister__update_user_aggregates($register, $userid)
               .' WHERE sess.onlinesess = 0 AND sess.register = :registerid AND sess.userid = :userid'
               .' GROUP BY sess.register, sess.userid, sess.refcourse';
         $offlinePerCourseAggregates = $DB->get_records_sql($sql, $queryParams);
-        // Append records
+        // Append records.
         if ($offlinePerCourseAggregates ) {
             $aggregates = array_merge($aggregates, $offlinePerCourseAggregates);
         }
 
-        // Calculates total offline, regardless of RefCourse
+        // Calculates total offline, regardless of RefCourse.
         $sql = 'SELECT sess.register, sess.userid, 0 AS onlinesess, null AS refcourse, SUM(sess.duration) AS duration, 1 AS total, 0 as grandtotal'
               .' FROM {attendanceregister_session} sess'
               .' WHERE sess.onlinesess = 0 AND sess.register = :registerid AND sess.userid = :userid'
               .' GROUP BY sess.register, sess.userid';
         $totalOfflineAggregate = $DB->get_record_sql($sql, $queryParams);
-        // Append record
+        // Append record.
         if ($totalOfflineAggregate ) {
             $aggregates[] = $totalOfflineAggregate;
         }
@@ -312,25 +308,14 @@ function attendanceregister__get_tracked_users($register, $groupid = '') {
 */
 function attendanceregister__get_tracked_users_need_update($register) {
     global $DB;
-    $trackedUsers = [];
+    $trackedusers = [];
 
-    // Get Context of each Tracked Course
-    $thisCourse = attendanceregister__get_register_course($register);
-    $trackedCoursedIds = attendanceregister__get_tracked_courses_ids($register, $thisCourse);
-    foreach ($trackedCoursedIds as $courseId) {
+    // Get Context of each Tracked Course.
+    $thiscourse = attendanceregister__get_register_course($register);
+    $trackedcoursesids = attendanceregister__get_tracked_courses_ids($register, $thiscourse);
+    foreach ($trackedcoursesids as $courseId) {
         $context = context_course::instance($courseId);
-
-        // Get SQL and params for users enrolled in course with ATTENDANCEREGISTER_CAPABILITY_TRACKED capability
         list($esql, $params) = get_enrolled_sql($context, ATTENDANCEREGISTER_CAPABILITY_TRACKED);
-        
-        // Query to retrieve users that satisfy all the following:
-        // a) have ATTENDANCEREGISTER_CAPABILITY_TRACKED role in the tracked course
-        // AND
-        // b) whose last activity (lastaccess) on site is older than session timeout (in seconds)
-        // AND one of the fiollowing: 
-        // c1) Have no online session in this register
-        // c2) Have no calculated aggregate for this register
-        // c3) Last log entry for the tracked course is newer than last recorded session in this register (stored in aggregate)
         $sql = "SELECT u.*  FROM {user} u JOIN ($esql) je ON je.id = u.id
                 WHERE u.lastaccess + (:sesstimeout * 60) < :now
                   AND ( NOT EXISTS (SELECT * FROM {attendanceregister_session} as3
@@ -342,23 +327,16 @@ function attendanceregister__get_tracked_users_need_update($register) {
                                       AND aa2.grandtotal = 1
                                       AND l2.time > aa2.lastsessionlogout) )";
             
-        // Append subquery parameters
         $params['sesstimeout'] = $register->sessiontimeout;
         $params['now'] = time();
         $params['registerid1'] = $register->id;
         $params['registerid2'] = $register->id;
         $params['registerid3'] = $register->id;
         $params['courseid'] = $courseId;
-        // Execute query
-        $trackedUsersInCourse = $DB->get_records_sql($sql, $params);        
-        
-        $trackedUsers = array_merge($trackedUsers, $trackedUsersInCourse);
+        $trackedusersincourse = $DB->get_records_sql($sql, $params);        
+        $trackedusers = array_merge($trackedusers, $trackedusersincourse);
     }
-
-    // Users must be unique [issue #15]
-    $uniqueTrackedUsers = attendanceregister__unique_object_array_by_id($trackedUsers);
-
-    return $uniqueTrackedUsers;            
+    return attendanceregister__unique_object_array_by_id($trackedusers);
 }
 
 
@@ -371,11 +349,9 @@ function attendanceregister__get_tracked_users_need_update($register) {
  * @param  int    $userid
  * @return array of attendanceregister_aggregate
  */
-function attendanceregister__get_user_aggregates($register, $userid) 
-{
+function attendanceregister__get_user_aggregates($register, $userid) {
     global $DB;
-    $params = ['register' => $register->id, 'userid' => $userid];
-    return $DB->get_records('attendanceregister_aggregate', $params);
+    return $DB->get_records('attendanceregister_aggregate', ['register' => $register->id, 'userid' => $userid]);
 }
 
 /**
@@ -387,9 +363,8 @@ function attendanceregister__get_user_aggregates($register, $userid)
  */
 function attendanceregister__get_all_users_aggregate_summaries($register) {
     global $DB;
-    $params = array('register' => $register->id );
     $select = "register = :register AND (total = 1 OR grandtotal = 1)";
-    return $DB->get_records_select('attendanceregister_aggregate', $select, $params);
+    return $DB->get_records_select('attendanceregister_aggregate', $select, ['register' => $register->id]);
 }
 
 /**
@@ -417,29 +392,25 @@ function attendanceregister__get_cached_user_grandtotal($register, $userid) {
  * @return array
  */
 function attendanceregister__get_tracked_courses_ids($register, $course) {
-    $trackedcids = [];
+    global $DB;
+    $ids = [];
     switch ($register->type) {
-        // added by quiensabe
-    case ATTENDANCEREGISTER_TYPE_GLOBAL:
-        global $DB;
-        $trackedcids = $DB->get_fieldset_select('course', 'id', 'id > 1', []);
-        break;
-    case ATTENDANCEREGISTER_TYPE_METAENROL:
-        // This course
-        $trackedcids[] = $course->id;
-        // Add all courses linked to the current Course
-        $trackedcids = array_merge($trackedcids, attendanceregister__get_coursed_ids_meta_linked($course));
-        break;
-    case ATTENDANCEREGISTER_TYPE_CATEGORY:
-        // Add all Courses in the same Category (include this Course)
-        $trackedcids = array_merge($trackedcids, attendanceregister__get_courses_ids_in_category($course));
-        break;
-    default:
-        // This course only
-        $trackedcids[] = $course->id;
+        case ATTENDANCEREGISTER_TYPE_GLOBAL:
+            $ids = $DB->get_fieldset_select('course', 'id', 'id > 1', []);
+            break;
+        case ATTENDANCEREGISTER_TYPE_METAENROL:
+            $ids[] = $course->id;
+            $ids = array_merge($ids, attendanceregister__get_coursed_ids_meta_linked($course));
+            break;
+        case ATTENDANCEREGISTER_TYPE_CATEGORY:
+            $ids[] = $course->id;
+            $ids = array_merge($ids, attendanceregister__get_courses_ids_in_category($course));
+            break;
+        default:
+            $ids[] = $course->id;
     }
 
-    return $trackedcids;
+    return $ids;
 }
 
 /**
@@ -728,7 +699,6 @@ function attendanceregister__unique_object_array_by_id($objarray) {
  * @return string
  */
 function attendanceregister__formatDateTime($datetime) {
-    global $CFG;
     if (!$datetime) {
         return get_string('never', 'attendanceregister');
     }
@@ -792,7 +762,7 @@ function attendanceregister__isAnyCompletionConditionSpecified($register) {
  * 
  * @param  object $register AttendanceRegister
  * @param  int    $userid   User ID
- * @return boolean TRUE if the Activity is complete, FALSE if not complete, NULL if no activity completion condition has been specified
+ * @return boolean TRUE if the Activity is complete, FALSE if not complete, NULL if no activity completion has been specified
  */
 function attendanceregister__calculateUserCompletion($register, $userid) {
     global $DB;
@@ -820,13 +790,13 @@ function attendanceregister__calculateUserCompletion($register, $userid) {
  * @param  int    $totaldurationsecs total calculated duration, in seconds
  * @return boolean TRUE if this values match comletion condition, otherwise FALSE
  */
-function attendanceregister__areCompletionConditionsMet($register, $trackedvalues ) {
+function attendanceregister__areCompletionConditionsMet($register, $trackedvalues) {
     if (isset($trackedvalues['totaldurationsecs'])) {
         $totaldurationsecs = $trackedvalues['totaldurationsecs'];
         if (!$totaldurationsecs ) {
             return false;
         }
-        return ( ($totaldurationsecs/60) >= $register->completiontotaldurationmins );         
+        return (($totaldurationsecs/60) >= $register->completiontotaldurationmins);         
     } else {
         return false;
     }
@@ -863,28 +833,27 @@ class mod_attendanceregister_selfcertification_edit_form extends moodleform {
             $userid = null;
         }
 
-        $refDate = usergetdate($USER->currentlogin);
-        $refTs = make_timestamp($refDate['year'], $refDate['mon'], $refDate['mday'], $refDate['hours']);
-        $defLogout = $refTs;
-        $defLogin = $refTs - 3600;
+        $refdate = usergetdate($USER->currentlogin);
+        $refts = make_timestamp($refdate['year'], $refdate['mon'], $refdate['mday'], $refdate['hours']);
+        $deflogout = $refts;
+        $deflogin = $refts - 3600;
 
 
         // Title
         if (attendanceregister__isCurrentUser($userid) ) {
-            $titleStr =  get_string('insert_new_offline_session', 'attendanceregister');
+            $title = get_string('insert_new_offline_session', 'attendanceregister');
         } else {
             $otherUser = attendanceregister__getUser($userid);
             $a->fullname = fullname($otherUser);
-            $titleStr =  get_string('insert_new_offline_session_for_another_user', 'attendanceregister', $a);
+            $title = get_string('insert_new_offline_session_for_another_user', 'attendanceregister', $a);
         }
-        $mform->addElement('html', '<h3>' . $titleStr . '</h3>');
-
+        $mform->addElement('html', '<h3>' . $title . '</h3>');
         $mform->addElement('date_time_selector', 'login', get_string('offline_session_start', 'attendanceregister'), 
-           ['defaulttime' => $defLogin, 'optional' => false]);
+           ['defaulttime' => $deflogin, 'optional' => false]);
         $mform->addRule('login', get_string('required'), 'required');
         $mform->addHelpButton('login', 'offline_session_start', 'attendanceregister');
         $mform->addElement('date_time_selector', 'logout', get_string('offline_session_end', 'attendanceregister'),
-           ['defaulttime' => $defLogout, 'optional' => false]);
+           ['defaulttime' => $deflogout, 'optional' => false]);
         $mform->addRule('logout', get_string('required'), 'required');
 
         if ($register->offlinecomments ) {
@@ -898,18 +867,18 @@ class mod_attendanceregister_selfcertification_edit_form extends moodleform {
         }
 
         if ($register->offlinespecifycourse ) {
-            $coursesSelect = [];
-
+            $coursesselect = [];
             if ($register->mandofflspeccourse ) {
-                $coursesSelect[] = get_string('select_a_course', 'attendanceregister');
+                $coursesselect[] = get_string('select_a_course', 'attendanceregister');
             } else {
-                $coursesSelect[] = get_string('select_a_course_if_any', 'attendanceregister');
+                $coursesselect[] = get_string('select_a_course_if_any', 'attendanceregister');
             }
 
             foreach ($courses as $course) {
-                $coursesSelect[$course->id] = $course->fullname;
+                $coursesselect[$course->id] = $course->fullname;
             }
-            $mform->addElement('select', 'refcourse', get_string('offline_session_ref_course', 'attendanceregister'), $coursesSelect);
+            $mform->addElement('select', 'refcourse',
+                get_string('offline_session_ref_course', 'attendanceregister'), $coursesselect);
             if ($register->mandofflspeccourse ) {
                 $mform->addRule('refcourse', get_string('required'), 'required', null, 'client');
             }
@@ -986,16 +955,23 @@ class attendanceregister_user_capablities {
      *
      * @param object $context
      */
-    public function __construct($context) 
-    {
-        $this->canViewOwnRegister = has_capability(ATTENDANCEREGISTER_CAPABILITY_VIEW_OWN_REGISTERS, $context, null, true);
-        $this->canViewOtherRegisters = has_capability(ATTENDANCEREGISTER_CAPABILITY_VIEW_OTHER_REGISTERS, $context, null, true);
-        $this->canRecalcSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_RECALC_SESSIONS, $context, null, true);
-        $this->isTracked =  has_capability(ATTENDANCEREGISTER_CAPABILITY_TRACKED, $context, null, false); // Ignore doAnything
-        $this->canAddOwnOfflineSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_ADD_OWN_OFFLINE_SESSIONS, $context, null, false);  // Ignore doAnything
-        $this->canAddOtherOfflineSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_ADD_OTHER_OFFLINE_SESSIONS, $context, null, false);  // Ignore doAnything
-        $this->canDeleteOwnOfflineSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OWN_OFFLINE_SESSIONS, $context, null, false);  // Ignore doAnything
-        $this->canDeleteOtherOfflineSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OTHER_OFFLINE_SESSIONS, $context, null, false);  // Ignore doAnything
+    public function __construct($context) {
+        $this->canViewOwnRegister = has_capability(ATTENDANCEREGISTER_CAPABILITY_VIEW_OWN_REGISTERS,
+            $context, null, true);
+        $this->canViewOtherRegisters = has_capability(ATTENDANCEREGISTER_CAPABILITY_VIEW_OTHER_REGISTERS,
+            $context, null, true);
+        $this->canRecalcSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_RECALC_SESSIONS,
+            $context, null, true);
+        $this->isTracked =  has_capability(ATTENDANCEREGISTER_CAPABILITY_TRACKED,
+            $context, null, false);
+        $this->canAddOwnOfflineSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_ADD_OWN_OFFLINE_SESSIONS,
+            $context, null, false);
+        $this->canAddOtherOfflineSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_ADD_OTHER_OFFLINE_SESSIONS,
+            $context, null, false);
+        $this->canDeleteOwnOfflineSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OWN_OFFLINE_SESSIONS,
+            $context, null, false);
+        $this->canDeleteOtherOfflineSessions = has_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OTHER_OFFLINE_SESSIONS,
+            $context, null, false);
     }
 
     /**

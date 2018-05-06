@@ -70,19 +70,19 @@ class attendanceregister_tracked_users {
      * Load list of tracked Courses
      *
      * @param object                              $register
-     * @param attendanceregister_user_capablities $userCapabilities
+     * @param attendanceregister_user_capablities $usercaps
      */
-    function __construct($register, attendanceregister_user_capablities $userCapabilities, $groupId) 
+    function __construct($register, attendanceregister_user_capablities $usercaps, $groupid) 
     {
         $this->register = $register;
-        $this->userCapabilities = $userCapabilities;
-        $this->users = attendanceregister_get_tracked_users($register, $groupId);
+        $this->userCapabilities = $usercaps;
+        $this->users = attendanceregister_get_tracked_users($register, $groupid);
         $this->trackedCourses = new attendanceregister_tracked_courses($register);
         $trackedUsersIds = attendanceregister__extract_property($this->users, 'id');
         // Retrieve Aggregates summaries.
         $aggregates = attendanceregister__get_all_users_aggregate_summaries($register);
         // Remap in an array of attendanceregister_user_aggregates_summary, mapped by userId.
-        $this->usersSummaryAggregates = array();
+        $this->usersSummaryAggregates = [];
         foreach ($aggregates as $aggregate) {
             // Retain only tracked users.
             if (in_array($aggregate->userid, $trackedUsersIds) ) {
@@ -110,17 +110,14 @@ class attendanceregister_tracked_users {
      */
     public function html_table() {
         $table = new html_table();
-        $table->attributes['class'] .=
-            ' attendanceregister_userlist table table-condensed table-bordered table-striped table-hover';
-
-        // Header.
-
-        $table->head = array(
+        $s = ' attendanceregister_userlist table table-condensed table-bordered table-striped table-hover';
+        $table->attributes['class'] .= $s;
+        $table->head = [
             get_string('count', 'attendanceregister'),
             get_string('fullname', 'attendanceregister'),
             get_string('total_time_online', 'attendanceregister'),
-        );
-        $table->align = array('left', 'left', 'right');
+        ];
+        $table->align = ['left', 'left', 'right'];
 
         if ($this->register->offlinesessions ) {
             $table->head[] = get_string('total_time_offline', 'attendanceregister');
@@ -128,52 +125,43 @@ class attendanceregister_tracked_users {
             $table->head[] = get_string('grandtotal_time', 'attendanceregister');
             $table->align[] = 'right';
         }
-
         $table->head[] = get_string('last_session_logout', 'attendanceregister');
         $table->align[] = 'left';
-
-
-        // Table rows.
 
         if($this->users ) {
             $rowcount = 0;
             foreach ($this->users as $user) {
                 $rowcount++;
-
-                $userAggregate = null;
+                $useraggregate = null;
                 if (isset($this->usersSummaryAggregates[$user->id]) ) {
-                    $userAggregate = $this->usersSummaryAggregates[$user->id];
+                    $useraggregate = $this->usersSummaryAggregates[$user->id];
                 }
-
                 // Basic columns.
-                $linkUrl = attendanceregister_makeUrl($this->register, $user->id);
-                $fullnameWithLink = '<a href="' . $linkUrl . '">' . fullname($user) . '</a>';
-                $onlineduration = ($userAggregate)?( $userAggregate->onlineTotalduration ):( null );
-                $onlinedurationstr =  attendanceregister_format_duration($onlineduration);
-                $tablerow = new html_table_row(array( $rowcount, $fullnameWithLink, $onlinedurationstr ));
+                $linkurl = attendanceregister_makeUrl($this->register, $user->id);
+                $fullnameWithLink = '<a href="' . $linkurl . '">' . fullname($user) . '</a>';
+                $onlineduration = $useraggregate ? $useraggregate->onlineTotalduration : null;
+                $onlinedurationstr = attendanceregister_format_duration($onlineduration);
+                $tablerow = new html_table_row([$rowcount, $fullnameWithLink, $onlinedurationstr]);
 
                 // Add class for zebra stripes.
-                $tablerow->attributes['class'] .=
-                   ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
+                $tablerow->attributes['class'] .= ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
 
                 // Optional columns.
                 if ($this->register->offlinesessions ) {
-                    $offlineduration = ($userAggregate)?($userAggregate->offlineTotalduration):( null );
+                    $offlineduration = $useraggregate ? $useraggregate->offlineTotalduration : null;
                     $offlinedurationstr = attendanceregister_format_duration($offlineduration);
                     $tablecell = new html_table_cell($offlinedurationstr);
                     $tablerow->cells[] = $tablecell;
-
-                    $grandtotalduration = ($userAggregate)?($userAggregate->grandTotalduration ):( null );
+                    $grandtotalduration = $useraggregate ? $useraggregate->grandTotalduration : null;
                     $grandtotaldurationstr = attendanceregister_format_duration($grandtotalduration);
                     $tablecell = new html_table_cell($grandtotaldurationstr);
                     $tablerow->cells[] = $tablecell;
                 }
 
-                $lastSessionLogoutStr = 
-                   $userAggregate ? attendanceregister__formatDateTime($userAggregate->lastSassionLogout) : get_string('no_session', 'attendanceregister');
-                $tablecell = new html_table_cell($lastSessionLogoutStr);
+                $str = $useraggregate ? attendanceregister__formatDateTime($useraggregate->lastSassionLogout) :
+                   get_string('no_session', 'attendanceregister');
+                $tablecell = new html_table_cell($str);
                 $tablerow->cells[] = $tablecell;
-
                 $table->data[] = $tablerow;
             }
         } else {
@@ -185,8 +173,6 @@ class attendanceregister_tracked_users {
             $row->cells[] = $labelcell;
             $table->data[] = $row;
         }
-
         return $table;
     }
 }
-
