@@ -15,34 +15,36 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_page course module viewed event.
+ * A scheduled task for attendanceregister cron.
  *
  * @package    mod_attendanceregister
- * @copyright  
+ * @copyright  2016 CINECA
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace mod_attendanceregister\event;
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_attendanceregister\task;
 
 /**
- * The mod_attendanceregister course module viewed event class.
+ * A scheduled task for attendanceregister cron.
  *
  * @package    mod_attendanceregister
- * @since      Moodle 2.6
- * @copyright  2013 
+ * @copyright  2016 CINECA
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_module_viewed extends \core\event\course_module_viewed {
-
+class cron_task extends \core\task\scheduled_task {
     /**
-     * Init method.
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string
      */
-    protected function init() {
-        $this->data['crud'] = 'r';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'attendanceregister';
+    public function get_name() {
+        return get_string('crontask', 'mod_attendanceregister');
+    }
+    /**
+     * Run attendanceregister cron.
+     */
+    public function execute() {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/attendanceregister/lib.php');
+        attendanceregister_cron();
     }
 }
-

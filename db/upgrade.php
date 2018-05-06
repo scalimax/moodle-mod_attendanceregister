@@ -26,7 +26,7 @@ function xmldb_attendanceregister_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2012081004) {
-        //// Add attendanceregister_session.addedbyuserid column
+        // Add attendanceregister_session.addedbyuserid column
 
         // Define field addedbyuser to be added to attendanceregister_session
         $table = new xmldb_table('attendanceregister_session');
@@ -37,8 +37,7 @@ function xmldb_attendanceregister_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        //// Add attendanceregister.pendingrecalc column
-
+        // Add attendanceregister.pendingrecalc column
         // Define field addedbyuser to be added to attendanceregister
         $table = new xmldb_table('attendanceregister');
         $field = new xmldb_field('pendingrecalc', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1 );
@@ -47,13 +46,11 @@ function xmldb_attendanceregister_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
         upgrade_mod_savepoint(true, 2012081004, 'attendanceregister');
     }
 
     if ( $oldversion < 2013020604 ) {
-        /// Issue #36 and #42
-        
+        // Issue #36 and #42
         // Rename field attendanceregister_session.online to onlinessess
         $table = new xmldb_table('attendanceregister_session');
         $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1 );
@@ -68,24 +65,18 @@ function xmldb_attendanceregister_upgrade($oldversion) {
         if ( $dbman->field_exists($table, $field) ) {
             // Rename field
             $dbman->rename_field($table, $field, 'onlinesess');
-        }
-        
+        }        
     }
     
     if ( $oldversion < 2013040605 ) {
         // Feature #7
-        
         // Add field attendanceregister.completiontotaldurationmins
         $table = new xmldb_table('attendanceregister');
         $field = new xmldb_field('completiontotaldurationmins', XMLDB_TYPE_INTEGER, 10 , XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 0 );
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-         
         upgrade_mod_savepoint(true, 2013040605, 'attendanceregister');
-    }
-    
+    }    
     return true;
 }
-
-

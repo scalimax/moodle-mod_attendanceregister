@@ -13,36 +13,25 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+ 
 /**
- * The mod_page course module viewed event.
+ * The course_module_instance_list_viewed event.
  *
  * @package    mod_attendanceregister
- * @copyright  
+ * @copyright  2015 CINECA
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_attendanceregister\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_attendanceregister course module viewed event class.
+ * The course_module_instance_list_viewed event.
  *
  * @package    mod_attendanceregister
- * @since      Moodle 2.6
- * @copyright  2013 
+ * @copyright  2015 CINECA
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_module_viewed extends \core\event\course_module_viewed {
-
-    /**
-     * Init method.
-     */
-    protected function init() {
-        $this->data['crud'] = 'r';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'attendanceregister';
-    }
+class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
+    // No code required here as the parent class handles it all.
 }
-

@@ -27,10 +27,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$logs = array(
-    array('module'=>'attendanceregister', 'action'=>'recalculate', 'mtable'=>'attendanceregister', 'field'=>'name'),
-    array('module'=>'attendanceregister', 'action'=>'add offline', 'mtable'=>'attendanceregister', 'field'=>'name'),
-    array('module'=>'attendanceregister', 'action'=>'delete offline', 'mtable'=>'attendanceregister', 'field'=>'name'),
-    array('module'=>'attendanceregister', 'action'=>'view', 'mtable'=>'attendanceregister', 'field'=>'name'),
-    array('module'=>'attendanceregister', 'action'=>'view all', 'mtable'=>'attendanceregister', 'field'=>'name'),
-);
+$logs = [['module'=>'attendanceregister', 'action'=>'recalculate', 'mtable'=>'attendanceregister', 'field'=>'name'],
+         ['module'=>'attendanceregister', 'action'=>'add offline', 'mtable'=>'attendanceregister', 'field'=>'name'],
+         ['module'=>'attendanceregister', 'action'=>'delete offline', 'mtable'=>'attendanceregister', 'field'=>'name'],
+         ['module'=>'attendanceregister', 'action'=>'view', 'mtable'=>'attendanceregister', 'field'=>'name'],
+         ['module'=>'attendanceregister', 'action'=>'view all', 'mtable'=>'attendanceregister', 'field'=>'name']];

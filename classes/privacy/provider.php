@@ -15,34 +15,35 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_page course module viewed event.
+ * Privacy main class.
  *
- * @package    mod_attendanceregister
- * @copyright  
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2018 eWallah.net
+ * @author    Renaat Debleu (www.ewallah.net)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_attendanceregister\event;
+namespace mod_attendanceregister\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_attendanceregister course module viewed event class.
+ * Privacy main class.
  *
- * @package    mod_attendanceregister
- * @since      Moodle 2.6
- * @copyright  2013 
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_attendanceregister
+ * @copyright 2018 eWallah.net
+ * @author    Renaat Debleu (www.ewallah.net)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_module_viewed extends \core\event\course_module_viewed {
+class provider implements \core_privacy\local\metadata\null_provider {
 
     /**
-     * Init method.
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
      */
-    protected function init() {
-        $this->data['crud'] = 'r';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'attendanceregister';
+    public static function get_reason() : string {
+        return 'privacy:metadata';
     }
 }
-
