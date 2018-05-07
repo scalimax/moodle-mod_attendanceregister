@@ -67,7 +67,7 @@ if (!$userid && !$usercaps->canviewother) {
 }
 
 // Requires capabilities to view own or others' register.
-if (attendanceregister__iscurrentuser($userid) ) {
+if (attendanceregister__iscurrentuser($userid)) {
     require_capability(ATTENDANCEREGISTER_CAPABILITY_VIEW_OWN_REGISTERS, $context);
 } else {
     require_capability(ATTENDANCEREGISTER_CAPABILITY_VIEW_OTHER_REGISTERS, $context);
@@ -76,11 +76,11 @@ if (attendanceregister__iscurrentuser($userid) ) {
 // Require capability to recalculate.
 $dorecalc = false;
 $doschedrecalc = false;
-if ($inputaction == ATTENDANCEREGISTER_ACTION_RECALCULATE ) {
+if ($inputaction == ATTENDANCEREGISTER_ACTION_RECALCULATE) {
     require_capability(ATTENDANCEREGISTER_CAPABILITY_RECALC_SESSIONS, $context);
     $dorecalc = true;
 }
-if ($inputaction == ATTENDANCEREGISTER_ACTION_SCHEDULERECALC ) {
+if ($inputaction == ATTENDANCEREGISTER_ACTION_SCHEDULERECALC) {
     require_capability(ATTENDANCEREGISTER_CAPABILITY_RECALC_SESSIONS, $context);
     $doschedrecalc = true;
 }
@@ -97,16 +97,16 @@ $dosaveofflinesession = false;
 // Only if Offline Sessions are enabled (and No printable-version action).
 if ($register->offlinesessions &&  !$printable) {
     // Only if User is NOT logged-in-as, or ATTENDANCEREGISTER_ALLOW_LOGINAS_OFFLINE_SESSIONS is enabled.
-    if (!\core\session\manager::is_loggedinas() || ATTENDANCEREGISTER_ALLOW_LOGINAS_OFFLINE_SESSIONS ) {
+    if (!\core\session\manager::is_loggedinas() || ATTENDANCEREGISTER_ALLOW_LOGINAS_OFFLINE_SESSIONS) {
 
         // If user is on his own Register and may save own Sessions
         // or is on other's Register and may save other's Sessions..
-        if ($usercaps->canaddsession($register, $userid) ) {
+        if ($usercaps->canaddsession($register, $userid)) {
             // Do show Offline Sessions Form.
             $doshowofflinesessionform = true;
 
             // If action is saving Offline Session...
-            if ($inputaction == ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION  ) {
+            if ($inputaction == ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION) {
                 // Check Capabilities, to show an error if a security violation attempt occurs.
                 if (attendanceregister__iscurrentcser($userid)) {
                     require_capability(ATTENDANCEREGISTER_CAPABILITY_ADD_OWN_OFFLINE_SESSIONS, $context);
@@ -127,7 +127,7 @@ if ($sessiontodelete) {
     // Check if logged-in-as Session Delete.
     if (session_is_loggedinas() && !ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION) {
         print_error('onlyrealusercandeleteofflinesessions', 'attendanceregister');
-    } else if (attendanceregister__iscurrentuser($userid) ) {
+    } else if (attendanceregister__iscurrentuser($userid)) {
         require_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OWN_OFFLINE_SESSIONS, $context);
         $dodeleteofflinesession = true;
     } else {
@@ -162,7 +162,7 @@ if ($printable) {
 }
 
 // Add User's Register Navigation node.
-if ($usertoprocess ) {
+if ($usertoprocess) {
     $registernavnode = $PAGE->navigation->find($cm->id, navigation_node::TYPE_ACTIVITY);
     $usernavnode = $registernavnode->add($usertoprocessfullname, $url);
     $usernavnode->make_active();
@@ -174,7 +174,7 @@ $event->add_record_snapshot('course_modules', $cm);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
-if ($userid == $USER->id && $completion->is_enabled($cm) ) {
+if ($userid == $USER->id && $completion->is_enabled($cm)) {
     $completion->set_module_viewed($cm, $userid);
 }
 
@@ -183,7 +183,7 @@ echo $OUTPUT->heading(format_string($register->name . $str));
 
 $doshowcontents = true;
 $mform = null;
-if ($userid && $doshowofflinesessionform && !$printable ) {
+if ($userid && $doshowofflinesessionform && !$printable) {
 
     // Prepare form.
     $customformdata = ['register' => $register, 'courses' => $usersessions->trackedcourses->courses];
@@ -211,13 +211,13 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
         attendanceregister_force_recalc_user_sessions($register, $userid, $progressbar);
         $usersessions = new attendanceregister_user_sessions($register, $userid, $usercaps);
     } else {
-        if ($doschedrecalc ) {
-            if (!$register->pendingrecalc ) {
+        if ($doschedrecalc) {
+            if (!$register->pendingrecalc) {
                 attendanceregister_set_pending_recalc($register, true);
             }
         }
-        if ($dorecalc ) {
-            if ($register->pendingrecalc ) {
+        if ($dorecalc) {
+            if ($register->pendingrecalc) {
                 attendanceregister_set_pending_recalc($register, false);
             }
             set_time_limit(0);
@@ -263,10 +263,10 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
         echo html_writer::div(html_writer::table($usersessions->useraggregates->html_table()), 'table-responsive');
         echo html_writer::div(html_writer::table($usersessions->html_table()), 'table-responsive');
     } else {
-        if ($usercaps->canrecalcs && !$printable) {
+        if ($usercaps->canrecalc && !$printable) {
             echo groups_allgroups_course_menu($course, $url, true, $groupid);
         }
-        if ($register->pendingrecalc && $usercaps->canrecalc && !$printable ) {
+        if ($register->pendingrecalc && $usercaps->canrecalc && !$printable) {
             echo $OUTPUT->notification(get_string('recalc_scheduled_on_next_cron', 'attendanceregister'));
         } else if (!attendanceregister__didcronran($cm)) {
             echo $OUTPUT->notification(get_string('first_calc_at_next_cron_run', 'attendanceregister'));
