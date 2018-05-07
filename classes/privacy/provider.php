@@ -27,6 +27,12 @@ namespace mod_attendanceregister\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
+use \core_privacy\local\request\approved_contextlist;
+use \core_privacy\local\request\writer;
+use \core_privacy\local\request\helper;
+use \core_privacy\local\request\deletion_criteria;
+use \core_privacy\local\metadata\collection;
+
 /**
  * Privacy main class.
  *
@@ -35,15 +41,127 @@ defined('MOODLE_INTERNAL') || die();
  * @author  Renaat Debleu <rdebleu@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\null_provider {
+class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\plugin\provider {
 
     /**
-     * Get the language string identifier with the component's language
-     * file to explain why this plugin stores no data.
+     * Returns information about how report_ipluspayments stores its data.
      *
-     * @return string
+     * @param   collection     $collection The initialised collection to add items to.
+     * @return  collection     A listing of user data stored through this system.
      */
-    public static function get_reason() : string {
-        return 'privacy:metadata';
+    public static function get_metadata(collection $collection) : collection {
+        $arr = ['login' => 'privacy:metadata:attendanceregister_session:login',
+                'logout' => 'privacy:metadata:attendanceregister_session:logout',
+                'duration' => 'privacy:metadata:attendanceregister_session:duration',
+                'onlinesess' => 'privacy:metadata:attendanceregister_session:onlinesess',
+                'comments' => 'privacy:metadata:attendanceregister_session:comments'];
+        $collection->add_database_table('attendanceregister_session', $arr, 'privacy:metadata:attendanceregister_session');
+        $collection->link_subsystem('core_comments', 'privacy:metadata:core_comments');
+        $arr = ['login' => 'privacy:metadata:attendanceregister_aggregate:login',
+                'logout' => 'privacy:metadata:attendanceregister_aggregate:logout',
+                'duration' => 'privacy:metadata:attendanceregister_aggregate:duration',
+                'onlinesess' => 'privacy:metadata:attendanceregister_aggregate:onlinesess',
+                'total' => 'privacy:metadata:attendanceregister_aggregate:total',
+                'grandtotal' => 'privacy:metadata:attendanceregister_aggregate:grandtotal',
+                'lastsessionlogout' => 'privacy:metadata:attendanceregister_aggregate:lastsessionlogout'];
+        $collection->add_database_table('attendanceregister_aggregate', $arr, 'privacy:metadata:attendanceregister_aggregate');
+        return $collection;
+    }
+    
+    /**
+     * Get the list of contexts that contain user information for the specified user.
+     *
+     * @param   int           $userid       The user to search.
+     * @return  contextlist   $contextlist  The contextlist containing the list of contexts used in this plugin.
+     */
+    public static function get_contexts_for_userid(int $userid) : \core_privacy\local\request\contextlist {
+        global $DB;
+        $contextlist = new \core_privacy\local\request\contextlist();
+        $sql = "
+            SELECT DISTINCT ctx.id FROM {attendanceregister} l
+              JOIN {modules} m ON m.name = :name
+              JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+              JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+         LEFT JOIN {attendanceregister_session} la ON la.register = l.id
+         LEFT JOIN {attendanceregister_aggregate} lb ON lb.register = l.id
+             WHERE la.userid = :userid1 OR lb.userid = :userid2 OR la.addedbyuserid = :userid3";
+
+        $params = ['name' => 'attendanceregister', 'modulelevel' => CONTEXT_MODULE,
+                   'userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid];
+        $sql = "
+            SELECT DISTINCT ctx.id FROM {attendanceregister} l
+              JOIN {modules} m ON m.name = :name
+              JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+              JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel";
+        $recs = $DB->get_records_sql($sql, $params);
+        $contextlist->add_from_sql($sql, $params);
+        return $contextlist;
+    }
+
+    /**
+     * Export all user data for the specified user, in the specified contexts.
+     *
+     * @param   approved_contextlist    $contextlist    The approved contexts to export information for.
+     */
+    public static function export_user_data(approved_contextlist $contextlist) {
+        global $DB;
+        $user = $contextlist->get_user();
+        $contexts = $contextlist->get_contexts();
+        foreach ($contexts as $context) {
+            $contextdata = helper::get_context_data($context, $user);
+            helper::export_context_files($context, $user);
+            writer::with_context($context)->export_data([], $contextdata);
+        }
+    }
+
+    /**
+     * Delete all data for all users in the specified context.
+     *
+     * @param   context                 $context   The specific context to delete data for.
+     */
+    public static function delete_data_for_all_users_in_context(\context $context) {
+        global $DB;
+        if ($context->contextlevel != CONTEXT_MODULE) {
+            return;
+        }
+        $sql = "SELECT l.id FROM {attendanceregister} l
+                JOIN {modules} m ON m.name = :name
+                JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+                JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                WHERE ctx.id = :id";
+        $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE, 'id' => $context->id];
+        if ($recs = $DB->get_records_sql($sql, $params)) {
+            foreach ($recs as $rec) {
+                $DB->delete_records('attendanceregister_session', ['register' => $rec->id]);
+                $DB->delete_records('attendanceregister_aggregate', ['register' => $rec->id]);
+                $DB->delete_records('attendanceregister_lock', ['register' => $rec->id]);
+            }
+        }
+    }
+
+    /**
+     * Delete all user data for the specified user, in the specified contexts.
+     *
+     * @param   approved_contextlist    $contextlist    The approved contexts and user information to delete information for.
+     */
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
+        global $DB;
+        $userid = $contextlist->get_user()->id;
+        $contexts = $contextlist->get_contexts();
+        foreach ($contexts as $context) { 
+            $sql = "SELECT l.id FROM {attendanceregister} l
+                    JOIN {modules} m ON m.name = :name
+                    JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+                    JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                    WHERE ctx.id = :id";
+            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE, 'id' => $context->id];
+            if ($recs = $DB->get_records_sql($sql, $params)) {
+                foreach ($recs as $rec) {
+                    $DB->delete_records('attendanceregister_session', ['register' => $rec->id, 'userid' => $userid]);
+                    $DB->delete_records('attendanceregister_aggregate', ['register' => $rec->id, 'userid' => $userid]);
+                    $DB->delete_records('attendanceregister_lock', ['register' => $rec->id, 'userid' => $userid]);
+                }
+            }
+        }
     }
 }
