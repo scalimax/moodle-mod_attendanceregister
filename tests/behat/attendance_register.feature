@@ -42,7 +42,8 @@ Feature: attendance register
     And I follow "TestPage"
     And I log out
     And I trigger cron
-    
+    And I am on "Course 2" course homepage
+
   Scenario: Users should be tracked
     Given I log in as "manager"
     And I am on "Course 1" course homepage
@@ -54,5 +55,4 @@ Feature: attendance register
     Then I should see "attendance"
     And I follow "attendance"
     Then I should see "user1"
-    And I should see "user2"
-    
+    And I should see "user2"    
