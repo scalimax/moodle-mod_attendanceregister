@@ -35,14 +35,13 @@ Feature: attendance register
       | Page content        | x        |
       | Completion tracking | 2        |
       | Require view        | 1        |
-    And I trigger cron
     And I log out
+    And I trigger cron
     And I log in as "user1"
     And I am on "Course 2" course homepage
     And I follow "TestPage"
     And I log out
     And I trigger cron
-    And I am on "Course 2" course homepage
 
   Scenario: Users should be tracked
     Given I log in as "manager"
@@ -55,4 +54,4 @@ Feature: attendance register
     Then I should see "attendance"
     And I follow "attendance"
     Then I should see "user1"
-    And I should see "user2"    
+    And I should see "user2"
