@@ -93,12 +93,12 @@ class attendanceregister_tracked_users {
                 }
                 // Populate attendanceregister_user_aggregates_summary fields.
                 if ($aggregate->grandtotal) {
-                    $this->usersaggregates[$aggregate->userid]->grandTotalduration = $aggregate->duration;
-                    $this->usersaggregates[$aggregate->userid]->lastSassionLogout = $aggregate->lastsessionlogout;
+                    $this->usersaggregates[$aggregate->userid]->grandtotal = $aggregate->duration;
+                    $this->usersaggregates[$aggregate->userid]->lastlogout = $aggregate->lastsessionlogout;
                 } else if ($aggregate->total && $aggregate->onlinesess == 1) {
-                    $this->usersaggregates[$aggregate->userid]->onlineTotalduration = $aggregate->duration;
+                    $this->usersaggregates[$aggregate->userid]->onlinetotal = $aggregate->duration;
                 } else if ($aggregate->total && $aggregate->onlinesess == 0) {
-                    $this->usersaggregates[$aggregate->userid]->offlineTotalduration = $aggregate->duration;
+                    $this->usersaggregates[$aggregate->userid]->offlinetotal = $aggregate->duration;
                 }
             }
         }
@@ -140,38 +140,32 @@ class attendanceregister_tracked_users {
                 // Basic columns.
                 $linkurl = attendanceregister_makeurl($this->register, $user->id);
                 $fullname = '<a href="' . $linkurl . '">' . fullname($user) . '</a>';
-                $onlineduration = $useraggregate ? $useraggregate->onlineTotalduration : null;
-                $onlinedurationstr = attendanceregister_format_duration($onlineduration);
-                $tablerow = new html_table_row([$rowcount, $fullname, $onlinedurationstr]);
+                $duration = $useraggregate ? $useraggregate->onlineTotalduration : null;
+                $tablerow = new html_table_row([$rowcount, $fullname, attendanceregister_format_duration($duration)]);
 
                 // Add class for zebra stripes.
                 $tablerow->attributes['class'] .= ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
 
                 // Optional columns.
                 if ($this->register->offlinesessions) {
-                    $offlineduration = $useraggregate ? $useraggregate->offlineTotalduration : null;
-                    $tablecell = new html_table_cell(attendanceregister_format_duration($offlineduration));
-                    $tablerow->cells[] = $tablecell;
-                    $grandtotalduration = $useraggregate ? $useraggregate->grandTotalduration : null;
-                    $grandtotaldurationstr = attendanceregister_format_duration($grandtotalduration);
-                    $tablecell = new html_table_cell($grandtotaldurationstr);
-                    $tablerow->cells[] = $tablecell;
+                    $duration = $useraggregate ? $useraggregate->offlineTotalduration : null;
+                    $tablerow->cells[] = new html_table_cell(attendanceregister_format_duration($duration));
+                    $duration = $useraggregate ? $useraggregate->grandTotalduration : null;
+                    $tablerow->cells[] = new html_table_cell(attendanceregister_format_duration($duration));
                 }
 
                 if ($useraggregate) {
-                    $tablecell = new html_table_cell(attendanceregister__formatDateTime($useraggregate->lastSassionLogout));
+                    $tablerow->cells[] = new html_table_cell(attendanceregister__formatdate($useraggregate->lastSassionLogout));
                 } else {
-                    $tablecell = new html_table_cell(get_string('no_session', 'attendanceregister'));
+                    $tablerow->cells[] = new html_table_cell(get_string('no_session', 'attendanceregister'));
                 }
-                $tablerow->cells[] = $tablecell;
                 $table->data[] = $tablerow;
             }
         } else {
             // No User.
             $row = new html_table_row();
-            $labelcell = new html_table_cell();
+            $labelcell = new html_table_cell(get_string('no_tracked_user', 'attendanceregister'));
             $labelcell->colspan = count($table->head);
-            $labelcell->text = get_string('no_tracked_user', 'attendanceregister');
             $row->cells[] = $labelcell;
             $table->data[] = $row;
         }

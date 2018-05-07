@@ -86,6 +86,7 @@ class attendanceregister_user_sessions  {
      * @return html_table
      */
     public function html_table() {
+        global $OUTPUT;
         $table = new html_table();
         $s = ' attendanceregister_sessionlist table table-condensed table-bordered table-striped table-hover';
         $table->attributes['class'] .= $s;
@@ -119,7 +120,7 @@ class attendanceregister_user_sessions  {
                 $rowcount++;
 
                 $rowcountstr = (string)$rowcount;
-                if (!$session->onlinesess && $this->usercaps->canDeleteThisUserOfflineSession($session->userid) ) {
+                if (!$session->onlinesess && $this->usercaps->candeletesession($session->userid) ) {
                     $deleteurl = attendanceregister_makeurl($this->register, $session->userid, null,
                         ATTENDANCEREGISTER_ACTION_DELETE_OFFLINE_SESSION, ['session' => $session->id]);
                     $confirm = new confirm_action(get_string('are_you_sure_to_delete_offline_session', 'attendanceregister'));
@@ -129,15 +130,15 @@ class attendanceregister_user_sessions  {
 
                 $duration = attendanceregister_format_duration($session->duration);
 
-                $tablerow = new html_table_row([$rowcountstr, attendanceregister__formatDateTime($session->login),
-                    attendanceregister__formatDateTime($session->logout), $duration]);
+                $tablerow = new html_table_row([$rowcountstr, attendanceregister__formatdate($session->login),
+                    attendanceregister__formatdate($session->logout), $duration]);
 
                 $tablerow->attributes['class'] .= ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
 
                 if ($this->register->offlinesessions) {
                     $online = $session->onlinesess ? $stronline : $stroffline;
-                    if ($session->addedbyuserid ) {
-                        $a = attendanceregister__otherUserFullnameOrUnknown($session->addedbyuserid);
+                    if ($session->addedbyuserid) {
+                        $a = attendanceregister__otherusername($session->addedbyuserid);
                         $addedby = get_string('session_added_by_another_user', 'attendanceregister', $a);
                         $online = html_writer::tag('a', $online . '*', ['title' => $addedby, 'class' => 'addedbyother']);
                     }

@@ -84,13 +84,13 @@ class attendanceregister_user_aggregates {
      */
     public function __construct($register, $userid, attendanceregister_user_sessions $sessions) {
         $this->usersessions = $sessions;
-        $this->user = attendanceregister__getUser($userid);
+        $this->user = attendanceregister__getuser($userid);
         $this->sessions = $sessions;
         $aggregates = attendanceregister__get_user_aggregates($register, $userid);
         foreach ($aggregates as $aggregate) {
             if ($aggregate->grandtotal) {
                 $this->grandtotal = $aggregate->duration;
-                $this->lastlogout = $aggregate->lastsessionlogout;
+                $this->lastlogout = $aggregate->lastlogout;
             } else if ($aggregate->total && $aggregate->onlinesess == 1 ) {
                 $this->onlinetotal = $aggregate->duration;
             } else if ($aggregate->total && $aggregate->onlinesess == 0 ) {
@@ -101,7 +101,7 @@ class attendanceregister_user_aggregates {
                 $this->nocoursesessions = $aggregate->duration;
             } else {
                 // Should not happen!
-                debugging('Unconsistent Aggregate: ' . print_r($aggregate, true), DEBUG_DEVELOPER);
+                debugging('Unconsistent Aggregate: ' . json_encode($aggregate), DEBUG_DEVELOPER);
             }
         }
     }
@@ -123,28 +123,28 @@ class attendanceregister_user_aggregates {
         $label = new html_table_cell(get_string('prev_site_login', 'attendanceregister'));
         $label->colspan = 2;
         $row->cells[] = $label;
-        $row->cells[] = new html_table_cell(attendanceregister__formatDateTime($this->user->lastlogin));
+        $row->cells[] = new html_table_cell(attendanceregister__formatdate($this->user->lastlogin));
         $table->data[] = $row;
 
         $row = new html_table_row();
         $label = new html_table_cell(get_string('last_site_login', 'attendanceregister'));
         $label->colspan = 2;
         $row->cells[] = $label;
-        $row->cells[] = new html_table_cell(attendanceregister__formatDateTime($this->user->currentlogin));
+        $row->cells[] = new html_table_cell(attendanceregister__formatdate($this->user->currentlogin));
         $table->data[] = $row;
 
         $row = new html_table_row();
         $label = new html_table_cell(get_string('last_site_access', 'attendanceregister'));
         $label->colspan = 2;
         $row->cells[] = $label;
-        $row->cells[] = new html_table_cell(attendanceregister__formatDateTime($this->user->lastaccess));
+        $row->cells[] = new html_table_cell(attendanceregister__formatdate($this->user->lastaccess));
         $table->data[] = $row;
 
         $row = new html_table_row();
         $label = new html_table_cell(get_string('last_calc_online_session_logout', 'attendanceregister'));
         $label->colspan = 2;
         $row->cells[] = $label;
-        $row->cells[] = new html_table_cell(attendanceregister__formatDateTime($this->lastlogout));
+        $row->cells[] = new html_table_cell(attendanceregister__formatdate($this->lastlogout));
         $table->data[] = $row;
 
         $table->data[] = 'hr';

@@ -40,20 +40,20 @@ class attendanceregister_user_aggregates_summary {
     /**
      * Grandtotal of all sessions
      */
-    public $grandTotalDuration = 0;
+    public $grandtotal = 0;
 
     /**
      * Total of all Online Sessions
      */
-    public $onlineTotalDuration = 0;
+    public $onlinetotal = 0;
 
     /**
      * Total of all Offline Sessions
      */
-    public $offlineTotalDuration = 0;
+    public $offlinetotal = 0;
 
     /**
      * Last calculated Session Logout
      */
-    public $lastSassionLogout = 0;
+    public $lastlogout = 0;
 }

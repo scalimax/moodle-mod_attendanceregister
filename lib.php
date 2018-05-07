@@ -339,8 +339,8 @@ function attendanceregister_extend_settings_navigation(settings_navigation $sett
     $usercaps = new attendanceregister_user_capablities($PAGE->cm->context);
 
     // Add Recalc menu entries to Settings Menu.
-    if ($usercaps->canRecalcSessions) {
-        if (!empty($params['userid']) || !$usercaps->canViewOtherRegisters) {
+    if ($usercaps->canrecalc) {
+        if (!empty($params['userid']) || !$usercaps->canviewother) {
             // Single User view.
             $userid = clean_param($params['userid'], PARAM_INT);
             $linkurl = attendanceregister_makeurl($register, $userid, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
@@ -526,7 +526,7 @@ function attendanceregister_updates_all_users_sessions($register) {
  * @eturn boolean true if update needed
  */
 function attendanceregister_check_user_sessions_need_update($register, $userid, &$lastlogout = null) {
-    $user = attendanceregister__getUser($userid);
+    $user = attendanceregister__getuser($userid);
     if (!$user->lastaccess) {
         return false;
     }
@@ -535,9 +535,9 @@ function attendanceregister_check_user_sessions_need_update($register, $userid, 
         $lastlogout = 0;
         return true;
     }
-    if (($user->currentlogin > $aggregate->lastsessionlogout) &&
+    if (($user->currentlogin > $aggregate->lastlogout) &&
         ((time() - $user->currentlogin) > ($register->sessiontimeout * 60))) {
-        $lastlogout = $aggregate->lastsessionlogout;
+        $lastlogout = $aggregate->lastlogout;
         return true;
     } else {
         return false;
@@ -629,7 +629,7 @@ function attendanceregister_save_offline_session($register, $formdata) {
     $session->duration = $formdata->logout - $formdata->login;
     $session->refcourse = isset($formdata->refcourse) ? $formdata->refcourse : null;
     $session->comments = isset($formdata->comments) ? $formdata->comments : null;
-    if (!attendanceregister__isCurrentUser($session->userid)) {
+    if (!attendanceregister__iscurrentuser($session->userid)) {
         $session->addedbyuserid = $USER->id;
     }
     $DB->insert_record('attendanceregister_session', $session);
@@ -745,7 +745,7 @@ function attendanceregister_get_completion_state($course, $cm, $userid, $type) {
         throw new Exception("Can't find attendanceregister {$cm->instance}");
     }
     if ($register->completiontotaldurationmins) {
-        return attendanceregister__calculateUserCompletion($register, $userid);
+        return attendanceregister__calculatecompletion($register, $userid);
     } else {
         return $type;
     }
