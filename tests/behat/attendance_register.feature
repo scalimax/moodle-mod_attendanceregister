@@ -45,4 +45,3 @@ Feature: attendance register
     Given I log in as "manager"
     And I am on "Course 1" course homepage
     Then I should see "2 Manual enrolments"
-

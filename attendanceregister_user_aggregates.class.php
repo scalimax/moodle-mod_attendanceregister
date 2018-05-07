@@ -154,30 +154,24 @@ class attendanceregister_user_aggregates {
         $label = new html_table_cell(get_string('online_sessions_total_duration', 'attendanceregister'));
         $label->colspan = 2;
         $row->cells[] = $label;
-        $row->cells[] = new html_table_cell(attendanceregister_format_duration($this->onlinetotal))
-
+        $row->cells[] = new html_table_cell(attendanceregister_format_duration($this->onlinetotal));
         $table->data[] = $row;
-
         if ($this->offlinetotal ) {
             $table->data[] = 'hr';
-
             foreach ($this->percourse as $refcourseid => $offlinesessions) {
                 $row = new html_table_row();
-                $row->attributes['class'] .= '';
                 $label = new html_table_cell(get_string('offline_refcourse_duration', 'attendanceregister'));
                 $row->cells[] = $label;
                 if ($refcourseid ) {
-                    $coursecell = new html_table_cell($this->usersessions->trackedcourses->courses[$refcourseid]->fullname);
+                    $row->cells[] = new html_table_cell($this->usersessions->trackedcourses->courses[$refcourseid]->fullname);
                 } else {
-                    $coursecell = new html_table_cell(get_string('not_specified', 'attendanceregister'));
+                    $row->cells[] = new html_table_cell(get_string('not_specified', 'attendanceregister'));
                 }
-                $row->cells[] = $coursecell;
                 $row->cells[] = new html_table_cell(attendanceregister_format_duration($offlinesessions));
                 $table->data[] = $row;
             }
             if ($this->nocoursesessions ) {
                 $row = new html_table_row();
-                $row->attributes['class'] .= '';
                 $row->cells[] = new html_table_cell(get_string('offline_refcourse_duration', 'attendanceregister'));
                 $row->cells[] = new html_table_cell(get_string('no_refcourse', 'attendanceregister'));
                 $row->cells[] = new html_table_cell(attendanceregister_format_duration($this->nocoursesessions));
