@@ -32,6 +32,7 @@ use \core_privacy\local\request\writer;
 use \core_privacy\local\request\helper;
 use \core_privacy\local\request\deletion_criteria;
 use \core_privacy\local\metadata\collection;
+use \core_privacy\local\request\transform;
 
 /**
  * Privacy main class.
@@ -56,10 +57,8 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                 'onlinesess' => 'privacy:metadata:attendanceregister_session:onlinesess',
                 'comments' => 'privacy:metadata:attendanceregister_session:comments'];
         $collection->add_database_table('attendanceregister_session', $arr, 'privacy:metadata:attendanceregister_session');
-        $collection->link_subsystem('core_comments', 'privacy:metadata:core_comments');
-        $arr = ['login' => 'privacy:metadata:attendanceregister_aggregate:login',
-                'logout' => 'privacy:metadata:attendanceregister_aggregate:logout',
-                'duration' => 'privacy:metadata:attendanceregister_aggregate:duration',
+        // $collection->link_subsystem('core_comments', 'privacy:metadata:core_comments');
+        $arr = ['duration' => 'privacy:metadata:attendanceregister_aggregate:duration',
                 'onlinesess' => 'privacy:metadata:attendanceregister_aggregate:onlinesess',
                 'total' => 'privacy:metadata:attendanceregister_aggregate:total',
                 'grandtotal' => 'privacy:metadata:attendanceregister_aggregate:grandtotal',
@@ -84,10 +83,6 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
              LEFT JOIN {attendanceregister_session} la ON la.register = l.id
              LEFT JOIN {attendanceregister_aggregate} lb ON lb.register = l.id
                  WHERE la.userid = :userid1 OR lb.userid = :userid2 OR la.addedbyuserid = :userid3";
-        $sql1 = "SELECT DISTINCT ctx.id FROM {attendanceregister} l
-                  JOIN {modules} m ON m.name = :name
-                  JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-                  JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel";
         $params = ['name' => 'attendanceregister', 'modulelevel' => CONTEXT_MODULE,
                    'userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid];
         $contextlist->add_from_sql($sql, $params);
@@ -107,6 +102,47 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             $contextdata = helper::get_context_data($context, $user);
             helper::export_context_files($context, $user);
             writer::with_context($context)->export_data([], $contextdata);
+            $data = [];
+            $sql = "SELECT s.* FROM {attendanceregister_session} s
+                JOIN {attendanceregister} l ON l.id = s.register 
+                JOIN {modules} m ON m.name = :name
+                JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+                JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                WHERE ctx.id = :id AND (s.userid = :userid1 OR s.addedbyuserid = :userid2)";
+            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE,
+                      'id' => $context->id, 'userid1' => $user->id, 'userid2' => $user->id];
+            $recordset = $DB->get_recordset_sql($sql, $params);
+            foreach ($recordset as $record) {
+                $data[] = [
+                    'login' => transform::datetime($record->login),
+                    'logout' => transform::datetime($record->logout),
+                    'duration' => $record->duration,
+                    'onlinesess' => transform::yesno($record->onlinesess),
+                    'comments' => $record->comments];
+            }
+
+            $sql = "SELECT s.* FROM {attendanceregister_aggregate} s
+                JOIN {attendanceregister} l ON l.id = s.register 
+                JOIN {modules} m ON m.name = :name
+                JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+                JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                WHERE ctx.id = :id AND s.userid = :userid1";
+            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE,
+                      'id' => $context->id, 'userid1' => $user->id];
+            $recordset = $DB->get_recordset_sql($sql, $params);
+            foreach ($recordset as $record) {
+                $data[] = [
+                    'duration' => $record->duration,
+                    'onlinesess' => transform::yesno($record->onlinesess),
+                    'total' => $record->total,
+                    'grandtotal' => $record->grandtotal,
+                    'lastlogout' => transform::datetime($record->lastsessionlogout)
+                ];
+            }
+            $recordset->close();
+            if (!empty($data)) {
+                writer::with_context($context)->export_related_data([], 'sessions', (object) ['sessions' => array_values($data)]);
+            }
         }
     }
 
