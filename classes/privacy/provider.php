@@ -67,7 +67,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $collection->add_database_table('attendanceregister_aggregate', $arr, 'privacy:metadata:attendanceregister_aggregate');
         return $collection;
     }
-    
+
     /**
      * Get the list of contexts that contain user information for the specified user.
      *
@@ -77,23 +77,19 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     public static function get_contexts_for_userid(int $userid) : \core_privacy\local\request\contextlist {
         global $DB;
         $contextlist = new \core_privacy\local\request\contextlist();
-        $sql = "
-            SELECT DISTINCT ctx.id FROM {attendanceregister} l
-              JOIN {modules} m ON m.name = :name
-              JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-              JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-         LEFT JOIN {attendanceregister_session} la ON la.register = l.id
-         LEFT JOIN {attendanceregister_aggregate} lb ON lb.register = l.id
-             WHERE la.userid = :userid1 OR lb.userid = :userid2 OR la.addedbyuserid = :userid3";
-
+        $sql = "SELECT DISTINCT ctx.id FROM {attendanceregister} l
+                  JOIN {modules} m ON m.name = :name
+                  JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+                  JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+             LEFT JOIN {attendanceregister_session} la ON la.register = l.id
+             LEFT JOIN {attendanceregister_aggregate} lb ON lb.register = l.id
+                 WHERE la.userid = :userid1 OR lb.userid = :userid2 OR la.addedbyuserid = :userid3";
+        $sql1 = "SELECT DISTINCT ctx.id FROM {attendanceregister} l
+                  JOIN {modules} m ON m.name = :name
+                  JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+                  JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel";
         $params = ['name' => 'attendanceregister', 'modulelevel' => CONTEXT_MODULE,
                    'userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid];
-        $sql = "
-            SELECT DISTINCT ctx.id FROM {attendanceregister} l
-              JOIN {modules} m ON m.name = :name
-              JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-              JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel";
-        $recs = $DB->get_records_sql($sql, $params);
         $contextlist->add_from_sql($sql, $params);
         return $contextlist;
     }
