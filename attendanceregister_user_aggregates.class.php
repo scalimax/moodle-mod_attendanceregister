@@ -88,7 +88,7 @@ class attendanceregister_user_aggregates {
         $this->user = attendanceregister__getUser($userid);
         $aggregates = attendanceregister__get_user_aggregates($register, $userid);
         foreach ($aggregates as $aggregate) {
-            if($aggregate->grandtotal ) {
+            if ($aggregate->grandtotal) {
                 $this->grandTotalDuration = $aggregate->duration;
                 $this->lastSassionLogout = $aggregate->lastsessionlogout;
             } else if ($aggregate->total && $aggregate->onlinesess == 1 ) {
@@ -114,8 +114,9 @@ class attendanceregister_user_aggregates {
      */
     public function html_table() {
         $table = new html_table();
-        $table->attributes['class'] .= ' attendanceregister_usersummary table table-condensed table-bordered table-striped table-hover';
-        $table->head[] =  get_string('user_sessions_summary', 'attendanceregister');
+        $s = ' attendanceregister_usersummary table table-condensed table-bordered table-striped table-hover';
+        $table->attributes['class'] .= $s;
+        $table->head[] = get_string('user_sessions_summary', 'attendanceregister');
         $table->headspan = array(3);
 
         $row = new html_table_row();

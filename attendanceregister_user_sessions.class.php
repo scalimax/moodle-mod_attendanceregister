@@ -1,25 +1,39 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * attendanceregister_user_sessions.class.php - Class containing User's Sessions in an AttendanceRegister
+ * Attendance register user sessions
  *
- * @package    mod
- * @subpackage attendanceregister
- * @version    $Id
- * @author     Lorenzo Nicora <fad@nicus.it>
- *
+ * @package mod_attendanceregister
+ * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <rdebleu@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
- * Holds all attendanceregister_session record of a User's Register
+ * Attendance register user sessions
  *
- * Implements method to return html_table to render it.
- *
- * @author nicus
+ * @package mod_attendanceregister
+ * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class attendanceregister_user_sessions
-{
+class attendanceregister_user_sessions  {
 
     /**
      * attendanceregister_session records
@@ -47,7 +61,7 @@ class attendanceregister_user_sessions
     /**
      * Ref to mod_attendanceregister_user_capablities instance
      */
-    private $userCapabilites;
+    private $usercaps;
 
     /**
      * Constructor
@@ -55,16 +69,15 @@ class attendanceregister_user_sessions
      * Load User's Aggregates
      *
      * @param object                              $register
-     * @param int                                 $userId
+     * @param int                                 $userid
      * @param attendanceregister_user_capablities $userCapabilities
      */
-    public function __construct($register, $userId, attendanceregister_user_capablities $userCapabilities) 
-    {
+    public function __construct($register, $userid, attendanceregister_user_capablities $userCapabilities) {
         $this->register = $register;
-        $this->userSessions = attendanceregister_get_user_sessions($register, $userId);
-        $this->userAggregates = new attendanceregister_user_aggregates($register, $userId, $this);
+        $this->userSessions = attendanceregister_get_user_sessions($register, $userid);
+        $this->userAggregates = new attendanceregister_user_aggregates($register, $userid, $this);
         $this->trackedCourses = new attendanceregister_tracked_courses($register);
-        $this->userCapabilites = $userCapabilities;
+        $this->usercaps = $userCapabilities;
     }
 
     /**
@@ -72,22 +85,17 @@ class attendanceregister_user_sessions
      *
      * @return html_table
      */
-    public function html_table() 
-    {
-        global $OUTPUT, $doShowPrintableVersion;
-
+    public function html_table() {
         $table = new html_table();
-        $table->attributes['class'] .= ' attendanceregister_sessionlist table table-condensed table-bordered table-striped table-hover';
+        $s = ' attendanceregister_sessionlist table table-condensed table-bordered table-striped table-hover';
+        $table->attributes['class'] .= $s;
 
-        /// Header
-
-        $table->head = array(
+        $table->head = [
             get_string('count', 'attendanceregister'),
             get_string('start', 'attendanceregister'),
             get_string('end', 'attendanceregister'),
-            get_string('online_offline', 'attendanceregister')
-        );
-        $table->align = array('left', 'left', 'left', 'right');
+            get_string('online_offline', 'attendanceregister')];
+        $table->align = ['left', 'left', 'left', 'right'];
 
         if ($this->register->offlinesessions) {
             $table->head[] = get_string('online_offline', 'attendanceregister');
@@ -108,74 +116,62 @@ class attendanceregister_user_sessions
             $stronline = get_string('online', 'attendanceregister');
             $stroffline = get_string('offline', 'attendanceregister');
 
-            // Iterate sessions
+            // Iterate sessions.
             $rowcount = 0;
             foreach ($this->userSessions as $session) {
                 $rowcount++;
 
-                // Rowcount column
                 $rowcountStr = (string)$rowcount;
-                // Offline Delete button (if Session is offline and the current user may delete this user's offline sessions)
-                if (!$session->onlinesess && $this->userCapabilites->canDeleteThisUserOfflineSession($session->userid) ) {
-                    $deleteUrl = attendanceregister_makeUrl($this->register, $session->userid, null, ATTENDANCEREGISTER_ACTION_DELETE_OFFLINE_SESSION, array('session' => $session->id ));
+                if (!$session->onlinesess && $this->usercaps->canDeleteThisUserOfflineSession($session->userid) ) {
+                    $deleteurl = attendanceregister_makeurl($this->register, $session->userid, null,
+                        ATTENDANCEREGISTER_ACTION_DELETE_OFFLINE_SESSION, ['session' => $session->id]);
                     $confirmAction = new confirm_action(get_string('are_you_sure_to_delete_offline_session', 'attendanceregister'));
-                    $rowcountStr .= ' ' . $OUTPUT->action_icon($deleteUrl, new pix_icon('t/delete',  get_string('delete')), $confirmAction);
+                    $rowcountStr .= ' ' . $OUTPUT->action_icon($deleteurl, new pix_icon('t/delete',  get_string('delete')), $confirmAction);
                 }
 
-                // Duration
                 $duration = attendanceregister_format_duration($session->duration);
 
-                // Basic columns
-                $tableRow = new html_table_row(array($rowcountStr, attendanceregister__formatDateTime($session->login), attendanceregister__formatDateTime($session->logout), $duration));
+                $tablerow = new html_table_row([$rowcountStr, attendanceregister__formatDateTime($session->login),
+                    attendanceregister__formatDateTime($session->logout), $duration]);
 
-                // Add class for zebra stripes
-                $tableRow->attributes['class'] .= (  ($rowcount % 2)?' attendanceregister_oddrow':' attendanceregister_evenrow' );
+                $tablerow->attributes['class'] .= ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
 
-                // Optional columns
                 if ($this->register->offlinesessions) {
 
-                    // Offline/Online
-                    $onlineOfflineStr = (($session->onlinesess) ? $stronline : $stroffline);
+                    $online = $session->onlinesess ? $stronline : $stroffline;
 
-                    // if saved by other
                     if ($session->addedbyuserid ) {
-                        // Retrieve the other user, if any, or unknown
                         $a = attendanceregister__otherUserFullnameOrUnknown($session->addedbyuserid);
-                        $addedByStr = get_string('session_added_by_another_user', 'attendanceregister', $a);
-                        $onlineOfflineStr = html_writer::tag('a', $onlineOfflineStr . '*', array('title'=>$addedByStr, 'class'=>'addedbyother'));
+                        $addedby = get_string('session_added_by_another_user', 'attendanceregister', $a);
+                        $online = html_writer::tag('a', $online . '*', ['title'=>$addedby, 'class'=>'addedbyother']);
                     }
-                    $tableCell = new html_table_cell($onlineOfflineStr);
-                    $tableCell->attributes['class'] .=  ( ($session->onlinesess)?' online_label':' offline_label' );
-                    $tableRow->attributes['class'] .= ( ($session->onlinesess)?' success':'' );
-                    $tableRow->cells[] = $tableCell;
+                    $tablecell = new html_table_cell($online);
+                    $tablecell->attributes['class'] .=  $session->onlinesess ? ' online_label' : ' offline_label';
+                    $tablerow->attributes['class'] .= $session->onlinesess ? ' success' : '';
+                    $tablerow->cells[] = $tablecell;
 
-                    // Ref.Course
                     if ($this->register->offlinespecifycourse  ) {
                         if ($session->onlinesess ) {
-                            $refCourseName = '';
+                            $refcoursename = '';
                         } else {
                             if ($session->refcourse ) {
-                                $refCourse = $this->trackedCourses->courses[ $session->refcourse ];
-
-                                // In Printable Version show fullname (shortname), otherwise only shortname
+                                $refcourse = $this->trackedCourses->courses[ $session->refcourse ];
                                 if ($doShowPrintableVersion) {
-                                    $refCourseName = $refCourse->fullname . ' ('. $refCourse->shortname .')';
+                                    $refcoursename = $refcourse->fullname . ' ('. $refcourse->shortname .')';
                                 } else {
-                                    $refCourseName = $refCourse->shortname;
+                                    $refcoursename = $refcourse->shortname;
                                 }
                             } else {
-                                $refCourseName = get_string('not_specified', 'attendanceregister');
+                                $refcoursename = get_string('not_specified', 'attendanceregister');
                             }
                         }
-                        $tableCell = new html_table_cell($refCourseName);
-                        $tableRow->cells[] = $tableCell;
+                        $tablecell = new html_table_cell($refcoursename);
+                        $tablerow->cells[] = $tablecell;
                     }
 
-                    // Offline Comments
                     if ($this->register->offlinecomments  ) {
-                        if (!$session->onlinesess && $session->comments ) {
-                            // Shorten the comments (if !printable)
-                            if (!$doShowPrintableVersion ) {
+                        if (!$session->onlinesess && $session->comments) {
+                            if (!$doShowPrintableVersion) {
                                 $comment = attendanceregister__shorten_comment($session->comments);
                             } else {
                                 $comment = $session->comments;
@@ -183,24 +179,20 @@ class attendanceregister_user_sessions
                         } else {
                             $comment = '';
                         }
-                        $tableCell = new html_table_cell($comment);
-                        $tableRow->cells[] = $tableCell;
+                        $tablecell = new html_table_cell($comment);
+                        $tablerow->cells[] = $tablecell;
                     }
                 }
-                $table->data[] = $tableRow;
+                $table->data[] = $tablerow;
             }
         } else {
-            // No Session
-
             $row = new html_table_row();
-            $labelCell = new html_table_cell();
-            $labelCell->colspan = count($table->head);
-            $labelCell->text = get_string('no_session_for_this_user', 'attendanceregister');
-            $row->cells[] = $labelCell;
+            $labelcell = new html_table_cell();
+            $labelcell->colspan = count($table->head);
+            $labelcell->text = get_string('no_session_for_this_user', 'attendanceregister');
+            $row->cells[] = $labelcell;
             $table->data[] = $row;
         }
-
         return $table;
     }
-
 }

@@ -343,13 +343,13 @@ function attendanceregister_extend_settings_navigation(settings_navigation $sett
         if (!empty($params['userid']) || !$usercaps->canViewOtherRegisters ) {
             // Single User view.
             $userid = clean_param($params['userid'], PARAM_INT);
-            $linkurl = attendanceregister_makeUrl($register, $userid, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
+            $linkurl = attendanceregister_makeurl($register, $userid, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
             $menuentry = get_string('force_recalc_user_session', 'attendanceregister');
             $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
 
         } else {
             // All Users view.
-            $linkurl = attendanceregister_makeUrl($register, null, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
+            $linkurl = attendanceregister_makeurl($register, null, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
             $menuentry = get_string('force_recalc_all_session_now', 'attendanceregister');
             if ($register->pendingrecalc ) {
                 $menuentry .= ' ' . get_string('recalc_already_pending', 'attendanceregister');
@@ -357,7 +357,7 @@ function attendanceregister_extend_settings_navigation(settings_navigation $sett
             } else {
                 $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
                 // Also adds Schedule Entry.
-                $linkurl = attendanceregister_makeUrl($register, null, null, ATTENDANCEREGISTER_ACTION_SCHEDULERECALC);
+                $linkurl = attendanceregister_makeurl($register, null, null, ATTENDANCEREGISTER_ACTION_SCHEDULERECALC);
                 $menuentry = get_string('schedule_reclalc_all_session', 'attendanceregister');
                 $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
             }
@@ -674,7 +674,7 @@ function attendanceregister_set_pending_recalc($register, $pending) {
  * @param array   $additional   (opt) other parameters
  * @param boolean $forlog       (def=false) if true prepare the URL for add_to_log (i.e. w/o the prefix '/mod/attendanceregister/')
  */
-function attendanceregister_makeUrl($register, $userid = null, $groupid = null, $action = null, $additional = null, $forlog = false) {
+function attendanceregister_makeurl($register, $userid = null, $groupid = null, $action = null, $additional = null, $forlog = false) {
     $params = ['a' => $register->id];
     if ($userid) {
         $params['userid'] = $userid;
@@ -705,7 +705,7 @@ function attendanceregister_makeUrl($register, $userid = null, $groupid = null, 
  */
 function attendanceregister_add_to_log($register, $cmid, $action, $userid = null, $groupid = null) {
     // TODO: move to events
-    $logurl = attendanceregister_makeUrl($register, $userid, $groupid, $action, null, true);
+    $logurl = attendanceregister_makeurl($register, $userid, $groupid, $action, null, true);
     switch ($action) {
         case ATTENDANCEREGISTER_ACTION_RECALCULATE:
             $logaction = ATTENDANCEREGISTER_LOGACTION_RECALCULTATE;

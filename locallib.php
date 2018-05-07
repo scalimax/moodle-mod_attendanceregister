@@ -827,8 +827,8 @@ class mod_attendanceregister_selfcertification_edit_form extends moodleform {
 
         $register = $this->_customdata['register'];
         $courses = $this->_customdata['courses'];
-        if (isset($this->_customdata['userId'])) {
-            $userid = $this->_customdata['userId'];
+        if (isset($this->_customdata['userid'])) {
+            $userid = $this->_customdata['userid'];
         } else {
             $userid = null;
         }

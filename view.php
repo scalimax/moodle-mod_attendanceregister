@@ -25,8 +25,8 @@
 
 define('NO_OUTPUT_BUFFERING', true);
 
-require '../../config.php';
-require_once("lib.php");
+require('../../config.php');
+require_once('lib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 // Main parameters.
@@ -150,7 +150,7 @@ if ($userid ) {
     $trackedusers = new attendanceregister_tracked_users($register, $usercaps, $groupid);
 }
 
-$url = attendanceregister_makeUrl($register, $userid, $groupid, $inputaction);
+$url = attendanceregister_makeurl($register, $userid, $groupid, $inputaction);
 $PAGE->set_url($url->out());
 $PAGE->set_context($context);
 $str = $userid ? ': ' . $usertoprocessfullname : '';
@@ -163,9 +163,9 @@ if ($printable) {
 
 // Add User's Register Navigation node.
 if ($usertoprocess ) {
-    $registerNavNode = $PAGE->navigation->find($cm->id, navigation_node::TYPE_ACTIVITY);
-    $userNavNode = $registerNavNode->add($usertoprocessfullname, $url);
-    $userNavNode->make_active();
+    $registernavnode = $PAGE->navigation->find($cm->id, navigation_node::TYPE_ACTIVITY);
+    $usernavnode = $registernavnode->add($usertoprocessfullname, $url);
+    $usernavnode->make_active();
 }
 
 $params = ['context' => $context, 'objectid' => $register->id];
@@ -187,9 +187,9 @@ if ($userid && $doshowofflinesessionform && !$printable ) {
 
     // Prepare form.
     $customformdata = ['register' => $register, 'courses' => $usersessions->trackedCourses->courses];
-    // Also pass userId only if is saving for another user.
+    // Also pass userid only if is saving for another user.
     if (!attendanceregister__isCurrentUser($userid)) {
-        $customformdata['userId'] = $userid;
+        $customformdata['userid'] = $userid;
     }
     $mform = new mod_attendanceregister_selfcertification_edit_form(null, $customformdata);
 
@@ -197,10 +197,10 @@ if ($userid && $doshowofflinesessionform && !$printable ) {
     // Process Self.Cert Form submission.
     if ($mform->is_cancelled()) {
         redirect($PAGE->url);
-    } else if ($dosaveofflinesession && ($formData = $mform->get_data())) {
-        attendanceregister_save_offline_session($register, $formData);
+    } else if ($dosaveofflinesession && ($formdata = $mform->get_data())) {
+        attendanceregister_save_offline_session($register, $formdata);
         echo $OUTPUT->notification(get_string('offline_session_saved', 'attendanceregister'), 'notifysuccess');
-        echo $OUTPUT->continue_button(attendanceregister_makeUrl($register, $userid));
+        echo $OUTPUT->continue_button(attendanceregister_makeurl($register, $userid));
         $doshowcontents = false;
     }
 }
@@ -225,32 +225,31 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
             $newtrackedusers = attendanceregister_get_tracked_users($register);
             foreach ($newtrackedusers as $user) {
                 $progressbar = new progress_bar('recalcbar_' . $user->id, 500, true);
-                attendanceregister_force_recalc_user_sessions($register, $user->id, $progressbar, false); // No delete needed, having done before [issue #14]
+                attendanceregister_force_recalc_user_sessions($register, $user->id, $progressbar, false);
+                // No delete needed, having done before [issue #14].
             }
             $trackedusers = new attendanceregister_tracked_users($register, $usercaps,  $groupid);
         }
     }
-    if ($dorecalc || $doschedrecalc ) {
-        $notificationStr = get_string(($dorecalc)?'recalc_complete':'recalc_scheduled', 'attendanceregister');
-        echo $OUTPUT->notification($notificationStr, 'notifysuccess');
+    if ($dorecalc || $doschedrecalc) {
+        $s = $dorecalc ? 'recalc_complete' : 'recalc_scheduled';
+        echo $OUTPUT->notification(get_string($s, 'attendanceregister'), 'notifysuccess');
     }
-    echo $OUTPUT->continue_button(attendanceregister_makeUrl($register, $userid));
+    echo $OUTPUT->continue_button(attendanceregister_makeurl($register, $userid));
     $doshowcontents = false;
 } else if ($doshowcontents && $dodeleteofflinesession) {
     attendanceregister_delete_offline_session($register, $sessiontodelete->userid, $sessiontodelete->id);
   echo $OUTPUT->notification(get_string('offline_session_deleted', 'attendanceregister'), 'notifysuccess');
-    echo $OUTPUT->continue_button(attendanceregister_makeUrl($register, $userid));
+    echo $OUTPUT->continue_button(attendanceregister_makeurl($register, $userid));
     $doshowcontents = false;
 } else if ($doshowcontents) {
     if ($userid) {
         echo $OUTPUT->container_start('attendanceregister_buttonbar btn-group');
-        $x = $printable ? null : ATTENDANCEREGISTER_ACTION_PRINTABLE;
-        $linkUrl = attendanceregister_makeUrl($register, $userid, null, $x);
         if ($usercaps->canViewOtherRegisters && !$printable) {
-            echo $OUTPUT->single_button(attendanceregister_makeUrl($register),
+            echo $OUTPUT->single_button(attendanceregister_makeurl($register),
                 get_string('back_to_tracked_user_list', 'attendanceregister'), 'get');
-            $logurl = new moodle_url('/report/log/index.php',
-               ['chooselog' => 1, 'showusers' => 1, 'showcourses' => 1, 'id' => 1, 'user' => $userid, 'logformat' => 'showashtml']);
+            $logurl = new moodle_url('/report/log/index.php', ['chooselog' => 1, 'showusers' => 1,
+               'showcourses' => 1, 'id' => 1, 'user' => $userid, 'logformat' => 'showashtml']);
             echo $OUTPUT->single_button($logurl, 'Logs', 'get');
         }
         echo $OUTPUT->container_end();
@@ -269,14 +268,13 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
         }
         if ($register->pendingrecalc && $usercaps->canRecalcSessions && !$printable ) {
             echo $OUTPUT->notification(get_string('recalc_scheduled_on_next_cron', 'attendanceregister'));
-        }
-        else if (!attendanceregister__didCronRanAfterInstanceCreation($cm) ) {
+        } else if (!attendanceregister__didCronRanAfterInstanceCreation($cm)) {
             echo $OUTPUT->notification(get_string('first_calc_at_next_cron_run', 'attendanceregister'));
         }
         echo $OUTPUT->container_start('attendanceregister_buttonbar btn-group');
-        if ($usercaps->isTracked ) {
-            $linkUrl = attendanceregister_makeUrl($register, $USER->id);
-            echo $OUTPUT->single_button($linkUrl, get_string('show_my_sessions', 'attendanceregister'), 'get');
+        if ($usercaps->isTracked) {
+            $linkurl = attendanceregister_makeurl($register, $USER->id);
+            echo $OUTPUT->single_button($linkurl, get_string('show_my_sessions', 'attendanceregister'), 'get');
         }
         echo $OUTPUT->container_end();
         echo '<br />';
