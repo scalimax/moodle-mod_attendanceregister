@@ -19,6 +19,7 @@
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <rdebleu@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,7 +30,10 @@ defined('MOODLE_INTERNAL') || die();
  *
  * Implements method to return html_table to render it.
  *
- * @author nicus
+ * @package mod_attendanceregister
+ * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attendanceregister_tracked_courses {
 

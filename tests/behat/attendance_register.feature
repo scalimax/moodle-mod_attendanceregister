@@ -1,6 +1,5 @@
 @iplus @mod @mod_attendanceregister
 Feature: attendance register
-  
   Background:
     Given the following "courses" exist:
       | fullname | shortname | idnumber  | numsections | startdate | enddate   | enablecompletion |
@@ -35,7 +34,7 @@ Feature: attendance register
       | Completion tracking | 2        |
       | Require view        | 1        |
     And I add a "Attendance Register" to section "2" and fill the form with:
-      | name | Attendance |g
+      | name | Attendance |
     And I log out
     And I log in as "user1"
     And I am on "Course 2" course homepage

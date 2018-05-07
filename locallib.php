@@ -85,13 +85,13 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
     $sessiontimeout = $register->sessiontimeout * 60;
     $prevlog = null;
     $sessionstart = null;
-    $logentriesCount = 0;
+    $logentriescount = 0;
     $newsessionscount = 0;
     $sessionlast = 0;
 
     if (is_array($logentries) && count($logentries) > 0) {
         foreach ($logentries as $entry) {
-            $logentriesCount++;
+            $logentriescount++;
             if (!$prevlog) {
                 $prevlog = $entry;
                 $sessionstart = $entry->timecreated;
@@ -114,7 +114,7 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
                 // Update the progress bar, if any.
                 if ($progressbar) {
                     $msg = get_string('updating_online_sessions_of', 'attendanceregister', fullname($user));
-                    $progressbar->update($logentriesCount, $logcount, $msg);
+                    $progressbar->update($logentriescount, $logcount, $msg);
                 }
 
                 // Session has ended: session start on current log entry.
@@ -137,14 +137,13 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
             // Update the progress bar, if any.
             if ($progressbar) {
                 $msg = get_string('updating_online_sessions_of', 'attendanceregister', fullname($user));
-                $progressbar->update($logentriesCount, $logcount, $msg);
+                $progressbar->update($logentriescount, $logcount, $msg);
             }
         }
     }
 
     // Updates Aggregates.
     attendanceregister__update_user_aggregates($register, $userid);
-
 
     // Finalize Progress Bar.
     if ($progressbar) {
@@ -235,12 +234,12 @@ function attendanceregister__update_user_aggregates($register, $userid) {
     foreach ($aggregates as $aggregate) {
         $DB->insert_record('attendanceregister_aggregate', $aggregate);
     }
-    
+
     if (attendanceregister__isAnyCompletionConditionSpecified($register)) {
         $cm = get_coursemodule_from_instance('attendanceregister', $register->id, $register->course, null, MUST_EXIST);
         $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
         $completion = new completion_info($course);
-        if($completion->is_enabled($cm)) {
+        if ($completion->is_enabled($cm)) {
             $completiontracked = ['totaldurationsecs' => $grandtotalaggregate->duration];
             if (attendanceregister__areCompletionConditionsMet($register, $completiontracked)) {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
@@ -257,7 +256,7 @@ function attendanceregister__update_user_aggregates($register, $userid) {
  *
  * All Users that in the Register's Course have any Role with "mod/attendanceregister:tracked" Capability assigned.
  * (NOT Users having this Capability in all tracked Courses!)
- * 
+ *
  * @param  object $register
  * @return array of users
  */
@@ -274,7 +273,7 @@ function attendanceregister__get_tracked_users($register, $groupid = '') {
     $unique = attendanceregister__unique_object_array_by_id($userids);
     $compare = "return strcmp( fullname(\$a), fullname(\$b));";
     usort($unique, create_function('$a,$b', $compare));
-    return $unique;    
+    return $unique;
 }
 
 /**
@@ -720,7 +719,7 @@ function attendanceregister__otherUserFullnameOrUnknown($otherid) {
 /**
  * Check if any completion condition is enabled in a given Register instance.
  * ANY CHECK FOR ENABLED COMPLETION CONDITION must use this function
- * 
+ *
  * @param  object $register Register instance
  * @return boolean TRUE if any completion condition is enabled
  */
@@ -732,9 +731,9 @@ function attendanceregister__isAnyCompletionConditionSpecified($register) {
  * Check completion of the activity by a user.
  * Note that this method performs aggregation SQL queries for caculating tracked values
  * useful for completion check.
- * Actual completion condition check is delegated 
+ * Actual completion condition check is delegated
  * to attendanceregister__areCompletionConditionsMet(...)
- * 
+ *
  * @param  object $register AttendanceRegister
  * @param  int    $userid   User ID
  * @return boolean TRUE if the Activity is complete, FALSE if not complete, NULL if no activity completion has been specified
@@ -748,11 +747,11 @@ function attendanceregister__calculateUserCompletion($register, $userid) {
     $totalsecs = $DB->get_field_sql($sql, ['registerid' => $register->id, 'userid' => $userid]);
     return attendanceregister__areCompletionConditionsMet($register, ['totaldurationsecs' => $totalsecs]);
 }
- 
+
 /**
  * Check if a set of tracked values meets the completion condition for the instance
  *
- * This method implements evaluation of (pre-calculated) tracked values 
+ * This method implements evaluation of (pre-calculated) tracked values
  * against completion conditions.
  * ANY COMPLETION CHECK (for a user) must be delegated to this method.
  *
@@ -793,7 +792,7 @@ function attendanceregister__didCronRanAfterInstanceCreation($cm) {
  */
 class mod_attendanceregister_selfcertification_edit_form extends moodleform {
 
-    function definition() {
+    public function definition() {
         global $USER;
 
         $mform =& $this->_form;
@@ -819,7 +818,7 @@ class mod_attendanceregister_selfcertification_edit_form extends moodleform {
             $title = get_string('insert_new_offline_session_for_another_user', 'attendanceregister', $a);
         }
         $mform->addElement('html', '<h3>' . $title . '</h3>');
-        $mform->addElement('date_time_selector', 'login', get_string('offline_session_start', 'attendanceregister'), 
+        $mform->addElement('date_time_selector', 'login', get_string('offline_session_start', 'attendanceregister'),
            ['defaulttime' => $deflogin, 'optional' => false]);
         $mform->addRule('login', get_string('required'), 'required');
         $mform->addHelpButton('login', 'offline_session_start', 'attendanceregister');
@@ -870,7 +869,7 @@ class mod_attendanceregister_selfcertification_edit_form extends moodleform {
         $this->add_action_buttons();
     }
 
-    function validation($data, $files) {
+    public function validation($data, $files) {
         global $USER, $DB;
 
         $errors = parent::validation($data, $files);
