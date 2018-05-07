@@ -121,7 +121,7 @@ class attendanceregister_tracked_users {
             $table->align[] = 'right';
             $table->head[] = get_string('grandtotal_time', 'attendanceregister');
             $table->align[] = 'right';
-        }co
+        }
         $table->head[] = get_string('last_session_logout', 'attendanceregister');
         $table->align[] = 'left';
 
