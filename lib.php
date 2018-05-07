@@ -149,7 +149,7 @@ function attendanceregister_update_instance($register) {
         $register->mandofflspeccourse = 0;
     }
     $old = $DB->get_record('attendanceregister', ['id' => $register->id]);
-    if ($old &&  $old->sessiontimeout != $register->sessiontimeout ) {
+    if ($old &&  $old->sessiontimeout != $register->sessiontimeout) {
         $register->pendingrecalc = true;
     }
     return $DB->update_record('attendanceregister', $register);
@@ -295,7 +295,7 @@ function attendanceregister_cron() {
 
     // Remove orphaned Locks [issue #1].
     $orphanbefore = time() - ATTENDANCEREGISTER_ORPHANED_LOCKS_DELAY_SECONDS;
-    $locks = $DB->delete_records_select('attendanceregister_lock', 'takenon < :takenon', [ 'takenon' => $orphanbefore]);
+    $DB->delete_records_select('attendanceregister_lock', 'takenon < :takenon', [ 'takenon' => $orphanbefore]);
     $registers = $DB->get_records('attendanceregister');
     foreach ($registers as $register) {
         $course = get_course($register->course);
@@ -304,7 +304,7 @@ function attendanceregister_cron() {
             continue;
         }
         mtrace('Updating AttendanceRegister ID ' . $register->id);
-        if ($register->pendingrecalc ) {
+        if ($register->pendingrecalc) {
              mtrace('Force-recalculating AttendanceRegister ID ' . $register->id . '...');
              attendanceregister_force_recalc_all($register);
              attendanceregister_set_pending_recalc($register, false);
@@ -322,11 +322,11 @@ function attendanceregister_cron() {
  * Adds module specific settings to the settings block
  *
  * @param  settings_navigation $settingsnav The settings navigation object
- * @param  navigation_node     $booknode    The node to add module settings to
+ * @param  navigation_node     $node    The node to add module settings to
  * @return void
  */
-function attendanceregister_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $attendanceregisternode) {
-    global $PAGE, $USER;
+function attendanceregister_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $node) {
+    global $PAGE;
     if ($PAGE->cm->modname !== 'attendanceregister') {
         return;
     }
@@ -339,27 +339,27 @@ function attendanceregister_extend_settings_navigation(settings_navigation $sett
     $usercaps = new attendanceregister_user_capablities($PAGE->cm->context);
 
     // Add Recalc menu entries to Settings Menu.
-    if ($usercaps->canRecalcSessions ) {
-        if (!empty($params['userid']) || !$usercaps->canViewOtherRegisters ) {
+    if ($usercaps->canRecalcSessions) {
+        if (!empty($params['userid']) || !$usercaps->canViewOtherRegisters) {
             // Single User view.
             $userid = clean_param($params['userid'], PARAM_INT);
             $linkurl = attendanceregister_makeurl($register, $userid, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
             $menuentry = get_string('force_recalc_user_session', 'attendanceregister');
-            $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
+            $node->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
 
         } else {
             // All Users view.
             $linkurl = attendanceregister_makeurl($register, null, null, ATTENDANCEREGISTER_ACTION_RECALCULATE);
             $menuentry = get_string('force_recalc_all_session_now', 'attendanceregister');
-            if ($register->pendingrecalc ) {
+            if ($register->pendingrecalc) {
                 $menuentry .= ' ' . get_string('recalc_already_pending', 'attendanceregister');
-                $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
+                $node->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
             } else {
-                $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
+                $node->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
                 // Also adds Schedule Entry.
                 $linkurl = attendanceregister_makeurl($register, null, null, ATTENDANCEREGISTER_ACTION_SCHEDULERECALC);
                 $menuentry = get_string('schedule_reclalc_all_session', 'attendanceregister');
-                $attendanceregisternode->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
+                $node->add($menuentry, $linkurl, navigation_node::TYPE_SETTING);
             }
         }
     }
@@ -526,18 +526,17 @@ function attendanceregister_updates_all_users_sessions($register) {
  * @eturn boolean true if update needed
  */
 function attendanceregister_check_user_sessions_need_update($register, $userid, &$lastlogout = null) {
-    global $DB;
     $user = attendanceregister__getUser($userid);
-    $aggregate = attendanceregister__get_cached_user_grandtotal($register, $userid);
     if (!$user->lastaccess) {
         return false;
     }
-    if (!$useraggregate) {
+    $aggregate = attendanceregister__get_cached_user_grandtotal($register, $userid);
+    if (!$aggregate) {
         $lastlogout = 0;
         return true;
     }
     if (($user->currentlogin > $aggregate->lastsessionlogout) &&
-        ((time() - $user->currentlogin) > ($register->sessiontimeout * 60) )) {
+        ((time() - $user->currentlogin) > ($register->sessiontimeout * 60))) {
         $lastlogout = $aggregate->lastsessionlogout;
         return true;
     } else {
@@ -602,7 +601,7 @@ function attendanceregister_format_duration($duration, $default = null) {
 
     $dur = new stdClass();
     $dur->hours = floor($duration / 3600);
-    $dur->minutes = floor(($duration % 3600 ) / 60);
+    $dur->minutes = floor(($duration % 3600) / 60);
     if ($dur->hours) {
         return get_string('duration_hh_mm', 'attendanceregister', $dur);
     }
@@ -630,7 +629,7 @@ function attendanceregister_save_offline_session($register, $formdata) {
     $session->duration = $formdata->logout - $formdata->login;
     $session->refcourse = isset($formdata->refcourse) ? $formdata->refcourse : null;
     $session->comments = isset($formdata->comments) ? $formdata->comments : null;
-    if (!attendanceregister__isCurrentUser($session->userid) ) {
+    if (!attendanceregister__isCurrentUser($session->userid)) {
         $session->addedbyuserid = $USER->id;
     }
     $DB->insert_record('attendanceregister_session', $session);
@@ -674,7 +673,9 @@ function attendanceregister_set_pending_recalc($register, $pending) {
  * @param array   $additional   (opt) other parameters
  * @param boolean $forlog       (def=false) if true prepare the URL for add_to_log (i.e. w/o the prefix '/mod/attendanceregister/')
  */
-function attendanceregister_makeurl($register, $userid = null, $groupid = null, $action = null, $additional = null, $forlog = false) {
+function attendanceregister_makeurl($register, $userid = null, $groupid = null, $action = null,
+    $additional = null, $forlog = false) {
+
     $params = ['a' => $register->id];
     if ($userid) {
         $params['userid'] = $userid;
@@ -704,7 +705,7 @@ function attendanceregister_makeurl($register, $userid = null, $groupid = null, 
  * @param int    $groupid
  */
 function attendanceregister_add_to_log($register, $cmid, $action, $userid = null, $groupid = null) {
-    // TODO: move to events
+    // TODO: move to events2.
     $logurl = attendanceregister_makeurl($register, $userid, $groupid, $action, null, true);
     switch ($action) {
         case ATTENDANCEREGISTER_ACTION_RECALCULATE:
@@ -743,7 +744,7 @@ function attendanceregister_get_completion_state($course, $cm, $userid, $type) {
     if (!($register = $DB->get_record('attendanceregister', ['id' => $cm->instance]))) {
         throw new Exception("Can't find attendanceregister {$cm->instance}");
     }
-    if ($register->completiontotaldurationmins ) {
+    if ($register->completiontotaldurationmins) {
         return attendanceregister__calculateUserCompletion($register, $userid);
     } else {
         return $type;

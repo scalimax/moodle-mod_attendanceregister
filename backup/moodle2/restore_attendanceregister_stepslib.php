@@ -48,7 +48,6 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
     protected function process_attendanceregister($data) {
         global $DB;
         $data = (object) $data;
-        $oldid = $data->id;
         $data->course = $this->get_courseid();
 
         if (!isset($data->completiontotaldurationmins)) {
@@ -62,7 +61,6 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
     protected function process_attendanceregister_session($data) {
         global $DB;
         $data = (object) $data;
-        $oldid = $data->id;
         $data->register = $this->get_new_parentid('attendanceregister');
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->addedbyuserid = $this->get_mappingid('user', $data->addedbyuserid);
@@ -81,8 +79,7 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
                 $data->refcourse = $refcourse->id;
             }
         }
-
-        $newitemid = $DB->insert_record('attendanceregister_session', $data);
+        $DB->insert_record('attendanceregister_session', $data);
     }
 
     protected function apply_activity_instance($newitemid) {

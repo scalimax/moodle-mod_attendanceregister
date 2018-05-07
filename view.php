@@ -239,7 +239,7 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
     $doshowcontents = false;
 } else if ($doshowcontents && $dodeleteofflinesession) {
     attendanceregister_delete_offline_session($register, $sessiontodelete->userid, $sessiontodelete->id);
-  echo $OUTPUT->notification(get_string('offline_session_deleted', 'attendanceregister'), 'notifysuccess');
+    echo $OUTPUT->notification(get_string('offline_session_deleted', 'attendanceregister'), 'notifysuccess');
     echo $OUTPUT->continue_button(attendanceregister_makeurl($register, $userid));
     $doshowcontents = false;
 } else if ($doshowcontents) {
@@ -283,9 +283,6 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
     }
 }
 
-
-
-// Output page footer;
 if (!$printable) {
     echo $OUTPUT->footer();
 }
