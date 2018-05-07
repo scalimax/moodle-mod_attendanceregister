@@ -70,14 +70,14 @@ class attendanceregister_user_sessions  {
      *
      * @param object                              $register
      * @param int                                 $userid
-     * @param attendanceregister_user_capablities $userCapabilities
+     * @param attendanceregister_user_capablities $usercapabilities
      */
-    public function __construct($register, $userid, attendanceregister_user_capablities $userCapabilities) {
+    public function __construct($register, $userid, attendanceregister_user_capablities $usercaps) {
         $this->register = $register;
         $this->usersessions = attendanceregister_get_user_sessions($register, $userid);
         $this->useraggregates = new attendanceregister_user_aggregates($register, $userid, $this);
         $this->trackedcourses = new attendanceregister_tracked_courses($register);
-        $this->usercaps = $userCapabilities;
+        $this->usercaps = $usercaps;
     }
 
     /**
@@ -139,7 +139,7 @@ class attendanceregister_user_sessions  {
                     if ($session->addedbyuserid ) {
                         $a = attendanceregister__otherUserFullnameOrUnknown($session->addedbyuserid);
                         $addedby = get_string('session_added_by_another_user', 'attendanceregister', $a);
-                        $online = html_writer::tag('a', $online . '*', ['title'=>$addedby, 'class' => 'addedbyother']);
+                        $online = html_writer::tag('a', $online . '*', ['title' => $addedby, 'class' => 'addedbyother']);
                     }
                     $tablecell = new html_table_cell($online);
                     $tablecell->attributes['class'] .= $session->onlinesess ? ' online_label' : ' offline_label';
@@ -175,9 +175,8 @@ class attendanceregister_user_sessions  {
             }
         } else {
             $row = new html_table_row();
-            $labelcell = new html_table_cell();
+            $labelcell = new html_table_cell(get_string('no_session_for_this_user', 'attendanceregister'));
             $labelcell->colspan = count($table->head);
-            $labelcell->text = get_string('no_session_for_this_user', 'attendanceregister');
             $row->cells[] = $labelcell;
             $table->data[] = $row;
         }

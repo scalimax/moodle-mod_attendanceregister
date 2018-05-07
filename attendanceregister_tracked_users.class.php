@@ -150,8 +150,7 @@ class attendanceregister_tracked_users {
                 // Optional columns.
                 if ($this->register->offlinesessions) {
                     $offlineduration = $useraggregate ? $useraggregate->offlineTotalduration : null;
-                    $offlinedurationstr = attendanceregister_format_duration($offlineduration);
-                    $tablecell = new html_table_cell($offlinedurationstr);
+                    $tablecell = new html_table_cell(attendanceregister_format_duration($offlineduration));
                     $tablerow->cells[] = $tablecell;
                     $grandtotalduration = $useraggregate ? $useraggregate->grandTotalduration : null;
                     $grandtotaldurationstr = attendanceregister_format_duration($grandtotalduration);

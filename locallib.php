@@ -301,7 +301,7 @@ function attendanceregister__get_tracked_users_need_update($register) {
                            aa4.register=:registerid2  AND aa4.grandtotal = 1)
                         OR EXISTS (SELECT * FROM {attendanceregister_aggregate} aa2, {log} l2
                                     WHERE aa2.userid = u.id AND aa2.register = :registerid3
-                                      AND l2.course = :courseid AND l2.userid = aa2.userid                                 
+                                      AND l2.course = :courseid AND l2.userid = aa2.userid                              
                                       AND aa2.grandtotal = 1
                                       AND l2.time > aa2.lastsessionlogout))";
         $params['sesstimeout'] = $register->sessiontimeout;

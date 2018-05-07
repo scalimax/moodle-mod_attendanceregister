@@ -15,45 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Attendance register user aggregates summary.
+ * mod_attendanceregister data generator
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <rdebleu@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Represents a User's Aggregate for a Register
- * Holds in a single Object attendanceregister_aggregate records for
- * summary infos only (total & grandtotal)
- * for a User and a Register instance.
+ * mod_attendanceregister data generator
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <rdebleu@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class attendanceregister_user_aggregates_summary {
+class mod_attendanceregister_generator extends testing_module_generator {
 
-    /**
-     * Grandtotal of all sessions
-     */
-    public $grandTotalDuration = 0;
-
-    /**
-     * Total of all Online Sessions
-     */
-    public $onlineTotalDuration = 0;
-
-    /**
-     * Total of all Offline Sessions
-     */
-    public $offlineTotalDuration = 0;
-
-    /**
-     * Last calculated Session Logout
-     */
-    public $lastSassionLogout = 0;
+    public function create_instance($record = null, array $options = null) {
+        $record = (array)$record;
+        $record['showdescription'] = 1;
+        return parent::create_instance($record, $options);
+    }
 }
