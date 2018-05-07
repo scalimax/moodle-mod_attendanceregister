@@ -186,7 +186,7 @@ $mform = null;
 if ($userid && $doshowofflinesessionform && !$printable ) {
 
     // Prepare form.
-    $customformdata = ['register' => $register, 'courses' => $usersessions->trackedCourses->courses];
+    $customformdata = ['register' => $register, 'courses' => $usersessions->trackedcourses->courses];
     // Also pass userid only if is saving for another user.
     if (!attendanceregister__isCurrentUser($userid)) {
         $customformdata['userid'] = $userid;
@@ -260,7 +260,7 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
             $mform->display();
             echo $OUTPUT->box_end();
         }
-        echo html_writer::div(html_writer::table($usersessions->userAggregates->html_table()), 'table-responsive');
+        echo html_writer::div(html_writer::table($usersessions->useraggregates->html_table()), 'table-responsive');
         echo html_writer::div(html_writer::table($usersessions->html_table()), 'table-responsive');
     } else {
         if ($usercaps->canRecalcSessions && !$printable) {
@@ -278,7 +278,7 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
         }
         echo $OUTPUT->container_end();
         echo '<br />';
-        echo html_writer::div(html_writer::table($trackedusers->trackedCourses->html_table()), 'table-responsive');
+        echo html_writer::div(html_writer::table($trackedusers->trackedcourses->html_table()), 'table-responsive');
         echo html_writer::div(html_writer::table($trackedusers->html_table()), 'table-responsive');
     }
 }

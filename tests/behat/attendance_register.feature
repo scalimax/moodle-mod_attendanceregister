@@ -34,8 +34,8 @@ Feature: attendance register
       | Page content        | x        |
       | Completion tracking | 2        |
       | Require view        | 1        |
-    And I add a "AttendanceRegister" to section "2" and fill the form with:
-      | name | Attendance |
+    And I add a "Attendance Register" to section "2" and fill the form with:
+      | name | Attendance |g
     And I log out
     And I log in as "user1"
     And I am on "Course 2" course homepage

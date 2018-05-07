@@ -42,7 +42,7 @@ class attendanceregister_tracked_users {
      * Array if attendanceregister_user_aggregates_summary
      * keyed by $userid
      */
-    public $usersSummaryAggregates;
+    public $usersaggregates;
 
 
     /**
@@ -51,7 +51,7 @@ class attendanceregister_tracked_users {
      *
      * @var type
      */
-    public $trackedCourses;
+    public $trackedcourses;
 
     /**
      * Ref. to AttendanceRegister instance
@@ -76,27 +76,25 @@ class attendanceregister_tracked_users {
         $this->register = $register;
         $this->usercaps = $usercaps;
         $this->users = attendanceregister_get_tracked_users($register, $groupid);
-        $this->trackedCourses = new attendanceregister_tracked_courses($register);
+        $this->trackedcourses = new attendanceregister_tracked_courses($register);
         $ids = attendanceregister__extract_property($this->users, 'id');
-        // Retrieve Aggregates summaries.
         $aggregates = attendanceregister__get_all_users_aggregate_summaries($register);
-        // Remap in an array of attendanceregister_user_aggregates_summary, mapped by userid.
-        $this->usersSummaryAggregates = [];
+        $this->usersaggregates = [];
         foreach ($aggregates as $aggregate) {
             // Retain only tracked users.
-            if (in_array($aggregate->userid, $ids) ) {
+            if (in_array($aggregate->userid, $ids)) {
                 // Create User's attendanceregister_user_aggregates_summary instance if not exists.
-                if (!isset($this->usersSummaryAggregates[ $aggregate->userid ])) {
-                    $this->usersSummaryAggregates[$aggregate->userid] = new attendanceregister_user_aggregates_summary();
+                if (!isset($this->usersaggregates[ $aggregate->userid ])) {
+                    $this->usersaggregates[$aggregate->userid] = new attendanceregister_user_aggregates_summary();
                 }
                 // Populate attendanceregister_user_aggregates_summary fields.
-                if($aggregate->grandtotal ) {
-                    $this->usersSummaryAggregates[$aggregate->userid]->grandTotalduration = $aggregate->duration;
-                    $this->usersSummaryAggregates[$aggregate->userid]->lastSassionLogout = $aggregate->lastsessionlogout;
-                } else if ($aggregate->total && $aggregate->onlinesess == 1 ) {
-                    $this->usersSummaryAggregates[$aggregate->userid]->onlineTotalduration = $aggregate->duration;
-                } else if ($aggregate->total && $aggregate->onlinesess == 0 ) {
-                    $this->usersSummaryAggregates[$aggregate->userid]->offlineTotalduration = $aggregate->duration;
+                if ($aggregate->grandtotal) {
+                    $this->usersaggregates[$aggregate->userid]->grandTotalduration = $aggregate->duration;
+                    $this->usersaggregates[$aggregate->userid]->lastSassionLogout = $aggregate->lastsessionlogout;
+                } else if ($aggregate->total && $aggregate->onlinesess == 1) {
+                    $this->usersaggregates[$aggregate->userid]->onlineTotalduration = $aggregate->duration;
+                } else if ($aggregate->total && $aggregate->onlinesess == 0) {
+                    $this->usersaggregates[$aggregate->userid]->offlineTotalduration = $aggregate->duration;
                 }
             }
         }
@@ -118,22 +116,22 @@ class attendanceregister_tracked_users {
         ];
         $table->align = ['left', 'left', 'right'];
 
-        if ($this->register->offlinesessions ) {
+        if ($this->register->offlinesessions) {
             $table->head[] = get_string('total_time_offline', 'attendanceregister');
             $table->align[] = 'right';
             $table->head[] = get_string('grandtotal_time', 'attendanceregister');
             $table->align[] = 'right';
-        }
+        }co
         $table->head[] = get_string('last_session_logout', 'attendanceregister');
         $table->align[] = 'left';
 
-        if ($this->users ) {
+        if ($this->users) {
             $rowcount = 0;
             foreach ($this->users as $user) {
                 $rowcount++;
                 $useraggregate = null;
-                if (isset($this->usersSummaryAggregates[$user->id]) ) {
-                    $useraggregate = $this->usersSummaryAggregates[$user->id];
+                if (isset($this->usersaggregates[$user->id])) {
+                    $useraggregate = $this->usersaggregates[$user->id];
                 }
                 // Basic columns.
                 $linkurl = attendanceregister_makeurl($this->register, $user->id);
@@ -146,7 +144,7 @@ class attendanceregister_tracked_users {
                 $tablerow->attributes['class'] .= ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
 
                 // Optional columns.
-                if ($this->register->offlinesessions ) {
+                if ($this->register->offlinesessions) {
                     $offlineduration = $useraggregate ? $useraggregate->offlineTotalduration : null;
                     $offlinedurationstr = attendanceregister_format_duration($offlineduration);
                     $tablecell = new html_table_cell($offlinedurationstr);
@@ -159,7 +157,7 @@ class attendanceregister_tracked_users {
 
                 if ($useraggregate) {
                     $tablecell = new html_table_cell(attendanceregister__formatDateTime($useraggregate->lastSassionLogout));
-                } else{ 
+                } else {
                     $tablecell = new html_table_cell(get_string('no_session', 'attendanceregister'));
                 }
                 $tablerow->cells[] = $tablecell;

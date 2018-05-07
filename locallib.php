@@ -90,26 +90,26 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
     $sessionlast = 0;
 
     if (is_array($logentries) && count($logentries) > 0) {
-        foreach ($logentries as $logEntry) {
+        foreach ($logentries as $entry) {
             $logentriesCount++;
             if (!$prevlog) {
-                $prevlog = $logEntry;
-                $sessionstart = $logEntry->timecreated;
+                $prevlog = $entry;
+                $sessionstart = $entry->timecreated;
                 continue;
             }
 
             // Check if between prev and current log, last more than Session Timeout
             // if so, the Session ends on the _prev_ log entry.
-            if (($logEntry->timecreated - $prevlog->timecreated) > $sessiontimeout) {
+            if (($entry->timecreated - $prevlog->timecreated) > $sessiontimeout) {
                 $newsessionscount++;
 
                 // Estimate Session ended half the Session Timeout after the prev log entry
                 // (prev log entry is the last entry of the Session).
                 $sessionlast = $prevlog->timecreated;
-                $estimatedSessionEnd = $sessionlast + $sessiontimeout / 2;
+                $estimatedend = $sessionlast + $sessiontimeout / 2;
 
                 // Save a new session to the prev entry.
-                attendanceregister__save_session($register, $userid, $sessionstart, $estimatedSessionEnd);
+                attendanceregister__save_session($register, $userid, $sessionstart, $estimatedend);
 
                 // Update the progress bar, if any.
                 if ($progressbar) {
@@ -118,21 +118,21 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
                 }
 
                 // Session has ended: session start on current log entry.
-                $sessionstart = $logEntry->timecreated;
+                $sessionstart = $entry->timecreated;
             }
-            $prevlog = $logEntry;
+            $prevlog = $entry;
         }
 
         // If le last log entry is not the end of the last calculated session and is older than SessionTimeout
         // create a last session.
-        if ($logEntry->timecreated > $sessionlast && ( time() - $logEntry->timecreated) > $sessiontimeout) {
+        if ($entry->timecreated > $sessionlast && ( time() - $entry->timecreated) > $sessiontimeout) {
             $newsessionscount++;
-            // In this case logEntry (and not prevlog is the last entry of the Session).
-            $sessionlast = $logEntry->timecreated;
-            $estimatedSessionEnd = $sessionlast + $sessiontimeout / 2;
+            // In this case entry (and not prevlog is the last entry of the Session).
+            $sessionlast = $entry->timecreated;
+            $estimatedend = $sessionlast + $sessiontimeout / 2;
 
             // Save a new session to the prev entry.
-            attendanceregister__save_session($register, $userid, $sessionstart, $estimatedSessionEnd);
+            attendanceregister__save_session($register, $userid, $sessionstart, $estimatedend);
 
             // Update the progress bar, if any.
             if ($progressbar) {
@@ -262,7 +262,6 @@ function attendanceregister__update_user_aggregates($register, $userid) {
  * @return array of users
  */
 function attendanceregister__get_tracked_users($register, $groupid = '') {
-    global $DB;
     $userids = [];
     $course = attendanceregister__get_register_course($register);
     $courseids = attendanceregister__get_tracked_courses_ids($register, $course);

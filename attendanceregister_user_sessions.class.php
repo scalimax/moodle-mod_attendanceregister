@@ -38,12 +38,12 @@ class attendanceregister_user_sessions  {
     /**
      * attendanceregister_session records
      */
-    public $userSessions;
+    public $usersessions;
 
     /**
      * Instance of attendanceregister_user_aggregates
      */
-    public $userAggregates;
+    public $useraggregates;
 
     /**
      * Instance of attendanceregister_tracked_courses
@@ -51,7 +51,7 @@ class attendanceregister_user_sessions  {
      *
      * @var type
      */
-    public $trackedCourses;
+    public $trackedcourses;
 
     /**
      * Ref. to AttendanceRegister instance
@@ -74,9 +74,9 @@ class attendanceregister_user_sessions  {
      */
     public function __construct($register, $userid, attendanceregister_user_capablities $userCapabilities) {
         $this->register = $register;
-        $this->userSessions = attendanceregister_get_user_sessions($register, $userid);
-        $this->userAggregates = new attendanceregister_user_aggregates($register, $userid, $this);
-        $this->trackedCourses = new attendanceregister_tracked_courses($register);
+        $this->usersessions = attendanceregister_get_user_sessions($register, $userid);
+        $this->useraggregates = new attendanceregister_user_aggregates($register, $userid, $this);
+        $this->trackedcourses = new attendanceregister_tracked_courses($register);
         $this->usercaps = $userCapabilities;
     }
 
@@ -110,43 +110,39 @@ class attendanceregister_user_sessions  {
             }
         }
 
-        /// Table rows
-
-        if ($this->userSessions ) {
+        if ($this->usersessions ) {
             $stronline = get_string('online', 'attendanceregister');
             $stroffline = get_string('offline', 'attendanceregister');
 
-            // Iterate sessions.
             $rowcount = 0;
-            foreach ($this->userSessions as $session) {
+            foreach ($this->usersessions as $session) {
                 $rowcount++;
 
-                $rowcountStr = (string)$rowcount;
+                $rowcountstr = (string)$rowcount;
                 if (!$session->onlinesess && $this->usercaps->canDeleteThisUserOfflineSession($session->userid) ) {
                     $deleteurl = attendanceregister_makeurl($this->register, $session->userid, null,
                         ATTENDANCEREGISTER_ACTION_DELETE_OFFLINE_SESSION, ['session' => $session->id]);
-                    $confirmAction = new confirm_action(get_string('are_you_sure_to_delete_offline_session', 'attendanceregister'));
-                    $rowcountStr .= ' ' . $OUTPUT->action_icon($deleteurl, new pix_icon('t/delete',  get_string('delete')), $confirmAction);
+                    $confirm = new confirm_action(get_string('are_you_sure_to_delete_offline_session', 'attendanceregister'));
+                    $rowcountstr .= ' ' . $OUTPUT->action_icon($deleteurl, new pix_icon('t/delete',
+                       get_string('delete')), $confirm);
                 }
 
                 $duration = attendanceregister_format_duration($session->duration);
 
-                $tablerow = new html_table_row([$rowcountStr, attendanceregister__formatDateTime($session->login),
+                $tablerow = new html_table_row([$rowcountstr, attendanceregister__formatDateTime($session->login),
                     attendanceregister__formatDateTime($session->logout), $duration]);
 
                 $tablerow->attributes['class'] .= ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
 
                 if ($this->register->offlinesessions) {
-
                     $online = $session->onlinesess ? $stronline : $stroffline;
-
                     if ($session->addedbyuserid ) {
                         $a = attendanceregister__otherUserFullnameOrUnknown($session->addedbyuserid);
                         $addedby = get_string('session_added_by_another_user', 'attendanceregister', $a);
-                        $online = html_writer::tag('a', $online . '*', ['title'=>$addedby, 'class'=>'addedbyother']);
+                        $online = html_writer::tag('a', $online . '*', ['title'=>$addedby, 'class' => 'addedbyother']);
                     }
                     $tablecell = new html_table_cell($online);
-                    $tablecell->attributes['class'] .=  $session->onlinesess ? ' online_label' : ' offline_label';
+                    $tablecell->attributes['class'] .= $session->onlinesess ? ' online_label' : ' offline_label';
                     $tablerow->attributes['class'] .= $session->onlinesess ? ' success' : '';
                     $tablerow->cells[] = $tablecell;
 
@@ -155,12 +151,8 @@ class attendanceregister_user_sessions  {
                             $refcoursename = '';
                         } else {
                             if ($session->refcourse ) {
-                                $refcourse = $this->trackedCourses->courses[ $session->refcourse ];
-                                if ($doShowPrintableVersion) {
-                                    $refcoursename = $refcourse->fullname . ' ('. $refcourse->shortname .')';
-                                } else {
-                                    $refcoursename = $refcourse->shortname;
-                                }
+                                $refcourse = $this->trackedcourses->courses[ $session->refcourse ];
+                                $refcoursename = $refcourse->fullname . ' ('. $refcourse->shortname .')';
                             } else {
                                 $refcoursename = get_string('not_specified', 'attendanceregister');
                             }
@@ -171,11 +163,7 @@ class attendanceregister_user_sessions  {
 
                     if ($this->register->offlinecomments  ) {
                         if (!$session->onlinesess && $session->comments) {
-                            if (!$doShowPrintableVersion) {
-                                $comment = attendanceregister__shorten_comment($session->comments);
-                            } else {
-                                $comment = $session->comments;
-                            }
+                            $comment = $session->comments;
                         } else {
                             $comment = '';
                         }
