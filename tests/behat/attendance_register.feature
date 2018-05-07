@@ -49,9 +49,9 @@ Feature: attendance register
     Then I should see "attendance"
     And I follow "attendance"
     Then I should see "Username 1"
-    And I should not see "Username 2"
+    And I should see "Username 2"
     And I am on "Course 2" course homepage
     Then I should see "attendance"
     And I follow "attendance"
     Then I should see "Username 1"
-    And I should see "Username 2"
+    And I should not see "Username 2"
