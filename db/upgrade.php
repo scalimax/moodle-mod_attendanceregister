@@ -64,7 +64,7 @@ function xmldb_attendanceregister_upgrade($oldversion) {
         // Rename field attendanceregister_session.online to onlinessess.
         $table = new xmldb_table('attendanceregister_session');
         $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1);
-        if ($dbman->field_exists($table, $field) ) {
+        if ($dbman->field_exists($table, $field)) {
             // Rename field.
             $dbman->rename_field($table, $field, 'onlinesess');
         }
@@ -72,14 +72,14 @@ function xmldb_attendanceregister_upgrade($oldversion) {
         // Rename field attendanceregister_aggregate.online to onlinessess.
         $table = new xmldb_table('attendanceregister_aggregate');
         $field = new xmldb_field('online', XMLDB_TYPE_INTEGER, 1, XMLDB_UNSIGNED, null, null, 1);
-        if ($dbman->field_exists($table, $field) ) {
+        if ($dbman->field_exists($table, $field)) {
             // Rename field.
             $dbman->rename_field($table, $field, 'onlinesess');
         }
         upgrade_mod_savepoint(true, 2013020604, 'attendanceregister');
     }
 
-    if ($oldversion < 2013040605 ) {
+    if ($oldversion < 2013040605) {
         // Feature #7.
         // Add field attendanceregister.completiontotaldurationmins.
         $table = new xmldb_table('attendanceregister');

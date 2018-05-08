@@ -71,7 +71,7 @@ $currentsection = "";
 foreach ($registers as $register) {
     $trackedusers = attendanceregister_get_tracked_users($register);
     $aa = 0;
-    if (is_array($trackedusers) ) {
+    if (is_array($trackedusers)) {
         $aa = count($trackedusers);
     }
 

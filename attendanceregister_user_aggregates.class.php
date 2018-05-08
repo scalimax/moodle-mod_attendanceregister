@@ -91,13 +91,13 @@ class attendanceregister_user_aggregates {
             if ($aggregate->grandtotal) {
                 $this->grandtotal = $aggregate->duration;
                 $this->lastlogout = $aggregate->lastlogout;
-            } else if ($aggregate->total && $aggregate->onlinesess == 1 ) {
+            } else if ($aggregate->total && $aggregate->onlinesess == 1) {
                 $this->onlinetotal = $aggregate->duration;
-            } else if ($aggregate->total && $aggregate->onlinesess == 0 ) {
+            } else if ($aggregate->total && $aggregate->onlinesess == 0) {
                 $this->offlinetotal = $aggregate->duration;
-            } else if (!$aggregate->total && $aggregate->onlinesess == 0 && $aggregate->refcourse != null ) {
+            } else if (!$aggregate->total && $aggregate->onlinesess == 0 && $aggregate->refcourse != null) {
                 $this->percourse[$aggregate->refcourse] = $aggregate->duration;
-            } else if (!$aggregate->total && $aggregate->onlinesess == 0 && $aggregate->refcourse == null ) {
+            } else if (!$aggregate->total && $aggregate->onlinesess == 0 && $aggregate->refcourse == null) {
                 $this->nocoursesessions = $aggregate->duration;
             } else {
                 // Should not happen!
@@ -156,13 +156,12 @@ class attendanceregister_user_aggregates {
         $row->cells[] = $label;
         $row->cells[] = new html_table_cell(attendanceregister_format_duration($this->onlinetotal));
         $table->data[] = $row;
-        if ($this->offlinetotal ) {
+        if ($this->offlinetotal) {
             $table->data[] = 'hr';
             foreach ($this->percourse as $refcourseid => $offlinesessions) {
                 $row = new html_table_row();
-                $label = new html_table_cell(get_string('offline_refcourse_duration', 'attendanceregister'));
-                $row->cells[] = $label;
-                if ($refcourseid ) {
+                $row->cells[] = new html_table_cell(get_string('offline_refcourse_duration', 'attendanceregister'));
+                if ($refcourseid) {
                     $row->cells[] = new html_table_cell($this->usersessions->trackedcourses->courses[$refcourseid]->fullname);
                 } else {
                     $row->cells[] = new html_table_cell(get_string('not_specified', 'attendanceregister'));
@@ -170,7 +169,7 @@ class attendanceregister_user_aggregates {
                 $row->cells[] = new html_table_cell(attendanceregister_format_duration($offlinesessions));
                 $table->data[] = $row;
             }
-            if ($this->nocoursesessions ) {
+            if ($this->nocoursesessions) {
                 $row = new html_table_row();
                 $row->cells[] = new html_table_cell(get_string('offline_refcourse_duration', 'attendanceregister'));
                 $row->cells[] = new html_table_cell(get_string('no_refcourse', 'attendanceregister'));

@@ -111,7 +111,7 @@ class attendanceregister_user_sessions  {
             }
         }
 
-        if ($this->usersessions ) {
+        if ($this->usersessions) {
             $stronline = get_string('online', 'attendanceregister');
             $stroffline = get_string('offline', 'attendanceregister');
 
@@ -120,7 +120,7 @@ class attendanceregister_user_sessions  {
                 $rowcount++;
 
                 $rowcountstr = (string)$rowcount;
-                if (!$session->onlinesess && $this->usercaps->candeletesession($session->userid) ) {
+                if (!$session->onlinesess && $this->usercaps->candeletesession($session->userid)) {
                     $deleteurl = attendanceregister_makeurl($this->register, $session->userid, null,
                         ATTENDANCEREGISTER_ACTION_DELETE_OFFLINE_SESSION, ['session' => $session->id]);
                     $confirm = new confirm_action(get_string('are_you_sure_to_delete_offline_session', 'attendanceregister'));
@@ -130,8 +130,11 @@ class attendanceregister_user_sessions  {
 
                 $duration = attendanceregister_format_duration($session->duration);
 
-                $tablerow = new html_table_row([$rowcountstr, attendanceregister__formatdate($session->login),
-                    attendanceregister__formatdate($session->logout), $duration]);
+                $tablerow = new html_table_row([
+                   $rowcountstr,
+                   attendanceregister__formatdate($session->login),
+                   attendanceregister__formatdate($session->logout),
+                   $duration]);
 
                 $tablerow->attributes['class'] .= ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
 
@@ -147,29 +150,25 @@ class attendanceregister_user_sessions  {
                     $tablerow->attributes['class'] .= $session->onlinesess ? ' success' : '';
                     $tablerow->cells[] = $tablecell;
 
-                    if ($this->register->offlinespecifycourse  ) {
-                        if ($session->onlinesess ) {
-                            $refcoursename = '';
-                        } else {
-                            if ($session->refcourse ) {
-                                $refcourse = $this->trackedcourses->courses[ $session->refcourse ];
-                                $refcoursename = $refcourse->fullname . ' ('. $refcourse->shortname .')';
+                    if ($this->register->offlinespecifycourse) {
+                        $s = '';
+                        if (!$session->onlinesess) {
+                            if ($session->refcourse) {
+                                $refcourse = $this->trackedcourses->courses[$session->refcourse];
+                                $s = $refcourse->fullname . ' ('. $refcourse->shortname .')';
                             } else {
-                                $refcoursename = get_string('not_specified', 'attendanceregister');
+                                $s = get_string('not_specified', 'attendanceregister');
                             }
                         }
-                        $tablecell = new html_table_cell($refcoursename);
-                        $tablerow->cells[] = $tablecell;
+                        $tablerow->cells[] = new html_table_cell($s);
                     }
 
-                    if ($this->register->offlinecomments  ) {
+                    if ($this->register->offlinecomments) {
+                        $s = '';
                         if (!$session->onlinesess && $session->comments) {
-                            $comment = $session->comments;
-                        } else {
-                            $comment = '';
+                            $s = $session->comments;
                         }
-                        $tablecell = new html_table_cell($comment);
-                        $tablerow->cells[] = $tablecell;
+                        $tablerow->cells[] = new html_table_cell($s);
                     }
                 }
                 $table->data[] = $tablerow;

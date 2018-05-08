@@ -88,13 +88,13 @@ class attendanceregister_tracked_users {
             // Retain only tracked users.
             if (in_array($aggregate->userid, $ids)) {
                 // Create User's attendanceregister_user_aggregates_summary instance if not exists.
-                if (!isset($this->usersaggregates[ $aggregate->userid ])) {
+                if (!isset($this->usersaggregates[ $aggregate->userid])) {
                     $this->usersaggregates[$aggregate->userid] = new attendanceregister_user_aggregates_summary();
                 }
                 // Populate attendanceregister_user_aggregates_summary fields.
                 if ($aggregate->grandtotal) {
                     $this->usersaggregates[$aggregate->userid]->grandtotal = $aggregate->duration;
-                    $this->usersaggregates[$aggregate->userid]->lastlogout = $aggregate->lastsessionlogout;
+                    $this->usersaggregates[$aggregate->userid]->lastlogout = $aggregate->lastlogout;
                 } else if ($aggregate->total && $aggregate->onlinesess == 1) {
                     $this->usersaggregates[$aggregate->userid]->onlinetotal = $aggregate->duration;
                 } else if ($aggregate->total && $aggregate->onlinesess == 0) {
@@ -140,7 +140,7 @@ class attendanceregister_tracked_users {
                 // Basic columns.
                 $linkurl = attendanceregister_makeurl($this->register, $user->id);
                 $fullname = '<a href="' . $linkurl . '">' . fullname($user) . '</a>';
-                $duration = $useraggregate ? $useraggregate->onlineTotalduration : null;
+                $duration = $useraggregate ? $useraggregate->onlinetotal : null;
                 $tablerow = new html_table_row([$rowcount, $fullname, attendanceregister_format_duration($duration)]);
 
                 // Add class for zebra stripes.
@@ -148,14 +148,14 @@ class attendanceregister_tracked_users {
 
                 // Optional columns.
                 if ($this->register->offlinesessions) {
-                    $duration = $useraggregate ? $useraggregate->offlineTotalduration : null;
+                    $duration = $useraggregate ? $useraggregate->offlinetotal : null;
                     $tablerow->cells[] = new html_table_cell(attendanceregister_format_duration($duration));
-                    $duration = $useraggregate ? $useraggregate->grandTotalduration : null;
+                    $duration = $useraggregate ? $useraggregate->grandtotal : null;
                     $tablerow->cells[] = new html_table_cell(attendanceregister_format_duration($duration));
                 }
 
                 if ($useraggregate) {
-                    $tablerow->cells[] = new html_table_cell(attendanceregister__formatdate($useraggregate->lastSassionLogout));
+                    $tablerow->cells[] = new html_table_cell(attendanceregister__formatdate($useraggregate->lastlogout));
                 } else {
                     $tablerow->cells[] = new html_table_cell(get_string('no_session', 'attendanceregister'));
                 }

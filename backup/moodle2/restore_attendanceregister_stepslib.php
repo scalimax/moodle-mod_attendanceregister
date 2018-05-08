@@ -83,7 +83,7 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
 
         // Issue #36 and #41.
         // If 'online' field is defined (i.e. the backup is of an older version), rename it to 'onlinesess'.
-        if (isset($data->online) ) {
+        if (isset($data->online)) {
             $data->onlinesess = $data->online;
             unset($data->online);
         }

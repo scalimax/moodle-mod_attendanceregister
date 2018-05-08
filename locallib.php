@@ -125,7 +125,7 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
 
         // If le last log entry is not the end of the last calculated session and is older than SessionTimeout
         // create a last session.
-        if ($entry->timecreated > $sessionlast && ( time() - $entry->timecreated) > $sessiontimeout) {
+        if ($entry->timecreated > $sessionlast && (time() - $entry->timecreated) > $sessiontimeout) {
             $newsessionscount++;
             // In this case entry (and not prevlog is the last entry of the Session).
             $sessionlast = $entry->timecreated;
@@ -296,11 +296,11 @@ function attendanceregister__get_tracked_users_need_update($register) {
         list($esql, $params) = get_enrolled_sql($context, ATTENDANCEREGISTER_CAPABILITY_TRACKED);
         $sql = "SELECT u.* FROM {user} u JOIN ($esql) je ON je.id = u.id
                 WHERE u.lastaccess + (:sesstimeout * 60) < :now
-                  AND ( NOT EXISTS (SELECT * FROM {attendanceregister_session} as3
+                  AND (NOT EXISTS (SELECT * FROM {attendanceregister_session} as3
                                      WHERE as3.userid = u.id AND as3.register = :registerid1 AND as3.onlinesess = 1)
-                        OR NOT EXISTS (SELECT * FROM {attendanceregister_aggregate} aa4 WHERE aa4.userid=u.id AND
+                       OR NOT EXISTS (SELECT * FROM {attendanceregister_aggregate} aa4 WHERE aa4.userid=u.id AND
                            aa4.register=:registerid2  AND aa4.grandtotal = 1)
-                        OR EXISTS (SELECT * FROM {attendanceregister_aggregate} aa2, {log} l2
+                       OR EXISTS (SELECT * FROM {attendanceregister_aggregate} aa2, {log} l2
                                     WHERE aa2.userid = u.id AND aa2.register = :registerid3
                                       AND l2.course = :courseid AND l2.userid = aa2.userid
                                       AND aa2.grandtotal = 1
@@ -343,13 +343,13 @@ function attendanceregister__get_all_users_aggregate_summaries($register) {
 }
 
 /**
- * Retrieve cached value of Aggregate GrandTotal row
- * (containing grandTotal duration and lastSessionLogout)
+ * Retrieve cached value of Aggregate grandtotal row
+ * (containing grandtotal duration and lastlogout)
  * If no aggregate, return false
  *
  * @param  object $register
  * @param  int    $userid
- * @return an object with grandtotal and lastsessionlogout or FALSE if missing
+ * @return an object with grandtotal and lastlogout or FALSE if missing
  */
 function attendanceregister__get_cached_user_grandtotal($register, $userid) {
     global $DB;
@@ -756,7 +756,7 @@ function attendanceregister__calculatecompletion($register, $userid) {
  * against completion conditions.
  * ANY COMPLETION CHECK (for a user) must be delegated to this method.
  *
- * Values are passed as an associative array i.e. array( 'totaldurationsecs' => xxxxx,)
+ * Values are passed as an associative array i.e. array['totaldurationsecs' => xxxxx]
  *
  * @param  object $register          Register instance
  * @param  array  $trackedValues     array of tracked values, by parameter name

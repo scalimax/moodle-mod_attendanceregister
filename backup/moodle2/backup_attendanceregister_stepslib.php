@@ -54,14 +54,13 @@ class backup_attendanceregister_activity_structure_step extends backup_activity_
         $attendanceregister->add_child($sessions);
         $sessions->add_child($session);
         $attendanceregister->set_source_table('attendanceregister', ['id' => backup::VAR_ACTIVITYID]);
-        if ($userinfo ) {
+        if ($userinfo) {
             $session->set_source_sql('
             SELECT s.id, s.register, s.userid, s.login, s.logout, s.duration, s.onlinesess, s.comments,
                 c.shortname AS refcourseshortname, s.addedbyuserid
               FROM {attendanceregister_session} s LEFT JOIN {course} c ON c.id = s.refcourse
               WHERE s.register = ? AND s.onlinesess = 0
-            ', [backup::VAR_PARENTID]
-            );
+            ', [backup::VAR_PARENTID]);
         }
         $session->annotate_ids('user', 'userid');
         $session->annotate_ids('user', 'addedbyuserid');

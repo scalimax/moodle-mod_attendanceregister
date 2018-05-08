@@ -522,7 +522,7 @@ function attendanceregister_updates_all_users_sessions($register) {
  *
  * @param object $register
  * @param int    $userid
- * @param int    $lastlogout (by ref.) lastSessionLogout returned if update needed
+ * @param int    $lastlogout (by ref.) lastlogout returned if update needed
  * @eturn boolean true if update needed
  */
 function attendanceregister_check_user_sessions_need_update($register, $userid, &$lastlogout = null) {
