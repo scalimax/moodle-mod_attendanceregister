@@ -33,7 +33,20 @@ $string['modulename_help'] = 'Attendance Register calculates time users spend wo
     <b>New online sessions are added with some delay by the cron, after User logout.</b>';
 $string['pluginname'] = 'Attendance Register';
 $string['pluginadministration'] = 'Attendance Register Administration';
+
 $string['privacy:metadata'] = 'The attendance registry module plugin stores personal data.';
+$string['privacy:metadata:attendanceregister_session:login'] = 'Start time of the session.';
+$string['privacy:metadata:attendanceregister_session:logout'] = 'End time of the session.';
+$string['privacy:metadata:attendanceregister_session:duration'] = 'Duration of the session';
+$string['privacy:metadata:attendanceregister_session:onlinesess'] = 'On- or Offline session';
+$string['privacy:metadata:attendanceregister_session:comments'] = 'Comments.';
+$string['privacy:metadata:attendanceregister_session'] = 'Stores personal browsing behaviour to calculate an indicative number that compares users time spent on the platform.';
+$string['privacy:metadata:attendanceregister_aggregate:duration'] = 'Indi';
+$string['privacy:metadata:attendanceregister_aggregate:onlinesess'] = 'On- or Offline aggregate.';
+$string['privacy:metadata:attendanceregister_aggregate:total'] = 'Total ';
+$string['privacy:metadata:attendanceregister_aggregate:grandtotal'] = 'Grand total';
+$string['privacy:metadata:attendanceregister_aggregate:lastsessionlogout'] = 'End time for aggregate slot.';
+$string['privacy:metadata:attendanceregister_aggregate'] = 'Aggregates of timeslots to calculate differences between users in time spent on the platform.';
 
 // Mod instance form.
 $string['registername'] = 'Attendance Register name';

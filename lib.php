@@ -740,9 +740,15 @@ function attendanceregister_add_to_log($register, $cmid, $action, $userid = null
  * @return bool True if completed, false if not, $type if conditions not set.
  */
 function attendanceregister_get_completion_state($course, $cm, $userid, $type) {
-    global $DB;
+    global $CFG, $DB;
     if (!($register = $DB->get_record('attendanceregister', ['id' => $cm->instance]))) {
         throw new Exception("Can't find attendanceregister {$cm->instance}");
+    }
+    if (!$CFG->enablecompletion) {
+        return false;
+    }
+    if (!$course->enablecompletion) {
+        return false;
     }
     if ($register->completiontotaldurationmins) {
         return attendanceregister__calculatecompletion($register, $userid);

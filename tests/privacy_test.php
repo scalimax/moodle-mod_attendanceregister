@@ -35,9 +35,15 @@ use \core_privacy\tests\provider_testcase;
  */
 class mod_attendanceregister_privacy_testcase extends provider_testcase {
 
+    /** stdClass context context */
     private $context;
+
+    /** stdClass user user */
     private $user;
-    
+
+    /**
+     * Basic setup for these tests.
+     */
     public function setUp() {
         global $DB;
         $this->resetAfterTest();

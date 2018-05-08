@@ -57,7 +57,6 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                 'onlinesess' => 'privacy:metadata:attendanceregister_session:onlinesess',
                 'comments' => 'privacy:metadata:attendanceregister_session:comments'];
         $collection->add_database_table('attendanceregister_session', $arr, 'privacy:metadata:attendanceregister_session');
-        // $collection->link_subsystem('core_comments', 'privacy:metadata:core_comments');
         $arr = ['duration' => 'privacy:metadata:attendanceregister_aggregate:duration',
                 'onlinesess' => 'privacy:metadata:attendanceregister_aggregate:onlinesess',
                 'total' => 'privacy:metadata:attendanceregister_aggregate:total',
@@ -74,7 +73,6 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * @return  contextlist   $contextlist  The contextlist containing the list of contexts used in this plugin.
      */
     public static function get_contexts_for_userid(int $userid) : \core_privacy\local\request\contextlist {
-        global $DB;
         $contextlist = new \core_privacy\local\request\contextlist();
         $sql = "SELECT DISTINCT ctx.id FROM {attendanceregister} l
                   JOIN {modules} m ON m.name = :name
@@ -104,7 +102,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             writer::with_context($context)->export_data([], $contextdata);
             $data = [];
             $sql = "SELECT s.* FROM {attendanceregister_session} s
-                JOIN {attendanceregister} l ON l.id = s.register 
+                JOIN {attendanceregister} l ON l.id = s.register
                 JOIN {modules} m ON m.name = :name
                 JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
                 JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
@@ -122,7 +120,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             }
 
             $sql = "SELECT s.* FROM {attendanceregister_aggregate} s
-                JOIN {attendanceregister} l ON l.id = s.register 
+                JOIN {attendanceregister} l ON l.id = s.register
                 JOIN {modules} m ON m.name = :name
                 JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
                 JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
@@ -180,7 +178,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         global $DB;
         $userid = $contextlist->get_user()->id;
         $contexts = $contextlist->get_contexts();
-        foreach ($contexts as $context) { 
+        foreach ($contexts as $context) {
             $sql = "SELECT l.id FROM {attendanceregister} l
                     JOIN {modules} m ON m.name = :name
                     JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
