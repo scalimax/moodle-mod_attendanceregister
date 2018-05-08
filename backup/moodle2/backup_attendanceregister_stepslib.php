@@ -35,6 +35,11 @@ defined('MOODLE_INTERNAL') || die;
  */
 class backup_attendanceregister_activity_structure_step extends backup_activity_structure_step {
 
+    /**
+     * Define the structure of the backup workflow.
+     *
+     * @return restore_path_element $structure
+     */
     protected function define_structure() {
         $userinfo = $this->get_setting_value('userinfo');
         $attendanceregister = new backup_nested_element('attendanceregister', ['id'],

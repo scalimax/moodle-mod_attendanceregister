@@ -35,6 +35,11 @@ defined('MOODLE_INTERNAL') || die;
  */
 class restore_attendanceregister_activity_structure_step extends restore_activity_structure_step {
 
+    /**
+     * Define the structure of the restore workflow.
+     *
+     * @return restore_path_element $structure
+     */
     protected function define_structure() {
         $paths = [];
         $userinfo = $this->get_setting_value('userinfo');
@@ -45,6 +50,12 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * Process an attendanceregister restore.
+     *
+     * @param object $data The data in object form
+     * @return void
+     */
     protected function process_attendanceregister($data) {
         global $DB;
         $data = (object) $data;
@@ -58,6 +69,11 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         $this->apply_activity_instance($newitemid);
     }
 
+    /**
+     * Process a attendanceregister restore
+     * @param object $data The data in object form
+     * @return void
+     */
     protected function process_attendanceregister_session($data) {
         global $DB;
         $data = (object) $data;
@@ -82,11 +98,10 @@ class restore_attendanceregister_activity_structure_step extends restore_activit
         $DB->insert_record('attendanceregister_session', $data);
     }
 
-    protected function apply_activity_instance($newitemid) {
-        // Call parent setup to adjust the restore register instance.
-        parent::apply_activity_instance($newitemid);
-    }
-
+    /**
+     * Once the database rows have been fully restored, restore the files and do a recalc
+     * @return void
+     */
     protected function after_execute() {
         global $DB;
         $this->add_related_files('mod_attendanceregister', 'intro', null);
