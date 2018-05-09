@@ -90,7 +90,7 @@ class attendanceregister_user_aggregates {
         foreach ($aggregates as $aggregate) {
             if ($aggregate->grandtotal) {
                 $this->grandtotal = $aggregate->duration;
-                $this->lastlogout = $aggregate->lastlogout;
+                $this->lastlogout = $aggregate->lastsessionlogout;
             } else if ($aggregate->total && $aggregate->onlinesess == 1) {
                 $this->onlinetotal = $aggregate->duration;
             } else if ($aggregate->total && $aggregate->onlinesess == 0) {

@@ -535,9 +535,9 @@ function attendanceregister_check_user_sessions_need_update($register, $userid, 
         $lastlogout = 0;
         return true;
     }
-    if (($user->currentlogin > $aggregate->lastlogout) &&
+    if (($user->currentlogin > $aggregate->lastsessionlogout) &&
         ((time() - $user->currentlogin) > ($register->sessiontimeout * 60))) {
-        $lastlogout = $aggregate->lastlogout;
+        $lastlogout = $aggregate->lastsessionlogout;
         return true;
     } else {
         return false;
