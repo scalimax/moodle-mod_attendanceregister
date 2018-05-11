@@ -23,6 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['crontask'] = 'Cron task';
 $string['modulename'] = 'Attendance Register';
 $string['modulenameplural'] = 'Attendance Registers';
 $string['modulename_help'] = 'Attendance Register calculates time users spend working in online Courses.<br />

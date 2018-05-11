@@ -300,16 +300,12 @@ function attendanceregister_cron() {
     foreach ($registers as $register) {
         $course = get_course($register->course);
         if (!$course->visible) {
-            mtrace('Skipping AttendanceRegister ID ' . $register->id);
             continue;
         }
-        mtrace('Updating AttendanceRegister ID ' . $register->id);
         if ($register->pendingrecalc) {
-             mtrace('Force-recalculating AttendanceRegister ID ' . $register->id . '...');
              attendanceregister_force_recalc_all($register);
              attendanceregister_set_pending_recalc($register, false);
         } else {
-            mtrace('Calculating new sessions of AttendanceRegister ID ' . $register->id . '...');
             $nupdates = attendanceregister_updates_all_users_sessions($register);
             mtrace($nupdates . ' Users updated on Attendance Register ID ' . $register->id);
         }
@@ -496,14 +492,10 @@ function attendanceregister_force_recalc_all($register) {
  */
 function attendanceregister_updates_all_users_sessions($register) {
     $users = attendanceregister__get_tracked_users_need_update($register);
-    mtrace('Found ' . count($users) . ' Users whose AttendanceRegister Sessions need updating');
     $updatedcount = 0;
     foreach ($users as $user) {
         if (attendanceregister_update_user_sessions($register, $user->id)) {
-            mtrace('Updated AttendanceRegister Sessions for User: ' . $user->id . ',' . $user->username);
             $updatedcount++;
-        } else {
-            mtrace('No actual update of AttendanceRegister Sessions for User: ' . $user->id . ',' .  $user->username);
         }
     }
     return $updatedcount;
