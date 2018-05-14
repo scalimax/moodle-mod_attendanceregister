@@ -94,7 +94,7 @@ class attendanceregister_tracked_users {
                 // Populate attendanceregister_user_aggregates_summary fields.
                 if ($aggregate->grandtotal) {
                     $this->usersaggregates[$aggregate->userid]->grandtotal = $aggregate->duration;
-                    $this->usersaggregates[$aggregate->userid]->lastlogout = $aggregate->lastlogout;
+                    $this->usersaggregates[$aggregate->userid]->lastlogout = $aggregate->lastsessionlogout;
                 } else if ($aggregate->total && $aggregate->onlinesess == 1) {
                     $this->usersaggregates[$aggregate->userid]->onlinetotal = $aggregate->duration;
                 } else if ($aggregate->total && $aggregate->onlinesess == 0) {

@@ -161,13 +161,6 @@ if ($printable) {
     $PAGE->set_pagelayout('print');
 }
 
-// Add User's Register Navigation node.
-if ($usertoprocess) {
-    $registernavnode = $PAGE->navigation->find($cm->id, navigation_node::TYPE_ACTIVITY);
-    $usernavnode = $registernavnode->add($usertoprocessfullname, $url);
-    $usernavnode->make_active();
-}
-
 $params = ['context' => $context, 'objectid' => $register->id];
 $event = \mod_attendanceregister\event\course_module_viewed::create($params);
 $event->add_record_snapshot('course_modules', $cm);
