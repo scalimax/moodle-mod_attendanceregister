@@ -48,6 +48,8 @@ $string['privacy:metadata:attendanceregister_aggregate:total'] = 'Total';
 $string['privacy:metadata:attendanceregister_aggregate:grandtotal'] = 'Grand total';
 $string['privacy:metadata:attendanceregister_aggregate:lastsessionlogout'] = 'End time for aggregate slot.';
 $string['privacy:metadata:attendanceregister_aggregate'] = 'Aggregates of timeslots to calculate differences between users in time spent on the platform.';
+$string['privacy:metadata:attendanceregister_lock:takenon'] = 'Lock time';
+$string['privacy:metadata:attendanceregister_lock'] = 'Locked sessions while calculating.';
 
 // Mod instance form.
 $string['registername'] = 'Attendance Register name';

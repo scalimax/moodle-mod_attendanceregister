@@ -63,6 +63,8 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                 'grandtotal' => 'privacy:metadata:attendanceregister_aggregate:grandtotal',
                 'lastsessionlogout' => 'privacy:metadata:attendanceregister_aggregate:lastsessionlogout'];
         $collection->add_database_table('attendanceregister_aggregate', $arr, 'privacy:metadata:attendanceregister_aggregate');
+        $arr = ['takenon' => 'privacy:metadata:attendanceregister_lock:takenon'];
+        $collection->add_database_table('attendanceregister_lock', $arr, 'privacy:metadata:attendanceregister_lock');
         return $collection;
     }
 
@@ -136,6 +138,19 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                     'grandtotal' => $record->grandtotal,
                     'lastlogout' => transform::datetime($record->lastsessionlogout)
                 ];
+            }
+
+            $sql = "SELECT s.* FROM {attendanceregister_lock} s
+                JOIN {attendanceregister} l ON l.id = s.register
+                JOIN {modules} m ON m.name = :name
+                JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+                JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                WHERE ctx.id = :id AND s.userid = :userid1";
+            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE,
+                      'id' => $context->id, 'userid1' => $user->id];
+            $recordset = $DB->get_recordset_sql($sql, $params);
+            foreach ($recordset as $record) {
+                $data[] = ['takenon' => transform::datetime($record->takenon)];
             }
             $recordset->close();
             if (!empty($data)) {
