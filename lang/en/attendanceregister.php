@@ -36,18 +36,21 @@ $string['pluginname'] = 'Attendance Register';
 $string['pluginadministration'] = 'Attendance Register Administration';
 
 $string['privacy:metadata'] = 'The attendance registry module plugin stores personal data.';
+$string['privacy:metadata:attendanceregister_session:userid'] = 'The user id of the session.';
 $string['privacy:metadata:attendanceregister_session:login'] = 'Start time of the session.';
 $string['privacy:metadata:attendanceregister_session:logout'] = 'End time of the session.';
 $string['privacy:metadata:attendanceregister_session:duration'] = 'Duration of the session';
-$string['privacy:metadata:attendanceregister_session:onlinesess'] = 'On- or Offline session';
+$string['privacy:metadata:attendanceregister_session:onlinesess'] = 'On- or Off-line session';
 $string['privacy:metadata:attendanceregister_session:comments'] = 'Comments.';
-$string['privacy:metadata:attendanceregister_session'] = 'Stores personal browsing behaviour to calculate an indicative number that compares users time spent on the platform.';
+$string['privacy:metadata:attendanceregister_session'] = 'Stores personal browsing behavior to calculate an indicative number that compares users time spent on the platform.';
+$string['privacy:metadata:attendanceregister_aggregate:userid'] = 'The user id of the aggregate.';
 $string['privacy:metadata:attendanceregister_aggregate:duration'] = 'Duration';
-$string['privacy:metadata:attendanceregister_aggregate:onlinesess'] = 'On- or Offline aggregate.';
+$string['privacy:metadata:attendanceregister_aggregate:onlinesess'] = 'On- or off-line aggregate.';
 $string['privacy:metadata:attendanceregister_aggregate:total'] = 'Total';
 $string['privacy:metadata:attendanceregister_aggregate:grandtotal'] = 'Grand total';
 $string['privacy:metadata:attendanceregister_aggregate:lastsessionlogout'] = 'End time for aggregate slot.';
-$string['privacy:metadata:attendanceregister_aggregate'] = 'Aggregates of timeslots to calculate differences between users in time spent on the platform.';
+$string['privacy:metadata:attendanceregister_aggregate'] = 'Aggregates of time slots to calculate differences between users in time spent on the platform.';
+$string['privacy:metadata:attendanceregister_lock:userid'] = 'The user id of the lock.';
 $string['privacy:metadata:attendanceregister_lock:takenon'] = 'Lock time';
 $string['privacy:metadata:attendanceregister_lock'] = 'Locked sessions while calculating.';
 

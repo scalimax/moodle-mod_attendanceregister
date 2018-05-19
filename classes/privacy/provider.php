@@ -45,25 +45,28 @@ use \core_privacy\local\request\transform;
 class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\plugin\provider {
 
     /**
-     * Returns information about how report_ipluspayments stores its data.
+     * Returns information about how attendanceregister stores its data.
      *
      * @param   collection     $collection The initialised collection to add items to.
      * @return  collection     A listing of user data stored through this system.
      */
     public static function get_metadata(collection $collection) : collection {
-        $arr = ['login' => 'privacy:metadata:attendanceregister_session:login',
+        $arr = ['userid' => 'privacy:metadata:attendanceregister_session:userid',
+                'login' => 'privacy:metadata:attendanceregister_session:login',
                 'logout' => 'privacy:metadata:attendanceregister_session:logout',
                 'duration' => 'privacy:metadata:attendanceregister_session:duration',
                 'onlinesess' => 'privacy:metadata:attendanceregister_session:onlinesess',
                 'comments' => 'privacy:metadata:attendanceregister_session:comments'];
         $collection->add_database_table('attendanceregister_session', $arr, 'privacy:metadata:attendanceregister_session');
-        $arr = ['duration' => 'privacy:metadata:attendanceregister_aggregate:duration',
+        $arr = ['userid' => 'privacy:metadata:attendanceregister_aggregate:userid',
+                'duration' => 'privacy:metadata:attendanceregister_aggregate:duration',
                 'onlinesess' => 'privacy:metadata:attendanceregister_aggregate:onlinesess',
                 'total' => 'privacy:metadata:attendanceregister_aggregate:total',
                 'grandtotal' => 'privacy:metadata:attendanceregister_aggregate:grandtotal',
                 'lastsessionlogout' => 'privacy:metadata:attendanceregister_aggregate:lastsessionlogout'];
         $collection->add_database_table('attendanceregister_aggregate', $arr, 'privacy:metadata:attendanceregister_aggregate');
-        $arr = ['takenon' => 'privacy:metadata:attendanceregister_lock:takenon'];
+        $arr = ['userid' => 'privacy:metadata:attendanceregister_lock:userid',
+                'takenon' => 'privacy:metadata:attendanceregister_lock:takenon'];
         $collection->add_database_table('attendanceregister_lock', $arr, 'privacy:metadata:attendanceregister_lock');
         return $collection;
     }
@@ -114,6 +117,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             $recordset = $DB->get_recordset_sql($sql, $params);
             foreach ($recordset as $record) {
                 $data[] = [
+                    'userid' => $record->userid,
                     'login' => transform::datetime($record->login),
                     'logout' => transform::datetime($record->logout),
                     'duration' => $record->duration,
@@ -132,6 +136,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             $recordset = $DB->get_recordset_sql($sql, $params);
             foreach ($recordset as $record) {
                 $data[] = [
+                    'userid' => $record->userid,
                     'duration' => $record->duration,
                     'onlinesess' => transform::yesno($record->onlinesess),
                     'total' => $record->total,
@@ -150,7 +155,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                       'id' => $context->id, 'userid1' => $user->id];
             $recordset = $DB->get_recordset_sql($sql, $params);
             foreach ($recordset as $record) {
-                $data[] = ['takenon' => transform::datetime($record->takenon)];
+                $data[] = ['userid' => $record->userid, 'takenon' => transform::datetime($record->takenon)];
             }
             $recordset->close();
             if (!empty($data)) {
