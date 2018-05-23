@@ -307,7 +307,9 @@ function attendanceregister_cron() {
              attendanceregister_set_pending_recalc($register, false);
         } else {
             $nupdates = attendanceregister_updates_all_users_sessions($register);
-            mtrace($nupdates . ' Users updated on Attendance Register ID ' . $register->id);
+            if ($nupdates > 0) {
+                mtrace($nupdates . ' Users updated on Attendance Register ID ' . $register->id);
+            }
         }
     }
     return true;
