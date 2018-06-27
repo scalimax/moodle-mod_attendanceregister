@@ -299,7 +299,12 @@ function attendanceregister_cron() {
     $registers = $DB->get_records('attendanceregister');
     foreach ($registers as $register) {
         $course = get_course($register->course);
+        // Added by Renaat
         if (!$course->visible) {
+            continue;
+        }
+        // Added by Renaat
+        if ($course->enddate > 0 and ($course->enddate > time() + (2 * 7 * 24 * 3600))) {
             continue;
         }
         if ($register->pendingrecalc) {
