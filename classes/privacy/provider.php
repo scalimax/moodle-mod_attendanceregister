@@ -104,11 +104,16 @@ class provider implements \core_privacy\local\metadata\provider,
 
         if (is_a($context, \context_module::class)) {
             $params = ['instanceid' => $context->instanceid, 'modulename' => 'attendanceregister'];
-            $sql = "SELECT d.userid FROM {course_modules} cm
+            $sql = "SELECT at.userid FROM {course_modules} cm
                       JOIN {modules} m ON m.id = cm.module AND m.name = :modulename
-                      JOIN {attendanceregister_session} as ON as.id = cm.instance
-                     WHERE cm.id = :instanceid";
+                      JOIN {attendanceregister_session} at ON at.id = cm.instance
+                      WHERE cm.id = :instanceid";
             $userlist->add_from_sql('userid', $sql, $params);
+            $sql = "SELECT at.addedbyuserid FROM {course_modules} cm
+                      JOIN {modules} m ON m.id = cm.module AND m.name = :modulename
+                      JOIN {attendanceregister_session} at ON at.id = cm.instance
+                      WHERE cm.id = :instanceid";
+            $userlist->add_from_sql('addedbyuserid', $sql, $params);
         }
     }
 
@@ -241,12 +246,13 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function delete_data_for_users(approved_userlist $userlist) {
         global $DB;
         $context = $userlist->get_context();
-        $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
-        $attendance = $DB->get_record('attendanceregister', ['id' => $cm->instance]);
-        list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
-        $params = array_merge(['register' => $attendance->id], $userinparams);
-        $DB->delete_records_select('attendanceregister_session', "register => $register AND userid {$userinsql}", $params);
-        $DB->delete_records_select('attendanceregister_aggregate', "register => $register AND userid {$userinsql}", $params);
-        $DB->delete_records_select('attendanceregister_lock', "register => $register AND userid {$userinsql}", $params);
+        if ($cm = $DB->get_record('course_modules', ['id' => $context->instanceid])) {
+            $attendance = $DB->get_record('attendanceregister', ['id' => $cm->instance]);
+            list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+            $params = array_merge(['register' => $attendance->id], $userinparams);
+            $DB->delete_records_select('attendanceregister_session', "register => $register AND userid {$userinsql}", $params);
+            $DB->delete_records_select('attendanceregister_aggregate', "register => $register AND userid {$userinsql}", $params);
+            $DB->delete_records_select('attendanceregister_lock', "register => $register AND userid {$userinsql}", $params);
+        }
     }
 }

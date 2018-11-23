@@ -23,7 +23,9 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
 use \core_privacy\tests\provider_testcase;
+use \mod_attendanceregister\privacy\provider;
 
 /**
  * Unit tests privacy
@@ -135,5 +137,22 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
         $this->assertTrue($DB->count_records('attendanceregister_session') === 0);
         $this->assertTrue($DB->count_records('attendanceregister_aggregate') === 0);
         $this->assertTrue($DB->count_records('attendanceregister_lock') === 0);
+    }
+
+    /**
+     * Tests new functions.
+     */
+    public function test_new_functions() {
+        $context = context_user::instance($this->user->id);
+        $userlist = new \core_privacy\local\request\userlist($context, 'mod_attendanceregister');
+        provider::get_users_in_context($userlist);
+        // TODO: not working.
+        $this->assertCount(0, $userlist);
+
+        $approved = new \core_privacy\local\request\approved_userlist($context, 'mod_attendanceregister', [$this->user->id]);
+        provider::delete_data_for_users($approved);
+        $userlist = new \core_privacy\local\request\userlist($context, 'mod_attendanceregister');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(0, $userlist);
     }
 }
