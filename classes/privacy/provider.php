@@ -115,6 +115,18 @@ class provider implements \core_privacy\local\metadata\provider,
                       JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
                       JOIN {attendanceregister_session} at ON at.register = ar.id WHERE ctx.id = :instanceid";
             $userlist->add_from_sql('addedbyuserid', $sql, $para);
+            $sql = "SELECT at.userid FROM {attendanceregister} ar
+                      JOIN {modules} m ON m.name = :modulename
+                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
+                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                      JOIN {attendanceregister_aggregate} at ON at.register = ar.id WHERE ctx.id = :instanceid";
+            $userlist->add_from_sql('userid', $sql, $para);
+           $sql = "SELECT at.userid FROM {attendanceregister} ar
+                      JOIN {modules} m ON m.name = :modulename
+                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
+                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                      JOIN {attendanceregister_lock} at ON at.register = ar.id WHERE ctx.id = :instanceid";
+            $userlist->add_from_sql('userid', $sql, $para);
         }
     }
 
