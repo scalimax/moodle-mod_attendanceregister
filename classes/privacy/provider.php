@@ -33,6 +33,9 @@ use \core_privacy\local\request\helper;
 use \core_privacy\local\request\deletion_criteria;
 use \core_privacy\local\metadata\collection;
 use \core_privacy\local\request\transform;
+use \core_privacy\local\request\userlist;
+use \core_privacy\local\request\approved_userlist;
+
 
 /**
  * Privacy main class.
@@ -42,7 +45,9 @@ use \core_privacy\local\request\transform;
  * @author  Renaat Debleu <rdebleu@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\plugin\provider {
+class provider implements \core_privacy\local\metadata\provider,
+                          \core_privacy\local\request\plugin\provider,
+                          \core_privacy\local\request\core_userlist_provider {
 
     /**
      * Returns information about how attendanceregister stores its data.
@@ -90,6 +95,42 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                    'userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid];
         $contextlist->add_from_sql($sql, $params);
         return $contextlist;
+    }
+
+    /**
+     * Get the list of users within a specific context.
+     *
+     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+        if (is_a($context, \context_module::class)) {
+            $para = ['instanceid' => $context->id, 'modulelevel' => CONTEXT_MODULE, 'modulename' => 'attendanceregister'];
+            $sql = "SELECT at.userid FROM {attendanceregister} ar
+                      JOIN {modules} m ON m.name = :modulename
+                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
+                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                      JOIN {attendanceregister_session} at ON at.register = ar.id WHERE ctx.id = :instanceid";
+            $userlist->add_from_sql('userid', $sql, $para);
+            $sql = "SELECT at.addedbyuserid FROM {attendanceregister} ar
+                      JOIN {modules} m ON m.name = :modulename
+                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
+                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                      JOIN {attendanceregister_session} at ON at.register = ar.id WHERE ctx.id = :instanceid";
+            $userlist->add_from_sql('addedbyuserid', $sql, $para);
+            $sql = "SELECT at.userid FROM {attendanceregister} ar
+                      JOIN {modules} m ON m.name = :modulename
+                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
+                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                      JOIN {attendanceregister_aggregate} at ON at.register = ar.id WHERE ctx.id = :instanceid";
+            $userlist->add_from_sql('userid', $sql, $para);
+            $sql = "SELECT at.userid FROM {attendanceregister} ar
+                      JOIN {modules} m ON m.name = :modulename
+                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
+                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                      JOIN {attendanceregister_lock} at ON at.register = ar.id WHERE ctx.id = :instanceid";
+            $userlist->add_from_sql('userid', $sql, $para);
+        }
     }
 
     /**
@@ -171,20 +212,19 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
-        if ($context->contextlevel != CONTEXT_MODULE) {
-            return;
-        }
-        $sql = "SELECT l.id FROM {attendanceregister} l
-                JOIN {modules} m ON m.name = :name
-                JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-                JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                WHERE ctx.id = :id";
-        $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE, 'id' => $context->id];
-        if ($recs = $DB->get_records_sql($sql, $params)) {
-            foreach ($recs as $rec) {
-                $DB->delete_records('attendanceregister_session', ['register' => $rec->id]);
-                $DB->delete_records('attendanceregister_aggregate', ['register' => $rec->id]);
-                $DB->delete_records('attendanceregister_lock', ['register' => $rec->id]);
+        if (is_a($context, \context_module::class)) {
+            $sql = "SELECT l.id FROM {attendanceregister} l
+                    JOIN {modules} m ON m.name = :name
+                    JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
+                    JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
+                    WHERE ctx.id = :id";
+            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE, 'id' => $context->id];
+            if ($recs = $DB->get_records_sql($sql, $params)) {
+                foreach ($recs as $rec) {
+                    $DB->delete_records('attendanceregister_session', ['register' => $rec->id]);
+                    $DB->delete_records('attendanceregister_aggregate', ['register' => $rec->id]);
+                    $DB->delete_records('attendanceregister_lock', ['register' => $rec->id]);
+                }
             }
         }
     }
@@ -212,6 +252,23 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                     $DB->delete_records('attendanceregister_lock', ['register' => $rec->id, 'userid' => $userid]);
                 }
             }
+        }
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param   approved_userlist       $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+        $context = $userlist->get_context();
+        if ($register = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid])) {
+            list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+            $params = array_merge(['register' => $register], $userinparams);
+            $DB->delete_records_select('attendanceregister_session', "register = $register AND userid {$userinsql}", $params);
+            $DB->delete_records_select('attendanceregister_aggregate', "register = $register AND userid {$userinsql}", $params);
+            $DB->delete_records_select('attendanceregister_lock', "register = $register AND userid {$userinsql}", $params);
         }
     }
 }

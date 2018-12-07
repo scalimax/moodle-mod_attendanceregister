@@ -23,7 +23,9 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
 use \core_privacy\tests\provider_testcase;
+use \mod_attendanceregister\privacy\provider;
 
 /**
  * Unit tests privacy
@@ -50,6 +52,7 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
         $dg = $this->getDataGenerator();
         $course = $dg->create_course();
         $cm = $dg->create_module('attendanceregister', ['course' => $course->id]);
+        $cm2 = $dg->create_module('attendanceregister', ['course' => $course->id]);
         $this->context = \context_module::instance($cm->cmid);
         $this->user = $dg->create_user();
         $dg->enrol_user($this->user->id, $course->id);
@@ -78,6 +81,38 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
         $lock = new stdClass();
         $lock->register = $cm->id;
         $lock->userid = $this->user->id;
+        $lock->takenon = time();
+        $DB->insert_record('attendanceregister_lock', $lock);
+
+        $user = $dg->create_user();
+        $dg->enrol_user($user->id, $course->id);
+        $session = new stdClass();
+        $session->register = $cm->id;
+        $session->userid = $user->id;
+        $session->login = time() - 5000;
+        $session->logout = time();
+        $session->duration = 5000;
+        $session->onlinesess = true;
+        $session->refcourse = null;
+        $session->comments = null;
+        $DB->insert_record('attendanceregister_session', $session);
+        $session->register = $cm2->id;
+        $DB->insert_record('attendanceregister_session', $session);
+
+        $aggregate = new stdClass();
+        $aggregate->register = $cm->id;
+        $aggregate->userid = $user->id;
+        $aggregate->onlinesess = 1;
+        $aggregate->refcourse = null;
+        $aggregate->duration = 20;
+        $aggregate->total = 1;
+        $aggregate->grandtotal = 0;
+        $DB->insert_record('attendanceregister_aggregate', $aggregate);
+        $aggregate->register = $cm2->id;
+        $DB->insert_record('attendanceregister_aggregate', $aggregate);
+        $lock = new stdClass();
+        $lock->register = $cm->id;
+        $lock->userid = $user->id;
         $lock->takenon = time();
         $DB->insert_record('attendanceregister_lock', $lock);
     }
@@ -112,13 +147,13 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
      */
     public function test_delete_sessions_for_all_users_in_context() {
         global $DB;
-        $this->assertTrue($DB->count_records('attendanceregister_session') === 1);
+        $this->assertEquals(3, $DB->count_records('attendanceregister_session'));
         \mod_attendanceregister\privacy\provider::delete_data_for_all_users_in_context($this->context);
         $list = new core_privacy\tests\request\approved_contextlist($this->user, 'mod_attendanceregister', []);
         $this->assertEmpty($list);
-        $this->assertTrue($DB->count_records('attendanceregister_session') === 0);
-        $this->assertTrue($DB->count_records('attendanceregister_aggregate') === 0);
-        $this->assertTrue($DB->count_records('attendanceregister_lock') === 0);
+        $this->assertEquals(1, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(1, $DB->count_records('attendanceregister_aggregate'));
+        $this->assertEquals(0, $DB->count_records('attendanceregister_lock'));
     }
 
     /**
@@ -132,8 +167,28 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
         $this->export_context_data_for_user($this->user->id, $this->context, 'mod_attendanceregister');
         $writer = \core_privacy\local\request\writer::with_context($this->context);
         $this->assertTrue($writer->has_any_data());
-        $this->assertTrue($DB->count_records('attendanceregister_session') === 0);
-        $this->assertTrue($DB->count_records('attendanceregister_aggregate') === 0);
-        $this->assertTrue($DB->count_records('attendanceregister_lock') === 0);
+        $this->assertEquals(2, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(2, $DB->count_records('attendanceregister_aggregate'));
+        $this->assertEquals(1, $DB->count_records('attendanceregister_lock'));
+    }
+
+    /**
+     * Tests get users in context.
+     */
+    public function test_get_users_in_context() {
+        $userlist = new \core_privacy\local\request\userlist($this->context, 'mod_attendanceregister');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(2, $userlist);
+    }
+
+    /**
+     * Tests delete data for users.
+     */
+    public function test_delete_data_for_users_in_context() {
+        $approved = new \core_privacy\local\request\approved_userlist($this->context, 'mod_attendanceregister', [$this->user->id]);
+        provider::delete_data_for_users($approved);
+        $userlist = new \core_privacy\local\request\userlist($this->context, 'mod_attendanceregister');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(1, $userlist);
     }
 }
