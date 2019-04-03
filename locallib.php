@@ -354,6 +354,10 @@ function attendanceregister__get_all_users_aggregate_summaries($register) {
 function attendanceregister__get_cached_user_grandtotal($register, $userid) {
     global $DB;
     $params = ['register' => $register->id, 'userid' => $userid, 'grandtotal' => 1];
+    $cnt = $DB->count_records('attendanceregister_aggregate', $params);
+    if ($cnt > 1) {
+        mtrace($userid . ' failed in register ' . $register->id);
+    }
     return $DB->get_record('attendanceregister_aggregate', $params, '*', IGNORE_MISSING);
 }
 
