@@ -19,7 +19,7 @@
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
- * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ require_once($CFG->dirroot . '/course/moodleform_mod.php');
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
- * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_attendanceregister_mod_form extends moodleform_mod {

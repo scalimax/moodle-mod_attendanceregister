@@ -19,7 +19,7 @@
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
- * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -42,7 +42,7 @@ use \core_privacy\local\request\approved_userlist;
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
- * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\provider,

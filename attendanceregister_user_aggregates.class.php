@@ -19,7 +19,7 @@
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
- * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die;
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
- * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attendanceregister_user_aggregates {

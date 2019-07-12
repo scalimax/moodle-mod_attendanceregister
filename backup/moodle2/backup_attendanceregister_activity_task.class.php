@@ -19,7 +19,7 @@
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
- * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ require_once($CFG->dirroot . '/mod/attendanceregister/backup/moodle2/backup_atte
  *
  * @package mod_attendanceregister
  * @author  Lorenzo Nicora <fad@nicus.it>
- * @author  Renaat Debleu <rdebleu@eWallah.net>
+ * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_attendanceregister_activity_task extends backup_activity_task {
