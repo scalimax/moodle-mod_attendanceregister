@@ -18,42 +18,38 @@
  * Attendance register user aggregates summary.
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * Represents a User's Aggregate for a Register
+ *
  * Holds in a single Object attendanceregister_aggregate records for
  * summary infos only (total & grandtotal)
  * for a User and a Register instance.
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attendanceregister_user_aggregates_summary {
 
-    /**
-     * Grandtotal of all sessions
-     */
+    /** @var int grandtotal total of all sessions */
     public $grandtotal = 0;
 
-    /**
-     * Total of all Online Sessions
-     */
+    /** @var int onlinetotal total of all Online Sessions */
     public $onlinetotal = 0;
 
-    /**
-     * Total of all Offline Sessions
-     */
+    /** @var int offlinetotal total of all Offline Sessions */
     public $offlinetotal = 0;
 
-    /**
-     * Last calculated Session Logout
-     */
+    /** @var int lastlogout Last calculated Session Logout */
     public $lastlogout = 0;
 }

@@ -18,6 +18,7 @@
  * Attendance register user sessions
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,38 +30,26 @@ defined('MOODLE_INTERNAL') || die;
  * Attendance register user sessions
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attendanceregister_user_sessions  {
 
-    /**
-     * attendanceregister_session records
-     */
+    /** @var attendanceregister_session $usersessions */
     public $usersessions;
 
-    /**
-     * Instance of attendanceregister_user_aggregates
-     */
+    /** @var attendanceregister_user_aggregates $useraggregates */
     public $useraggregates;
 
-    /**
-     * Instance of attendanceregister_tracked_courses
-     * containing all tracked Courses
-     *
-     * @var type
-     */
+    /** @var attendanceregister_tracked_courses $trackedcourses containing all tracked Courses */
     public $trackedcourses;
 
-    /**
-     * Ref. to AttendanceRegister instance
-     */
+    /** @var object $register Ref. to AttendanceRegister instance */
     private $register;
 
-    /**
-     * Ref to mod_attendanceregister_user_capablities instance
-     */
+    /** @var mod_attendanceregister_user_capablities $usercaps */
     private $usercaps;
 
     /**
@@ -70,7 +59,7 @@ class attendanceregister_user_sessions  {
      *
      * @param object                              $register
      * @param int                                 $userid
-     * @param attendanceregister_user_capablities $usercapabilities
+     * @param attendanceregister_user_capablities $usercaps
      */
     public function __construct($register, $userid, attendanceregister_user_capablities $usercaps) {
         $this->register = $register;

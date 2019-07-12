@@ -18,6 +18,7 @@
  * attendanceregister_tracked_courses.class.php - Class containing Attendance Register's tracked Courses
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,27 +32,28 @@ defined('MOODLE_INTERNAL') || die();
  * Implements method to return html_table to render it.
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attendanceregister_tracked_courses {
 
-    /**
-     * Array of Courses
-     * Keyed by CourseID
-     */
+    /** @var array $courses Array of Courses - Keyed by CourseID */
     public $courses;
 
-    /**
-     * Ref. to AttendanceRegister instance
-     */
+    /** @var stdClass $register Ref. to AttendanceRegister instance */
     private $register;
 
+    /**
+     * Construct the class
+     *
+     * @param object $register
+     */
     public function __construct($register) {
         $this->register = $register;
         $courses = attendanceregister_get_tracked_courses($register);
-        // Save courseses using id as key.
+        // Save courses using id as key.
         $this->courses = [];
         foreach ($courses as $course) {
             $this->courses[$course->id] = $course;

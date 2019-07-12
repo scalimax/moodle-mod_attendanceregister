@@ -18,6 +18,7 @@
  * Restore activity structure task
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,6 +32,7 @@ require_once($CFG->dirroot . '/mod/attendanceregister/backup/moodle2/restore_att
  * Restore activity task
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

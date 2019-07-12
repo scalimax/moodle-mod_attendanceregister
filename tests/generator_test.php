@@ -18,6 +18,7 @@
  * PHPUnit generator tests
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,12 +31,16 @@ defined('MOODLE_INTERNAL') || die();
  * PHPUnit generator testcase
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_attendanceregister_generator_testcase extends advanced_testcase {
 
+    /**
+     * Test the generator
+     */
     public function test_generator() {
         global $DB;
         $this->resetAfterTest(true);

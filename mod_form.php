@@ -18,6 +18,7 @@
  * Attendance form
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,12 +32,16 @@ require_once($CFG->dirroot . '/course/moodleform_mod.php');
  * Attendance form
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_attendanceregister_mod_form extends moodleform_mod {
 
+    /**
+     * Definition.
+     */
     public function definition() {
         global $CFG;
         $mform = $this->_form;
@@ -131,6 +136,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
     /**
      * Add completion rules
      * [feature #7]
+     * @return array
      */
     public function add_completion_rules() {
         $mform =& $this->_form;
@@ -148,6 +154,8 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
     /**
      * Validate completion rules
      * [feature #7]
+     * @param array $data
+     * @return bool
      */
     public function completion_rule_enabled($data) {
         return((!empty($data['completiontotaldurationenabled']) && $data['completiontotaldurationmins'] != 0));
@@ -156,6 +164,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
     /**
      * Extend get_data() to support completion checkbox behaviour
      * [feature #7]
+     * @return array
      */
     public function get_data() {
         $data = parent::get_data();
@@ -173,6 +182,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
 
     /**
      * Prepare completion checkboxes when form is displayed
+     * @param array $defaultvalues
      */
     public function data_preprocessing(&$defaultvalues) {
         parent::data_preprocessing($defaultvalues);

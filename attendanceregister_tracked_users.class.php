@@ -18,6 +18,7 @@
  * Tracked Courses
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,40 +32,27 @@ defined('MOODLE_INTERNAL') || die();
  * Implements method to return html_table to render it.
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attendanceregister_tracked_users {
 
-    /**
-     * Array of User
-     */
+    /** @var array users Array of User */
     public $users;
 
-    /**
-     * Array if attendanceregister_user_aggregates_summary
-     * keyed by $userid
-     */
+    /** @var array usersaggregates Array if attendanceregister_user_aggregates_summary keyed by $userid */
     public $usersaggregates;
 
 
-    /**
-     * Instance of attendanceregister_tracked_courses
-     * containing all tracked Courses
-     *
-     * @var type
-     */
+    /** @var attendanceregister_tracked_courses trackedcourses containing all tracked Courses  */
     public $trackedcourses;
 
-    /**
-     * Ref. to AttendanceRegister instance
-     */
+    /** @var stdClass register Ref. to AttendanceRegister instance */
     private $register;
 
-    /**
-     * Ref to mod_attendanceregister_user_capablities instance
-     */
+    /** @var attendanceregister_user_capablities usercaps Ref to mod_attendanceregister_user_capablities instance */
     private $usercaps;
 
 
@@ -73,8 +61,9 @@ class attendanceregister_tracked_users {
      * Load all tracked User's and their summaris
      * Load list of tracked Courses
      *
-     * @param object                              $register
+     * @param object $register
      * @param attendanceregister_user_capablities $usercaps
+     * @param int $groupid
      */
     public function __construct($register, attendanceregister_user_capablities $usercaps, $groupid) {
         $this->register = $register;

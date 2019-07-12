@@ -18,6 +18,7 @@
  * Attendance register local library.
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -161,7 +162,7 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
  * Updates Aggregates for a given user
  * and notify completion, if needed [feature #7]
  *
- * @param object $regiser
+ * @param object $register
  * @param int    $userid
  */
 function attendanceregister__update_user_aggregates($register, $userid) {
@@ -257,7 +258,8 @@ function attendanceregister__update_user_aggregates($register, $userid) {
  * All Users that in the Register's Course have any Role with "mod/attendanceregister:tracked" Capability assigned.
  * (NOT Users having this Capability in all tracked Courses!)
  *
- * @param  object $register
+ * @param object $register
+ * @param string $groupid
  * @return array of users
  */
 function attendanceregister__get_tracked_users($register, $groupid = '') {
@@ -422,7 +424,7 @@ function attendanceregister__get_coursed_ids_meta_linked($course) {
  * @param int   $userid
  * @param int   $fromtime
  * @param array $courseids
- * @param int   $logCount  count of records, passed by ref.
+ * @param int   $logcount  count of records, passed by ref.
  */
 function attendanceregister__get_user_log_entries_in_courses($userid, $fromtime, $courseids, &$logcount) {
     global $DB;
@@ -443,9 +445,9 @@ function attendanceregister__get_user_log_entries_in_courses($userid, $fromtime,
  * in the Register
  *
  * @param  object $register
- * @param  object $user
- * @param  int    $login
- * @param  int    $logout
+ * @param  int $userid
+ * @param  int $login
+ * @param  int $logout
  * @return boolean true if overlapping
  */
 function attendanceregister__check_overlapping_old_sessions($register, $userid, $login, $logout) {
@@ -462,9 +464,9 @@ function attendanceregister__check_overlapping_old_sessions($register, $userid, 
  * If is another user, if user's lastaccess is older then sessiontimeout he is supposed to be logged out
  *
  * @param  object $register
- * @param  object $user
- * @param  int    $login
- * @param  int    $logout
+ * @param  $int $userid
+ * @param  int $login
+ * @param  int $logout
  * @return boolean true if overlapping
  */
 function attendanceregister__check_overlapping_current_session($register, $userid, $login, $logout) {
@@ -495,7 +497,7 @@ function attendanceregister__check_overlapping_current_session($register, $useri
  * @param int     $userid
  * @param int     $login
  * @param int     $logout
- * @param boolean $isOnline
+ * @param boolean $online
  * @param int     $refid
  * @param string  $comments
  */
@@ -521,7 +523,7 @@ function attendanceregister__save_session($register, $userid, $login, $logout, $
  *
  * @param object $register
  * @param int    $userid
- * @param int    $onlyDeleteAfter default) null (=ignored)
+ * @param int    $onlyafter default) null (=ignored)
  */
 function attendanceregister__delete_user_online_sessions($register, $userid, $onlyafter = null) {
     global $DB;
@@ -567,9 +569,9 @@ function attendanceregister__get_user_oldest_log_entry_timestamp($userid) {
 /**
  * Check if a Lock exists on a given User's Register
  *
- * @param object                      $register
- * @param int                         $userid
- * @param boolean true if lock exists
+ * @param stdClass $register
+ * @param int $userid
+ * @return bool true if lock exists
  */
 function attendanceregister__check_lock_exists($register, $userid) {
     global $DB;
@@ -653,7 +655,7 @@ function attendanceregister__shorten_comment($text, $maxlen = ATTENDANCEREGISTER
  * Returns an array with unique objects in a given array
  * comparing by id property
  *
- * @param  array $objArray of object
+ * @param  array $objarray of object
  * @return array of object
  */
 function attendanceregister__unique_object_array_by_id($objarray) {
@@ -674,7 +676,7 @@ function attendanceregister__unique_object_array_by_id($objarray) {
  * adds extra informations on UnixTimestamp
  * and return "Never" if timestamp is 0
  *
- * @param  int $dateTime
+ * @param int $datetime
  * @return string
  */
 function attendanceregister__formatdate($datetime) {
@@ -698,7 +700,6 @@ function attendanceregister__getuser($userid) {
 /**
  * Check if a given User ID is of the currently logged user
  *
- * @global object $USER
  * @param  int $userid (consider null as current user)
  * @return boolean
  */
@@ -710,7 +711,8 @@ function attendanceregister__iscurrentuser($userid) {
 /**
  * Return user's full name or unknown
  *
- * @param type $otherid
+ * @param int $otherid
+ * @return string
  */
 function attendanceregister__othername($otherid) {
     $other = attendanceregister__getuser($otherid);
@@ -763,8 +765,7 @@ function attendanceregister__calculatecompletion($register, $userid) {
  * Values are passed as an associative array i.e. array['totaldurationsecs' => xxxxx]
  *
  * @param  object $register          Register instance
- * @param  array  $trackedValues     array of tracked values, by parameter name
- * @param  int    $totaldurationsecs total calculated duration, in seconds
+ * @param  array  $trackedvalues     array of tracked values, by parameter name
  * @return boolean TRUE if this values match comletion condition, otherwise FALSE
  */
 function attendanceregister__iscomplete($register, $trackedvalues) {
@@ -783,7 +784,7 @@ function attendanceregister__iscomplete($register, $trackedvalues) {
  * Check if the Cron form this module ran after the creation of an instance
  *
  * @param  object $cm Course-Module instance
- * @return boolean TRUE if the Cron run on this module after instance creation
+ * @return bool TRUE if the Cron run on this module after instance creation
  */
 function attendanceregister__didcronran($cm) {
     global $DB;
@@ -793,10 +794,20 @@ function attendanceregister__didcronran($cm) {
 
 /**
  * Class form Offline Session Self-Certification form
+ *
  * (Note that the User is always the CURRENT user ($USER))
+ *
+ * @package mod_attendanceregister
+ * @copyright 2016 CINECA
+ * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <info@eWallah.net>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_attendanceregister_selfcertification_edit_form extends moodleform {
 
+    /**
+     * Definition.
+     */
     public function definition() {
         global $USER;
 
@@ -874,6 +885,13 @@ class mod_attendanceregister_selfcertification_edit_form extends moodleform {
         $this->add_action_buttons();
     }
 
+    /**
+     * Form validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array all errors
+     */
     public function validation($data, $files) {
         global $USER, $DB;
 
@@ -911,18 +929,31 @@ class mod_attendanceregister_selfcertification_edit_form extends moodleform {
 }
 
 /**
- * This class collects al current User's Capabilities
- * regarding the current instance of Attendance Register
+ * This class collects al current User's Capabilities regarding the current instance of Attendance Register
+ *
+ * @package mod_attendanceregister
+ * @copyright 2016 CINECA
+ * @author  Lorenzo Nicora <fad@nicus.it>
+ * @author  Renaat Debleu <info@eWallah.net>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attendanceregister_user_capablities {
 
+    /** @var bool istracked */
     public $istracked = false;
+    /** @var bool canviewown */
     public $canviewown = false;
+    /** @var bool canviewother */
     public $canviewother = false;
+    /** @var bool canaddown */
     public $canaddown = false;
+    /** @var bool canaddother */
     public $canaddother = false;
+    /** @var bool candeleteown */
     public $candeleteown = false;
+    /** @var bool candeleteother */
     public $candeleteother = false;
+    /** @var bool canrecalc */
     public $canrecalc = false;
 
     /**
@@ -964,7 +995,8 @@ class attendanceregister_user_capablities {
     /**
      * Check if the current USER can add Offline Sessions for a specified User
      *
-     * @param  int $userid (null means current user's register)
+     * @param stdClass $register
+     * @param int $userid (null means current user's register)
      * @return boolean
      */
     public function canaddsession($register, $userid) {

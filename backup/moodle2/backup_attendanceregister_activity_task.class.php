@@ -18,6 +18,7 @@
  * Backup activity task
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,6 +32,7 @@ require_once($CFG->dirroot . '/mod/attendanceregister/backup/moodle2/backup_atte
  * Backup activity task
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -55,6 +57,7 @@ class backup_attendanceregister_activity_task extends backup_activity_task {
     /**
      * Code the transformations to perform in the activity in
      * order to get transportable (encoded) links
+     * @param string $content The data in object form
      */
     static public function encode_content_links($content) {
         global $CFG;

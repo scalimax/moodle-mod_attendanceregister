@@ -18,6 +18,7 @@
  * Attendance register library.
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -160,7 +161,6 @@ function attendanceregister_update_instance($register) {
  * this function will permanently delete the instance
  * and any data that depends on it.
  *
- * @global object
  * @param  int $id
  * @return bool
  */
@@ -227,7 +227,6 @@ function attendanceregister_supports($feature) {
  * this activity in a course listing.
  * See get_array_of_activities() in course/lib.php
  *
- * @global object
  * @param  object $coursemodule
  * @return object|null
  */
@@ -299,11 +298,11 @@ function attendanceregister_cron() {
     $registers = $DB->get_records('attendanceregister');
     foreach ($registers as $register) {
         $course = get_course($register->course);
-        // Added by Renaat
+        // Added by Renaat.
         if (!$course->visible) {
             continue;
         }
-        // Added by Renaat
+        // Added by Renaat.
         if ($course->enddate > 0 and ($course->enddate > time() + (2 * 7 * 24 * 3600))) {
             continue;
         }
@@ -522,7 +521,7 @@ function attendanceregister_updates_all_users_sessions($register) {
  * @param object $register
  * @param int    $userid
  * @param int    $lastlogout (by ref.) lastlogout returned if update needed
- * @eturn boolean true if update needed
+ * @return boolean true if update needed
  */
 function attendanceregister_check_user_sessions_need_update($register, $userid, &$lastlogout = null) {
     $user = attendanceregister__getuser($userid);
@@ -551,7 +550,8 @@ function attendanceregister_check_user_sessions_need_update($register, $userid, 
  * All Users that in the Register's Course have any Role with "mod/attendanceregister:tracked" Capability assigned.
  * (NOT Users having this Capability in all tracked Courses!)
  *
- * @param  object $register
+ * @param object $register
+ * @param string $groupid
  * @return array of users
  */
 function attendanceregister_get_tracked_users($register, $groupid = '') {
@@ -560,6 +560,9 @@ function attendanceregister_get_tracked_users($register, $groupid = '') {
 
 /**
  * Checks if a given User is tracked by a Register instance
+ * @param object $register
+ * @param object $user
+ * @return bool
  */
 function attendanceregister_is_tracked_user($register, $user) {
     $course = attendanceregister__get_register_course($register);
@@ -639,6 +642,8 @@ function attendanceregister_save_offline_session($register, $formdata) {
  * Delete an offline Session
  * then updates Aggregates
  *
+ * @param object $register
+ * @param int $userid
  * @param int $sessionid
  */
 function attendanceregister_delete_offline_session($register, $userid, $sessionid) {
@@ -650,9 +655,8 @@ function attendanceregister_delete_offline_session($register, $userid, $sessioni
 /**
  * Updates pendingrecalc flag of a Register
  *
- * @global type $DB
  * @param  object $register
- * @param  boolea $pendingRecalc
+ * @param  bool $pending Recalc
  */
 function attendanceregister_set_pending_recalc($register, $pending) {
     global $DB;

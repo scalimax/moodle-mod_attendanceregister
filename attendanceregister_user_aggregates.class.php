@@ -18,6 +18,7 @@
  * User aggregates
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,50 +30,35 @@ defined('MOODLE_INTERNAL') || die;
  * User aggregates
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attendanceregister_user_aggregates {
 
-    /**
-     * Grandtotal of all sessions
-     */
+    /** @var int grandtotal total of all sessions */
     public $grandtotal = 0;
 
-    /**
-     * Total of all Online Sessions
-     */
+    /** @var int onlinetotal Total of all Online Sessions */
     public $onlinetotal = 0;
 
-    /**
-     * Total of all Offline Sessions
-     */
+    /** @var int $offlinetotal Total of all Offline Sessions */
     public $offlinetotal = 0;
 
-    /**
-     * Offline sessions, per refcourseid
-     */
+    /** @var array $percouse Offline sessions, per refcourseid */
     public $percourse = [];
 
-    /**
-     * Offline Sessions w/o any RefCourse
-     */
+    /** @var int $nocoursesessions Offline Sessions w/o any RefCourse */
     public $nocoursesessions = 0;
 
-    /**
-     * Last calculated Session Logout
-     */
+    /** @var int $lastlogout Last calculated Session Logout */
     public $lastlogout = 0;
 
-    /**
-     * Ref to attendanceregister_user_sessions instance
-     */
+    /** @var attendanceregister_user_sessions $sessions */
     private $sessions;
 
-    /**
-     * User instance
-     */
+    /** @var stdClass $user User instance */
     public $user;
 
     /**

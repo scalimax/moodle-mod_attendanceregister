@@ -17,6 +17,7 @@
  * Privacy tests.
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,16 +32,17 @@ use \mod_attendanceregister\privacy\provider;
  * Unit tests privacy
  *
  * @package mod_attendanceregister
+ * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_attendanceregister_privacy_testcase extends provider_testcase {
 
-    /** stdClass context context */
+    /** @var stdClass context context */
     private $context;
 
-    /** stdClass user user */
+    /** @var stdClass user user */
     private $user;
 
     /**
