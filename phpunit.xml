@@ -39,6 +39,9 @@
                 <directory suffix=".php">.</directory>
                 <exclude>
                     <directory suffix="_test.php">.</directory>
+                    <file>view.php</file>
+                    <file>version.php</file>
+                    <file>index.php</file>
                 </exclude>
             </whitelist>
         </filter>
