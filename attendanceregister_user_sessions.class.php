@@ -109,7 +109,7 @@ class attendanceregister_user_sessions  {
                 $rowcount++;
 
                 $rowcountstr = (string)$rowcount;
-                if (!$session->onlinesess && $this->usercaps->candeletesession($session->userid)) {
+                if (!$session->onlinesess) {
                     $deleteurl = attendanceregister_makeurl($this->register, $session->userid, null,
                         ATTENDANCEREGISTER_ACTION_DELETE_OFFLINE_SESSION, ['session' => $session->id]);
                     $confirm = new confirm_action(get_string('are_you_sure_to_delete_offline_session', 'attendanceregister'));
