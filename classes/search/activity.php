@@ -15,19 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version file
+ * Search area for mod_attendanceregister activities.
  *
- * @package mod_attendanceregister
+ * @package   mod_attendanceregister
  * @copyright 2016 CINECA
- * @author  Lorenzo Nicora <fad@nicus.it>
- * @author  Renaat Debleu <info@eWallah.net>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author    Lorenzo Nicora <fad@nicus.it>
+ * @author    Renaat Debleu <info@eWallah.net>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+namespace mod_attendanceregister\search;
 
-$plugin->version   = 2020070100;
-$plugin->requires  = 2018051700;
-$plugin->component = 'mod_attendanceregister';
-$plugin->maturity  = MATURITY_RC;
-$plugin->release   = '3.5+';
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Search area for mod_attendanceregister activities.
+ *
+ * @package   mod_attendanceregister
+ * @copyright 2016 CINECA
+ * @author    Lorenzo Nicora <fad@nicus.it>
+ * @author    Renaat Debleu <info@eWallah.net>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class activity extends \core_search\base_activity {
+}
