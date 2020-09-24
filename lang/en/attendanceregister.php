@@ -231,3 +231,4 @@ $string['tracked_users'] = 'Tracked Users';
 // Activity Completion tracking.
 $string['completiontotalduration'] = 'Require time [minutes]';
 $string['completiondurationgroup'] = 'Total tracked time';
+$string['search:activity'] = 'Search attendance register';
