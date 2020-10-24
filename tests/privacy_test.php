@@ -48,7 +48,7 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
     /**
      * Basic setup for these tests.
      */
-    public function setUp() {
+    public function setUp():void {
         global $DB;
         $this->resetAfterTest();
         $dg = $this->getDataGenerator();

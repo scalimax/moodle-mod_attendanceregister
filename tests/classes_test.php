@@ -46,7 +46,7 @@ class mod_attendanceregister_classes_testcase extends advanced_testcase {
     /**
      * Basic setup for these tests.
      */
-    public function setUp() {
+    public function setUp():void {
         global $DB;
         $this->resetAfterTest();
         $dg = $this->getDataGenerator();
