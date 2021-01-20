@@ -93,9 +93,6 @@ jobs:
       - name: mustache
         run: moodle-plugin-ci mustache
 
-      - name: prepare grunt
-        run: rm -f moodle/theme/iplus/js/*min.css
-
       - name: grunt
         run: moodle-plugin-ci grunt
 
