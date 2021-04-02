@@ -94,8 +94,8 @@ class mod_attendanceregister_generator extends testing_module_generator {
         $aggregate->onlinesess = 1;
         $aggregate->refcourse = $return->course;
         $aggregate->duration = 800;
-        $aggregate->total = 10000;
-        $aggregate->grandtotal = 0;
+        $aggregate->total = 1;
+        $aggregate->grandtotal = 10000;
         $DB->insert_record('attendanceregister_aggregate', $aggregate);
 
         $lock = new stdClass();
