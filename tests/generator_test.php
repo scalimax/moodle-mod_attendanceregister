@@ -53,7 +53,9 @@ class mod_attendanceregister_generator_testcase extends advanced_testcase {
         $generator->create_instance(['course' => $course->id]);
         $generator->create_instance(['course' => $course->id]);
         $attendanceregister = $generator->create_instance(['course' => $course->id]);
-        $this->assertEquals(3, $DB->count_records('attendanceregister'));
+        $this->assertEquals(6, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(6, $DB->count_records('attendanceregister_aggregate'));
+        $this->assertEquals(6, $DB->count_records('attendanceregister_lock'));
 
         $cm = get_coursemodule_from_instance('attendanceregister', $attendanceregister->id);
         $this->assertEquals($attendanceregister->id, $cm->instance);

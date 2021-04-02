@@ -149,13 +149,13 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
      */
     public function test_delete_sessions_for_all_users_in_context() {
         global $DB;
-        $this->assertEquals(3, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(7, $DB->count_records('attendanceregister_session'));
         \mod_attendanceregister\privacy\provider::delete_data_for_all_users_in_context($this->context);
         $list = new core_privacy\tests\request\approved_contextlist($this->user, 'mod_attendanceregister', []);
         $this->assertEmpty($list);
-        $this->assertEquals(1, $DB->count_records('attendanceregister_session'));
-        $this->assertEquals(1, $DB->count_records('attendanceregister_aggregate'));
-        $this->assertEquals(0, $DB->count_records('attendanceregister_lock'));
+        $this->assertEquals(5, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(5, $DB->count_records('attendanceregister_aggregate'));
+        $this->assertEquals(4, $DB->count_records('attendanceregister_lock'));
     }
 
     /**
@@ -169,9 +169,9 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
         $this->export_context_data_for_user($this->user->id, $this->context, 'mod_attendanceregister');
         $writer = \core_privacy\local\request\writer::with_context($this->context);
         $this->assertTrue($writer->has_any_data());
-        $this->assertEquals(2, $DB->count_records('attendanceregister_session'));
-        $this->assertEquals(2, $DB->count_records('attendanceregister_aggregate'));
-        $this->assertEquals(1, $DB->count_records('attendanceregister_lock'));
+        $this->assertEquals(6, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(6, $DB->count_records('attendanceregister_aggregate'));
+        $this->assertEquals(5, $DB->count_records('attendanceregister_lock'));
     }
 
     /**

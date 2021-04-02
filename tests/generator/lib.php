@@ -44,8 +44,66 @@ class mod_attendanceregister_generator extends testing_module_generator {
      * @return stdClass
      */
     public function create_instance($record = null, array $options = null) {
+        global $DB;
         $record = (array)$record;
         $record['showdescription'] = 1;
-        return parent::create_instance($record, $options);
+        $record['offlinesessions'] = 1;
+        $return  = parent::create_instance($record, $options);
+        // Add 2 sessions.
+        $session = new stdClass();
+        $session->register = $return->cmid;
+        $session->userid = 15000;
+        $session->login = time() - 5000;
+        $session->logout = time();
+        $session->duration = 5000;
+        $session->onlinesess = 0;
+        $session->refcourse = $return->course;
+        $session->comments = 'comment1';
+        $DB->insert_record('attendanceregister_session', $session);
+
+        $aggregate = new stdClass();
+        $aggregate->register = $return->cmid;
+        $aggregate->userid = 15000;
+        $aggregate->onlinesess = 0;
+        $aggregate->refcourse = $return->course;
+        $aggregate->duration = 3000;
+        $aggregate->total = 0;
+        $aggregate->grandtotal = 0;
+        $DB->insert_record('attendanceregister_aggregate', $aggregate);
+
+        $lock = new stdClass();
+        $lock->register = $return->cmid;
+        $lock->userid = 15000;
+        $lock->takenon = time();
+        $DB->insert_record('attendanceregister_lock', $lock);
+
+        $session = new stdClass();
+        $session->register = $return->cmid;
+        $session->userid = 15000;
+        $session->login = time() - 5000;
+        $session->logout = time() + 8000;
+        $session->duration = 13000;
+        $session->onlinesess = 1;
+        $session->refcourse = $return->course;
+        $session->comments = 'comment2';
+        $DB->insert_record('attendanceregister_session', $session);
+
+        $aggregate = new stdClass();
+        $aggregate->register = $return->cmid;
+        $aggregate->userid = 15000;
+        $aggregate->onlinesess = 1;
+        $aggregate->refcourse = $return->course;
+        $aggregate->duration = 800;
+        $aggregate->total = 10000;
+        $aggregate->grandtotal = 0;
+        $DB->insert_record('attendanceregister_aggregate', $aggregate);
+
+        $lock = new stdClass();
+        $lock->register = $return->cmid;
+        $lock->userid = 15000;
+        $lock->takenon = time();
+        $DB->insert_record('attendanceregister_lock', $lock);
+
+        return $return;
     }
 }

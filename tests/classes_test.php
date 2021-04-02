@@ -77,7 +77,7 @@ class mod_attendanceregister_classes_testcase extends advanced_testcase {
         $session->login = time() - 1000;
         $session->logout = time();
         $session->duration = 1000;
-        $session->onlinesess = true;
+        $session->onlinesess = 0;
         $session->refcourse = null;
         $session->comments = null;
         $DB->insert_record('attendanceregister_session', $session);
@@ -87,7 +87,7 @@ class mod_attendanceregister_classes_testcase extends advanced_testcase {
         $session->login = time() - 1000;
         $session->logout = time();
         $session->duration = 1000;
-        $session->onlinesess = false;
+        $session->onlinesess = 1;
         $session->refcourse = null;
         $session->comments = null;
         $DB->insert_record('attendanceregister_session', $session);
