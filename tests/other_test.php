@@ -162,7 +162,7 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
      * Test backup
      */
     public function test_backup() {
-        global $CFG, $DB, $USER;
+        global $CFG, $USER;
         require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
         require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
         set_config('backup_general_users', 0, 'backup');
@@ -202,27 +202,5 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
         include($CFG->dirroot . '/mod/attendanceregister/db/access.php');
         include($CFG->dirroot . '/mod/attendanceregister/db/upgrade.php');
         $this->assertNotEmpty($plugin);
-    }
-
-    /**
-     * Test other form.
-     */
-    public function test_form() {
-        global $CFG, $DB;
-        include($CFG->dirroot . '/mod/attendanceregister/mod_form.php');
-        $dg = $this->getDataGenerator();
-        $course = $dg->create_course(['enablecompletion' => 1]);
-        $ar = $dg->create_module('attendanceregister', ['course' => $course->id, 'section' => 1]);
-        $cm = get_coursemodule_from_instance('attendanceregister', $ar->id, $course->id, false, MUST_EXIST);
-        $current = new stdClass();
-        $current->instance = $cm;
-        $default = ['completiontotaldurationmins' => 3, 'completiontotaldurationenabled' => 1];
-        $form = new mod_attendanceregister_mod_form($current, 1, null, $course);
-        $form->definition();
-        $form->add_completion_rules();
-        $form->completion_rule_enabled($default);
-        $form->get_data();
-        $default = ['completiontotaldurationenabled' => 1];
-        $form->data_preprocessing($default);
     }
 }
