@@ -123,6 +123,7 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
         $dg->enrol_user($user->id, $course->id);
         $page = $dg->create_module('page', ['course' => $course->id], ['completion' => 2, 'completionview' => 1]);
         $dg->create_module('attendanceregister', ['course' => $course->id]);
+        $coursecontext = context_course::instance($course->id);
         $context = context_module::instance($page->cmid);
         $cm = get_coursemodule_from_instance('page', $page->id);
         $this->setUser($user);
@@ -131,7 +132,7 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
         $i = 0;
         while ($i < 10 ) {
             page_view($page, $course, $cm, $context);
-            $event = \mod_page\event\course_module_instance_list_viewed::create(['context' => context_course::instance($course->id)]);
+            $event = \mod_page\event\course_module_instance_list_viewed::create(['context' => $coursecontext]);
             $event->add_record_snapshot('course', $course);
             $event->trigger();
             $i++;
