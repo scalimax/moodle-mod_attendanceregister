@@ -1,4 +1,4 @@
-@iplus @mod @mod_attendanceregister
+@iplus @mod @mod_attendanceregister @javascript
 Feature: attendance register
   Background:
     Given the following "courses" exist:
