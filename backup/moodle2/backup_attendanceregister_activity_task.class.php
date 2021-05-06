@@ -59,7 +59,7 @@ class backup_attendanceregister_activity_task extends backup_activity_task {
      * order to get transportable (encoded) links
      * @param string $content The data in object form
      */
-    static public function encode_content_links($content) {
+    public static function encode_content_links($content) {
         global $CFG;
         $base = preg_quote($CFG->wwwroot, "/");
         $search = "/(".$base."\/mod\/attendanceregister\/index.php\?id\=)([0-9]+)/";

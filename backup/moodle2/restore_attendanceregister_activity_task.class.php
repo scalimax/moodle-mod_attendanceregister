@@ -57,7 +57,7 @@ class restore_attendanceregister_activity_task extends restore_activity_task {
      * Define the contents in the activity that must be
      * processed by the link decoder
      */
-    static public function define_decode_contents() {
+    public static function define_decode_contents() {
         $contents = [];
         $contents[] = new restore_decode_content('attendanceregister', ['intro'], 'attendanceregister');
         return $contents;
@@ -67,7 +67,7 @@ class restore_attendanceregister_activity_task extends restore_activity_task {
      * Define the decoding rules for links belonging
      * to the activity to be executed by the link decoder
      */
-    static public function define_decode_rules() {
+    public static function define_decode_rules() {
         $rules = [];
         $rules[] = new restore_decode_rule('ATTENDANCEREGISTERINDEX',
             '/mod/attendanceregister/index.php?id=$1', 'course');
@@ -85,7 +85,7 @@ class restore_attendanceregister_activity_task extends restore_activity_task {
     /**
      * Define the restore log rules that will be applied
      */
-    static public function define_restore_log_rules() {
+    public static function define_restore_log_rules() {
         $rules = [];
         $rules[] = new restore_log_rule('attendanceregister', ATTENDANCEREGISTER_LOGACTION_VIEW,
             'view.php?id={course_module}&userid={user}', '{attendanceregister}');
@@ -110,7 +110,7 @@ class restore_attendanceregister_activity_task extends restore_activity_task {
      * by the restore final task, but are defined here at
      * activity level. All them are rules not linked to any module instance (cmid = 0)
      */
-    static public function define_restore_log_rules_for_course() {
+    public static function define_restore_log_rules_for_course() {
         return [];
     }
 }
