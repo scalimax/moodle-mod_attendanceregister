@@ -59,7 +59,7 @@ if ($inputsessionid) {
 require_course_login($course, false, $cm);
 
 if (!($context = context_module::instance($cm->id))) {
-    print_error('badcontext');
+    throw new \moodle_exception('badcontext');
 }
 
 $usercaps = new attendanceregister_user_capablities($context);
@@ -127,7 +127,7 @@ $dodeleteofflinesession = false;
 if ($sessiontodelete) {
     // Check if logged-in-as Session Delete.
     if (session_is_loggedinas() && !ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION) {
-        print_error('onlyrealusercandeleteofflinesessions', 'attendanceregister');
+        throw new \moodle_exception('onlyrealusercandeleteofflinesessions', 'attendanceregister');
     } else if (attendanceregister__iscurrentuser($userid)) {
         require_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OWN_OFFLINE_SESSIONS, $context);
         $dodeleteofflinesession = true;

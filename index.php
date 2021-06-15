@@ -31,7 +31,7 @@ $id = required_param('id', PARAM_INT);
 $PAGE->set_url('/mod/attendanceregister/index.php', ['id' => $id]);
 
 if (!$course = $DB->get_record('course', ['id' => $id])) {
-    print_error('invalidcourseid');
+    throw new \moodle_exception('invalidcourseid', 'core');
 }
 
 require_course_login($course);
