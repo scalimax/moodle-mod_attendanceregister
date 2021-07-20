@@ -170,5 +170,4 @@ class mod_attendanceregister_classes_testcase extends advanced_testcase {
             $this->assertNotEmpty($class5);
         }
     }
-
 }
