@@ -61,4 +61,3 @@ Feature: attendance register
     And I should not see "Username 2"
     And I should not see "Teacher 1"
     And I should see "Manager 1"
-    
