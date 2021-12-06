@@ -24,7 +24,11 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_attendanceregister;
+
 defined('MOODLE_INTERNAL') || die();
+
+use stdClass;
 
 /**
  * Unit tests classes
@@ -35,7 +39,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_attendanceregister_classes_testcase extends advanced_testcase {
+class classes_test extends \advanced_testcase {
 
     /** @var stdClass context context */
     private $context;

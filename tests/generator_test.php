@@ -24,6 +24,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_attendanceregister;
+
 defined('MOODLE_INTERNAL') || die();
 
 
@@ -36,7 +38,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_attendanceregister_generator_testcase extends advanced_testcase {
+class generator_test extends \advanced_testcase {
 
     /**
      * Test the generator
@@ -62,7 +64,7 @@ class mod_attendanceregister_generator_testcase extends advanced_testcase {
         $this->assertEquals('attendanceregister', $cm->modname);
         $this->assertEquals($course->id, $cm->course);
 
-        $context = context_module::instance($cm->id);
+        $context = \context_module::instance($cm->id);
         $this->assertEquals($attendanceregister->cmid, $context->instanceid);
     }
 }

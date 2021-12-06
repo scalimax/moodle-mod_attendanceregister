@@ -24,8 +24,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_attendanceregister;
 
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * other tests
@@ -36,7 +37,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_attendanceregister_other_testcase extends advanced_testcase {
+class other_test extends \advanced_testcase {
 
     /**
      * Setup function.
@@ -55,7 +56,7 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
         $dg = $this->getDataGenerator();
         $course = $dg->create_course();
         $context = \context_course::instance($course->id);
-        $uc = new attendanceregister_user_capablities($context);
+        $uc = new \attendanceregister_user_capablities($context);
         $userid = 1;
         $this->AssertFalse($uc->canview($userid));
         $this->AssertFalse($uc->canddeletesession($userid));
@@ -125,13 +126,13 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
         $dg->enrol_user($user->id, $course->id);
         $page = $dg->create_module('page', ['course' => $course->id], ['completion' => 2, 'completionview' => 1]);
         $dg->create_module('attendanceregister', ['course' => $course->id]);
-        $context = context_module::instance($page->cmid);
+        $context = \context_module::instance($page->cmid);
         $cm = get_coursemodule_from_instance('page', $page->id);
         $this->setUser($user);
         $this->assertTrue(isloggedin());
 
         $i = 0;
-        $coursecontext = context_course::instance($course->id);
+        $coursecontext = \context_course::instance($course->id);
         while ($i < 10 ) {
             page_view($page, $course, $cm, $context);
             $event = \mod_page\event\course_module_instance_list_viewed::create(['context' => $coursecontext]);
@@ -148,7 +149,7 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
         foreach ($records as $record) {
             $class1 = new \attendanceregister_tracked_courses($record);
             $this->assertNotEmpty($class1->html_table());
-            $usercaps = new \attendanceregister_user_capablities(context_course::instance($course->id));
+            $usercaps = new \attendanceregister_user_capablities(\context_course::instance($course->id));
             $class3 = new \attendanceregister_user_sessions($record, $user->id, $usercaps);
             $this->assertNotEmpty($class3->html_table());
             $class4 = new \attendanceregister_user_aggregates($record, $user->id, $class3);
@@ -175,15 +176,15 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
         $this->setAdminUser();
         $task = new \mod_attendanceregister\task\cron_task();
         $task->execute();
-        $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
-            backup::INTERACTIVE_NO, backup::MODE_IMPORT, $USER->id);
+        $bc = new \backup_controller(\backup::TYPE_1COURSE, $courseid, \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO, \backup::MODE_IMPORT, $USER->id);
         $backupid = $bc->get_backupid();
         $bc->execute_plan();
         $bc->destroy();
         unset($bc);
         $courseid = $dg->create_course()->id;
-        $rc = new restore_controller($backupid, $courseid, backup::INTERACTIVE_NO,
-            backup::MODE_IMPORT, $USER->id, backup::TARGET_CURRENT_ADDING);
+        $rc = new \restore_controller($backupid, $courseid, \backup::INTERACTIVE_NO,
+            \backup::MODE_IMPORT, $USER->id, \backup::TARGET_CURRENT_ADDING);
         $rc->execute_precheck();
         $rc->execute_plan();
         $rc->destroy();
@@ -195,7 +196,7 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
      */
     public function test_files() {
         global $CFG;
-        $plugin = new stdClass();
+        $plugin = new \stdClass();
         include($CFG->dirroot . '/mod/attendanceregister/version.php');
         include($CFG->dirroot . '/mod/attendanceregister/db/tasks.php');
         include($CFG->dirroot . '/mod/attendanceregister/db/log.php');
