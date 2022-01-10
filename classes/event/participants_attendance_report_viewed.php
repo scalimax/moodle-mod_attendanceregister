@@ -25,8 +25,6 @@
  */
 namespace mod_attendanceregister\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The participants_attendance_report_viewed event.
  *

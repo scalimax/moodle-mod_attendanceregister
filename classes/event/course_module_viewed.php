@@ -23,10 +23,7 @@
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_attendanceregister\event;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * The mod_attendanceregister course module viewed event class.

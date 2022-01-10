@@ -22,10 +22,7 @@
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_attendanceregister\privacy;
-
-defined('MOODLE_INTERNAL') || die();
 
 use \core_privacy\tests\provider_testcase;
 use \stdClass;

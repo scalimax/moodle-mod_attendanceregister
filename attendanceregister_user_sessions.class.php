@@ -24,8 +24,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Attendance register user sessions
  *
@@ -35,7 +33,7 @@ defined('MOODLE_INTERNAL') || die;
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class attendanceregister_user_sessions  {
+class attendanceregister_user_sessions {
 
     /** @var attendanceregister_session $usersessions */
     public $usersessions;

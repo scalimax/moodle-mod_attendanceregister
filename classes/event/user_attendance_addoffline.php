@@ -25,8 +25,6 @@
  */
 namespace mod_attendanceregister\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The user_attendance_addoffline event.
  *
