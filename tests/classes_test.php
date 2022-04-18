@@ -132,6 +132,11 @@ class classes_test extends \advanced_testcase {
 
     /**
      * Test tracked courses.
+     * @covers \attendanceregister_tracked_courses
+     * @covers \attendanceregister_tracked_users
+     * @covers \attendanceregister_user_aggregates
+     * @covers \attendanceregister_user_sessions
+     * @covers \attendanceregister_user_aggregates_summary
      */
     public function test_tracked_courses() {
         global $DB;

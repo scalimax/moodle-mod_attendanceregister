@@ -45,6 +45,7 @@ class other_test extends \advanced_testcase {
 
     /**
      * Test the user capabilites
+     * @covers \attendanceregister_user_capablities
      */
     public function test_user_capabilites() {
         global $CFG;
@@ -73,6 +74,8 @@ class other_test extends \advanced_testcase {
 
     /**
      * Test the events
+     * @covers \attendanceregister\event\course_module_viewed
+     * @covers \attendanceregister\event\course_module_instance_list_viewed
      */
     public function test_events() {
         $dg = $this->getDataGenerator();
@@ -99,6 +102,7 @@ class other_test extends \advanced_testcase {
 
     /**
      * Test the tasks
+     * @covers \mod_attendanceregister\task\cron_task
      */
     public function test_task() {
         $dg = $this->getDataGenerator();
@@ -113,6 +117,8 @@ class other_test extends \advanced_testcase {
 
     /**
      * Test several logins
+     * @covers \mod_attendanceregister\task\cron_task
+     * @covers \attendanceregister
      */
     public function test_logins() {
         global $CFG, $DB;
@@ -158,6 +164,10 @@ class other_test extends \advanced_testcase {
 
     /**
      * Test backup
+     * @covers \backup_attendanceregister_activity_structure_step
+     * @covers \backup_attendanceregister_activity_task
+     * @covers \restore_attendanceregister_activity_structure_step
+     * @covers \restore_attendanceregister_activity_task
      */
     public function test_backup() {
         global $CFG, $USER;
@@ -190,6 +200,7 @@ class other_test extends \advanced_testcase {
 
     /**
      * Test other files.
+     * @coversNothing
      */
     public function test_files() {
         global $CFG;

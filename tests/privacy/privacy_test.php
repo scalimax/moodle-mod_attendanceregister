@@ -120,6 +120,7 @@ class privacy_test extends provider_testcase {
 
     /**
      * Test returning metadata.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_get_metadata() {
         $collection = new \core_privacy\local\metadata\collection('mod_attendanceregister');
@@ -128,6 +129,7 @@ class privacy_test extends provider_testcase {
     }
     /**
      * Test getting the context for the user ID related to this plugin.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_get_contexts_for_userid() {
         $contextlist = \mod_attendanceregister\privacy\provider::get_contexts_for_userid($this->user->id);
@@ -136,6 +138,7 @@ class privacy_test extends provider_testcase {
 
     /**
      * Check the exporting of sessions for a user.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_export_sessions() {
         $this->export_context_data_for_user($this->user->id, $this->context, 'mod_attendanceregister');
@@ -145,6 +148,7 @@ class privacy_test extends provider_testcase {
 
     /**
      * Tests the deletion of all sessions.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_delete_sessions_for_all_users_in_context() {
         global $DB;
@@ -159,6 +163,7 @@ class privacy_test extends provider_testcase {
 
     /**
      * Tests deletion of sessions for a specified user.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_delete_sessions_for_user() {
         global $DB;
@@ -175,6 +180,7 @@ class privacy_test extends provider_testcase {
 
     /**
      * Tests get users in context.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_get_users_in_context() {
         $userlist = new \core_privacy\local\request\userlist($this->context, 'mod_attendanceregister');
@@ -184,6 +190,7 @@ class privacy_test extends provider_testcase {
 
     /**
      * Tests delete data for users.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_delete_data_for_users_in_context() {
         $approved = new \core_privacy\local\request\approved_userlist($this->context, 'mod_attendanceregister', [$this->user->id]);
