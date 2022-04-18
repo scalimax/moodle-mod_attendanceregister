@@ -74,8 +74,8 @@ class other_test extends \advanced_testcase {
 
     /**
      * Test the events
-     * @covers \attendanceregister\event\course_module_viewed
-     * @covers \attendanceregister\event\course_module_instance_list_viewed
+     * @covers \mod_attendanceregister\event\course_module_viewed
+     * @covers \mod_attendanceregister\event\course_module_instance_list_viewed
      */
     public function test_events() {
         $dg = $this->getDataGenerator();
@@ -118,7 +118,10 @@ class other_test extends \advanced_testcase {
     /**
      * Test several logins
      * @covers \mod_attendanceregister\task\cron_task
-     * @covers \attendanceregister
+     * @covers \attendanceregister_tracked_courses
+     * @covers \attendanceregister_user_capablities
+     * @covers \attendanceregister_user_sessions
+     * @covers \attendanceregister_user_aggregates_summary
      */
     public function test_logins() {
         global $CFG, $DB;

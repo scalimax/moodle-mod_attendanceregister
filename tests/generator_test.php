@@ -38,6 +38,7 @@ class generator_test extends \advanced_testcase {
 
     /**
      * Test the generator
+     * @covers \mod_attendanceregister_generator
      */
     public function test_generator() {
         global $DB;
