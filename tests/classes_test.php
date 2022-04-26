@@ -41,6 +41,12 @@ class classes_test extends \advanced_testcase {
     /** @var stdClass context context */
     private $context;
 
+    /** @var int course id*/
+    private $courseid;
+
+    /** @var int course module id*/
+    private $cmid;
+
     /** @var int userid */
     private $userid;
 
@@ -48,86 +54,15 @@ class classes_test extends \advanced_testcase {
      * Basic setup for these tests.
      */
     public function setUp():void {
-        global $DB;
         $this->resetAfterTest();
         $dg = $this->getDataGenerator();
-        $courseid = $dg->create_course()->id;
+        $this->courseid = $dg->create_course()->id;
         $this->userid = $dg->create_user()->id;
-        $dg->enrol_user($this->userid, $courseid);
-        $cm = $dg->create_module('attendanceregister', ['course' => $courseid]);
-        $dg->create_module('attendanceregister', ['course' => $courseid]);
+        $dg->enrol_user($this->userid, $this->courseid);
+        $cm = $dg->create_module('attendanceregister', ['course' => $this->courseid]);
+        $dg->create_module('attendanceregister', ['course' => $this->courseid]);
         $this->context = \context_module::instance($cm->cmid);
-
-        $lock = new stdClass();
-        $lock->register = $cm->id;
-        $lock->userid = $this->userid;
-        $lock->takenon = time();
-        $DB->insert_record('attendanceregister_lock', $lock);
-        $aggregate = new stdClass();
-        $aggregate->register = $cm->id;
-        $aggregate->userid = $this->userid;
-        $aggregate->onlinesess = 1;
-        $aggregate->refcourse = null;
-        $aggregate->duration = 0;
-        $aggregate->total = 1;
-        $aggregate->grandtotal = 0;
-        $DB->insert_record('attendanceregister_aggregate', $aggregate);
-        $session = new stdClass();
-        $session->register = $cm->id;
-        $session->userid = $this->userid;
-        $session->login = time() - 1000;
-        $session->logout = time();
-        $session->duration = 1000;
-        $session->onlinesess = 0;
-        $session->refcourse = null;
-        $session->comments = null;
-        $DB->insert_record('attendanceregister_session', $session);
-        $session = new stdClass();
-        $session->register = $cm->id;
-        $session->userid = $this->userid;
-        $session->login = time() - 1000;
-        $session->logout = time();
-        $session->duration = 1000;
-        $session->onlinesess = 1;
-        $session->refcourse = null;
-        $session->comments = null;
-        $DB->insert_record('attendanceregister_session', $session);
-
-        $userid = $dg->create_user()->id;
-        $dg->enrol_user($userid, $courseid);
-        $session = new stdClass();
-        $session->register = $cm->id;
-        $session->userid = $userid;
-        $session->login = time() - 5000;
-        $session->logout = time();
-        $session->duration = 5000;
-        $session->onlinesess = true;
-        $session->refcourse = $courseid;
-        $session->comments = 'comment';
-        $DB->insert_record('attendanceregister_session', $session);
-        $session->register = $cm->id;
-        $session->onlinesess = false;
-        $DB->insert_record('attendanceregister_session', $session);
-
-        $aggregate = new stdClass();
-        $aggregate->register = $cm->id;
-        $aggregate->userid = $userid;
-        $aggregate->onlinesess = 1;
-        $aggregate->refcourse = null;
-        $aggregate->duration = 20;
-        $aggregate->total = 1;
-        $aggregate->grandtotal = 0;
-        $DB->insert_record('attendanceregister_aggregate', $aggregate);
-        $aggregate->register = $cm->id;
-        $aggregate->onlinesess = 0;
-        $DB->insert_record('attendanceregister_aggregate', $aggregate);
-        $lock = new stdClass();
-        $lock->register = $cm->id;
-        $lock->userid = $userid;
-        $lock->takenon = time();
-        $DB->insert_record('attendanceregister_lock', $lock);
-        $task = new \mod_attendanceregister\task\cron_task();
-        $task->execute();
+        $this->cmid = $cm->id;
     }
 
     /**
@@ -139,6 +74,15 @@ class classes_test extends \advanced_testcase {
      * @covers \attendanceregister_user_aggregates_summary
      */
     public function test_tracked_courses() {
+        $this->tracked_courses();
+        $this->fill_database();
+        $this->tracked_courses();
+    }
+
+    /**
+     * Test the records.
+     */
+    private function tracked_courses() {
         global $DB;
         $this->setAdminUser();
         $records = $DB->get_records('attendanceregister');
@@ -175,5 +119,82 @@ class classes_test extends \advanced_testcase {
             $class5 = new \attendanceregister_user_aggregates_summary();
             $this->assertNotEmpty($class5);
         }
+    }
+
+    /**
+     * Fill the database.
+     */
+    private function fill_database() {
+        global $DB;
+        $lock = new stdClass();
+        $lock->register = $this->cmid;
+        $lock->userid = $this->userid;
+        $lock->takenon = time();
+        $DB->insert_record('attendanceregister_lock', $lock);
+        $aggregate = new stdClass();
+        $aggregate->register = $this->cmid;
+        $aggregate->userid = $this->userid;
+        $aggregate->onlinesess = 1;
+        $aggregate->refcourse = null;
+        $aggregate->duration = 0;
+        $aggregate->total = 1;
+        $aggregate->grandtotal = 0;
+        $DB->insert_record('attendanceregister_aggregate', $aggregate);
+        $session = new stdClass();
+        $session->register = $this->cmid;
+        $session->userid = $this->userid;
+        $session->login = time() - 1000;
+        $session->logout = time();
+        $session->duration = 1000;
+        $session->onlinesess = 0;
+        $session->refcourse = null;
+        $session->comments = null;
+        $DB->insert_record('attendanceregister_session', $session);
+        $session = new stdClass();
+        $session->register = $this->cmid;
+        $session->userid = $this->userid;
+        $session->login = time() - 1000;
+        $session->logout = time();
+        $session->duration = 1000;
+        $session->onlinesess = 1;
+        $session->refcourse = null;
+        $session->comments = null;
+        $DB->insert_record('attendanceregister_session', $session);
+        $dg = $this->getDataGenerator();
+        $userid = $dg->create_user()->id;
+        $dg->enrol_user($userid, $this->courseid);
+        $session = new stdClass();
+        $session->register = $this->cmid;
+        $session->userid = $userid;
+        $session->login = time() - 5000;
+        $session->logout = time();
+        $session->duration = 5000;
+        $session->onlinesess = true;
+        $session->refcourse = $this->courseid;
+        $session->comments = 'comment';
+        $DB->insert_record('attendanceregister_session', $session);
+        $session->register = $this->cmid;
+        $session->onlinesess = false;
+        $DB->insert_record('attendanceregister_session', $session);
+
+        $aggregate = new stdClass();
+        $aggregate->register = $this->cmid;
+        $aggregate->userid = $userid;
+        $aggregate->onlinesess = 1;
+        $aggregate->refcourse = null;
+        $aggregate->duration = 20;
+        $aggregate->total = 1;
+        $aggregate->grandtotal = 0;
+        $DB->insert_record('attendanceregister_aggregate', $aggregate);
+        $aggregate->register = $this->cmid;
+        $aggregate->onlinesess = 0;
+        $DB->insert_record('attendanceregister_aggregate', $aggregate);
+        $lock = new stdClass();
+        $lock->register = $this->cmid;
+        $lock->userid = $userid;
+        $lock->takenon = time();
+        $DB->insert_record('attendanceregister_lock', $lock);
+        $task = new \mod_attendanceregister\task\cron_task();
+        $task->execute();
     }
 }

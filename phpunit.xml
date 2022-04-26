@@ -33,6 +33,7 @@
             <directory suffix=".php">.</directory>
         </include>
         <exclude>
+            <directory suffix=".php">lang</directory>
             <directory suffix="_test.php">.</directory>
             <file>view.php</file>
             <file>version.php</file>
