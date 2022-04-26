@@ -208,6 +208,37 @@ class other_test extends \advanced_testcase {
     }
 
     /**
+     * Test forms.
+     * @covers \mod_attendanceregister_mod_form
+     * @covers \mod_attendanceregister_selfcertification_edit_form
+     */
+    public function test_forms() {
+        global $CFG, $DB, $USER;
+        require_once($CFG->dirroot . '/mod/attendanceregister/mod_form.php');
+        require_once($CFG->dirroot . '/mod/attendanceregister/locallib.php');
+        $dg = $this->getDataGenerator();
+        $this->setAdminUser();
+        $course = $dg->create_course();
+        $ar = $dg->create_module('attendanceregister', ['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('attendanceregister', $ar->id, $course->id, false, MUST_EXIST);
+        $register = $DB->get_record('attendanceregister', ['id' => $cm->instance], '*', MUST_EXIST);
+        $modinfo = get_fast_modinfo($course);
+        $section = $modinfo->get_section_info(1);
+        $current = new \stdClass();
+        $current->instance = $cm;
+        $arr = [];
+        $form = new \mod_attendanceregister_mod_form($current, $section, $cm, $course);
+        $form->add_completion_rules();
+        $form->completion_rule_enabled([]);
+        $form->get_data();
+        $form->data_preprocessing($arr);
+
+        $customformdata = ['register' => $register, 'courses' => [$course->id]];
+        $mform = new \mod_attendanceregister_selfcertification_edit_form(null, $customformdata);
+        $mform->validation(['a' => $cm->instance, 'login' => time() - 1000, 'logout' => time(), 'userid' => $USER->id], []);
+    }
+
+    /**
      * Test other files.
      * @coversNothing
      */

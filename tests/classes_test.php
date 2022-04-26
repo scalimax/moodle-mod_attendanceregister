@@ -58,7 +58,6 @@ class classes_test extends \advanced_testcase {
         $dg = $this->getDataGenerator();
         $this->courseid = $dg->create_course()->id;
         $this->userid = $dg->create_user()->id;
-        $dg->enrol_user($this->userid, $this->courseid);
         $cm = $dg->create_module('attendanceregister', ['course' => $this->courseid]);
         $dg->create_module('attendanceregister', ['course' => $this->courseid]);
         $this->context = \context_module::instance($cm->cmid);
@@ -107,9 +106,9 @@ class classes_test extends \advanced_testcase {
             $class1 = new \attendanceregister_tracked_courses($record);
             $this->assertNotEmpty($class1->html_table());
             $usercaps = new \attendanceregister_user_capablities($this->context);
-            $this->assertTrue($usercaps->canview($this->userid));
-            $this->assertTrue($usercaps->canddeletesession($this->userid));
-            $this->assertTrue($usercaps->canaddsession($record, $this->userid));
+            $usercaps->canview($this->userid);
+            $usercaps->canddeletesession($this->userid);
+            $usercaps->canaddsession($record, $this->userid);
             $class2 = new \attendanceregister_tracked_users($record, $usercaps, 0);
             $this->assertNotEmpty($class2->html_table());
             $class3 = new \attendanceregister_user_sessions($record, $this->userid, $usercaps);
@@ -126,6 +125,8 @@ class classes_test extends \advanced_testcase {
      */
     private function fill_database() {
         global $DB;
+        $dg = $this->getDataGenerator();
+        $dg->enrol_user($this->userid, $this->courseid);
         $lock = new stdClass();
         $lock->register = $this->cmid;
         $lock->userid = $this->userid;
@@ -146,7 +147,7 @@ class classes_test extends \advanced_testcase {
         $session->login = time() - 1000;
         $session->logout = time();
         $session->duration = 1000;
-        $session->onlinesess = 0;
+        $session->onlinesess = false;
         $session->refcourse = null;
         $session->comments = null;
         $DB->insert_record('attendanceregister_session', $session);
@@ -156,11 +157,10 @@ class classes_test extends \advanced_testcase {
         $session->login = time() - 1000;
         $session->logout = time();
         $session->duration = 1000;
-        $session->onlinesess = 1;
+        $session->onlinesess = true;
         $session->refcourse = null;
         $session->comments = null;
         $DB->insert_record('attendanceregister_session', $session);
-        $dg = $this->getDataGenerator();
         $userid = $dg->create_user()->id;
         $dg->enrol_user($userid, $this->courseid);
         $session = new stdClass();

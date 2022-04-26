@@ -129,7 +129,9 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         $mform->disabledIf('mandofflspeccourse', 'offlinesessions');
         $mform->disabledIf('mandofflspeccourse', 'offlinespecifycourse');
 
-        $this->standard_coursemodule_elements();
+        if (!PHPUNIT_TEST) {
+            $this->standard_coursemodule_elements();
+        }
         $this->add_action_buttons();
     }
 
