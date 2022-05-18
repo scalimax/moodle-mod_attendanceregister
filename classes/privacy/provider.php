@@ -84,16 +84,7 @@ class provider implements \core_privacy\local\metadata\provider,
      */
     public static function get_contexts_for_userid(int $userid) : \core_privacy\local\request\contextlist {
         $contextlist = new \core_privacy\local\request\contextlist();
-        $sql = "SELECT DISTINCT ctx.id FROM {attendanceregister} l
-                  JOIN {modules} m ON m.name = :name
-                  JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-                  JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-             LEFT JOIN {attendanceregister_session} la ON la.register = l.id
-             LEFT JOIN {attendanceregister_aggregate} lb ON lb.register = l.id
-                 WHERE la.userid = :userid1 OR lb.userid = :userid2 OR la.addedbyuserid = :userid3";
-        $params = ['name' => 'attendanceregister', 'modulelevel' => CONTEXT_MODULE,
-                   'userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid];
-        $contextlist->add_from_sql($sql, $params);
+        $contextlist->add_system_context();
         return $contextlist;
     }
 
@@ -104,32 +95,14 @@ class provider implements \core_privacy\local\metadata\provider,
      */
     public static function get_users_in_context(userlist $userlist) {
         $context = $userlist->get_context();
-        if (is_a($context, \context_module::class)) {
-            $para = ['instanceid' => $context->id, 'modulelevel' => CONTEXT_MODULE, 'modulename' => 'attendanceregister'];
-            $sql = "SELECT at.userid FROM {attendanceregister} ar
-                      JOIN {modules} m ON m.name = :modulename
-                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
-                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                      JOIN {attendanceregister_session} at ON at.register = ar.id WHERE ctx.id = :instanceid";
-            $userlist->add_from_sql('userid', $sql, $para);
-            $sql = "SELECT at.addedbyuserid FROM {attendanceregister} ar
-                      JOIN {modules} m ON m.name = :modulename
-                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
-                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                      JOIN {attendanceregister_session} at ON at.register = ar.id WHERE ctx.id = :instanceid";
-            $userlist->add_from_sql('addedbyuserid', $sql, $para);
-            $sql = "SELECT at.userid FROM {attendanceregister} ar
-                      JOIN {modules} m ON m.name = :modulename
-                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
-                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                      JOIN {attendanceregister_aggregate} at ON at.register = ar.id WHERE ctx.id = :instanceid";
-            $userlist->add_from_sql('userid', $sql, $para);
-            $sql = "SELECT at.userid FROM {attendanceregister} ar
-                      JOIN {modules} m ON m.name = :modulename
-                      JOIN {course_modules} cm ON cm.instance = ar.id AND cm.module = m.id
-                      JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                      JOIN {attendanceregister_lock} at ON at.register = ar.id WHERE ctx.id = :instanceid";
-            $userlist->add_from_sql('userid', $sql, $para);
+        if ($context->contextlevel == CONTEXT_SYSTEM) {
+            $sql = "SELECT * FROM {attendanceregister_session}";
+            $userlist->add_from_sql('userid', $sql, []);
+            $userlist->add_from_sql('addedbyuserid', $sql, []);
+            $sql = "SELECT * FROM {attendanceregister_aggregate}";
+            $userlist->add_from_sql('userid', $sql, []);
+            $sql = "SELECT * FROM {attendanceregister_lock}";
+            $userlist->add_from_sql('userid', $sql, []);
         }
     }
 
@@ -141,66 +114,46 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function export_user_data(approved_contextlist $contextlist) {
         global $DB;
         $user = $contextlist->get_user();
-        $contexts = $contextlist->get_contexts();
-        foreach ($contexts as $context) {
-            $contextdata = helper::get_context_data($context, $user);
-            helper::export_context_files($context, $user);
-            writer::with_context($context)->export_data([], $contextdata);
-            $data = [];
-            $sql = "SELECT s.* FROM {attendanceregister_session} s
-                JOIN {attendanceregister} l ON l.id = s.register
-                JOIN {modules} m ON m.name = :name
-                JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-                JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                WHERE ctx.id = :id AND (s.userid = :userid1 OR s.addedbyuserid = :userid2)";
-            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE,
-                      'id' => $context->id, 'userid1' => $user->id, 'userid2' => $user->id];
-            $recordset = $DB->get_recordset_sql($sql, $params);
-            foreach ($recordset as $record) {
-                $data[] = [
-                    'userid' => $record->userid,
-                    'login' => transform::datetime($record->login),
-                    'logout' => transform::datetime($record->logout),
-                    'duration' => $record->duration,
-                    'onlinesess' => transform::yesno($record->onlinesess),
-                    'comments' => $record->comments];
-            }
+        foreach ($contextlist as $context) {
+            if ($context->contextlevel == CONTEXT_SYSTEM) {
+                $contextdata = helper::get_context_data($context, $user);
+                helper::export_context_files($context, $user);
+                writer::with_context($context)->export_data([], $contextdata);
+                $data = [];
+                $sql = "SELECT * FROM {attendanceregister_session} WHERE userid = :userid1 OR addedbyuserid = :userid2";
+                $recordset = $DB->get_recordset_sql($sql, ['userid1' => $user->id, 'userid2' => $user->id]);
+                foreach ($recordset as $record) {
+                    $data[] = [
+                        'userid' => $record->userid,
+                        'login' => transform::datetime($record->login),
+                        'logout' => transform::datetime($record->logout),
+                        'duration' => $record->duration,
+                        'onlinesess' => transform::yesno($record->onlinesess),
+                        'comments' => $record->comments];
+                }
 
-            $sql = "SELECT s.* FROM {attendanceregister_aggregate} s
-                JOIN {attendanceregister} l ON l.id = s.register
-                JOIN {modules} m ON m.name = :name
-                JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-                JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                WHERE ctx.id = :id AND s.userid = :userid1";
-            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE,
-                      'id' => $context->id, 'userid1' => $user->id];
-            $recordset = $DB->get_recordset_sql($sql, $params);
-            foreach ($recordset as $record) {
-                $data[] = [
-                    'userid' => $record->userid,
-                    'duration' => $record->duration,
-                    'onlinesess' => transform::yesno($record->onlinesess),
-                    'total' => $record->total,
-                    'grandtotal' => $record->grandtotal,
-                    'lastlogout' => transform::datetime($record->lastsessionlogout)
-                ];
-            }
+                $sql = "SELECT * FROM {attendanceregister_aggregate} WHERE userid = :userid1";
+                $recordset = $DB->get_recordset_sql($sql, ['userid1' => $user->id]);
+                foreach ($recordset as $record) {
+                    $data[] = [
+                        'userid' => $record->userid,
+                        'duration' => $record->duration,
+                        'onlinesess' => transform::yesno($record->onlinesess),
+                        'total' => $record->total,
+                        'grandtotal' => $record->grandtotal,
+                        'lastlogout' => transform::datetime($record->lastsessionlogout)
+                    ];
+                }
 
-            $sql = "SELECT s.* FROM {attendanceregister_lock} s
-                JOIN {attendanceregister} l ON l.id = s.register
-                JOIN {modules} m ON m.name = :name
-                JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-                JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                WHERE ctx.id = :id AND s.userid = :userid1";
-            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE,
-                      'id' => $context->id, 'userid1' => $user->id];
-            $recordset = $DB->get_recordset_sql($sql, $params);
-            foreach ($recordset as $record) {
-                $data[] = ['userid' => $record->userid, 'takenon' => transform::datetime($record->takenon)];
-            }
-            $recordset->close();
-            if (!empty($data)) {
-                writer::with_context($context)->export_related_data([], 'sessions', (object) ['sessions' => array_values($data)]);
+                $sql = "SELECT userid, takenon FROM {attendanceregister_lock} WHERE userid = :userid1";
+                $recordset = $DB->get_recordset_sql($sql, ['userid1' => $user->id]);
+                foreach ($recordset as $record) {
+                    $data[] = ['userid' => $record->userid, 'takenon' => transform::datetime($record->takenon)];
+                }
+                $recordset->close();
+                if (!empty($data)) {
+                    writer::with_context($context)->export_related_data([], 'sessions', (object) ['sessions' => array_values($data)]);
+                }
             }
         }
     }
@@ -212,20 +165,10 @@ class provider implements \core_privacy\local\metadata\provider,
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
-        if (is_a($context, \context_module::class)) {
-            $sql = "SELECT l.id FROM {attendanceregister} l
-                    JOIN {modules} m ON m.name = :name
-                    JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-                    JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                    WHERE ctx.id = :id";
-            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE, 'id' => $context->id];
-            if ($recs = $DB->get_records_sql($sql, $params)) {
-                foreach ($recs as $rec) {
-                    $DB->delete_records('attendanceregister_session', ['register' => $rec->id]);
-                    $DB->delete_records('attendanceregister_aggregate', ['register' => $rec->id]);
-                    $DB->delete_records('attendanceregister_lock', ['register' => $rec->id]);
-                }
-            }
+        if ($context->contextlevel == CONTEXT_SYSTEM) {
+            $DB->delete_records('attendanceregister_session', []);
+            $DB->delete_records('attendanceregister_aggregate', []);
+            $DB->delete_records('attendanceregister_lock', []);
         }
     }
 
@@ -239,18 +182,11 @@ class provider implements \core_privacy\local\metadata\provider,
         $userid = $contextlist->get_user()->id;
         $contexts = $contextlist->get_contexts();
         foreach ($contexts as $context) {
-            $sql = "SELECT l.id FROM {attendanceregister} l
-                    JOIN {modules} m ON m.name = :name
-                    JOIN {course_modules} cm ON cm.instance = l.id AND cm.module = m.id
-                    JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulelevel
-                    WHERE ctx.id = :id";
-            $params = ['name' => 'attendanceregister',  'modulelevel' => CONTEXT_MODULE, 'id' => $context->id];
-            if ($recs = $DB->get_records_sql($sql, $params)) {
-                foreach ($recs as $rec) {
-                    $DB->delete_records('attendanceregister_session', ['register' => $rec->id, 'userid' => $userid]);
-                    $DB->delete_records('attendanceregister_aggregate', ['register' => $rec->id, 'userid' => $userid]);
-                    $DB->delete_records('attendanceregister_lock', ['register' => $rec->id, 'userid' => $userid]);
-                }
+            if ($context->contextlevel == CONTEXT_SYSTEM) {
+                $DB->delete_records('attendanceregister_session', ['userid' => $userid]);
+                $DB->delete_records('attendanceregister_session', ['addedbyuserid' => $userid]);
+                $DB->delete_records('attendanceregister_aggregate', ['userid' => $userid]);
+                $DB->delete_records('attendanceregister_lock', ['userid' => $userid]);
             }
         }
     }
@@ -263,12 +199,12 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function delete_data_for_users(approved_userlist $userlist) {
         global $DB;
         $context = $userlist->get_context();
-        if ($register = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid])) {
-            list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
-            $params = array_merge(['register' => $register], $userinparams);
-            $DB->delete_records_select('attendanceregister_session', "register = $register AND userid {$userinsql}", $params);
-            $DB->delete_records_select('attendanceregister_aggregate', "register = $register AND userid {$userinsql}", $params);
-            $DB->delete_records_select('attendanceregister_lock', "register = $register AND userid {$userinsql}", $params);
+        if ($context->contextlevel == CONTEXT_SYSTEM) {
+            list($userinsql, $params) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+            $DB->delete_records_select('attendanceregister_session', "userid {$userinsql}", $params);
+            $DB->delete_records_select('attendanceregister_session', "addedbyuserid {$userinsql}", $params);
+            $DB->delete_records_select('attendanceregister_aggregate', "userid {$userinsql}", $params);
+            $DB->delete_records_select('attendanceregister_lock', "userid {$userinsql}", $params);
         }
     }
 }

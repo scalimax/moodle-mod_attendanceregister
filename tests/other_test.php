@@ -179,16 +179,25 @@ class other_test extends \advanced_testcase {
      * @covers \restore_attendanceregister_activity_task
      */
     public function test_backup() {
-        global $CFG, $USER;
+        global $CFG, $DB, $USER;
         require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
         require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
-        set_config('backup_general_users', 0, 'backup');
-        set_config('backup_general_logs', 0, 'backup');
+        set_config('backup_general_users', 1, 'backup');
+        set_config('backup_general_logs', 1, 'backup');
         $dg = $this->getDataGenerator();
         $courseid = $dg->create_course()->id;
         $userid = $dg->create_user()->id;
         $dg->enrol_user($userid, $courseid);
-        $dg->create_module('attendanceregister', ['course' => $courseid]);
+        $cm = $dg->create_module('attendanceregister', ['course' => $courseid]);
+        $session = new \stdClass();
+        $session->register = $cm->id;
+        $session->userid = $userid;
+        $session->login = time() - 1000;
+        $session->logout = time();
+        $session->duration = 1000;
+        $session->onlinesess = false;
+        $session->refcourse = $courseid;
+        $DB->insert_record('attendanceregister_session', $session);
         $this->setAdminUser();
         $task = new \mod_attendanceregister\task\cron_task();
         $task->execute();

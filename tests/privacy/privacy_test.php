@@ -54,7 +54,7 @@ class privacy_test extends provider_testcase {
         $course = $dg->create_course();
         $cm = $dg->create_module('attendanceregister', ['course' => $course->id]);
         $cm2 = $dg->create_module('attendanceregister', ['course' => $course->id]);
-        $this->context = \context_module::instance($cm->cmid);
+        $this->context = \context_system::instance();
         $this->user = $dg->create_user();
         $dg->enrol_user($this->user->id, $course->id);
 
@@ -156,9 +156,9 @@ class privacy_test extends provider_testcase {
         \mod_attendanceregister\privacy\provider::delete_data_for_all_users_in_context($this->context);
         $list = new \core_privacy\tests\request\approved_contextlist($this->user, 'mod_attendanceregister', []);
         $this->assertEmpty($list);
-        $this->assertEquals(5, $DB->count_records('attendanceregister_session'));
-        $this->assertEquals(5, $DB->count_records('attendanceregister_aggregate'));
-        $this->assertEquals(4, $DB->count_records('attendanceregister_lock'));
+        $this->assertEquals(0, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(0, $DB->count_records('attendanceregister_aggregate'));
+        $this->assertEquals(0, $DB->count_records('attendanceregister_lock'));
     }
 
     /**
