@@ -152,7 +152,8 @@ class provider implements \core_privacy\local\metadata\provider,
                 }
                 $recordset->close();
                 if (!empty($data)) {
-                    writer::with_context($context)->export_related_data([], 'sessions', (object) ['sessions' => array_values($data)]);
+                    writer::with_context($context)->export_related_data([], 'sessions',
+                        (object) ['sessions' => array_values($data)]);
                 }
             }
         }
