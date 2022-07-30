@@ -303,7 +303,7 @@ function attendanceregister_cron() {
             continue;
         }
         // Added by Renaat.
-        if ($course->enddate > 0 and ($course->enddate > time() + (2 * 7 * 24 * 3600))) {
+        if ($course->enddate > 0 && ($course->enddate > time() + (2 * 7 * 24 * 3600))) {
             continue;
         }
         if ($register->pendingrecalc) {
