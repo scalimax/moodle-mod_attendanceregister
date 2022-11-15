@@ -48,7 +48,6 @@ define("ATTENDANCEREGISTER_TYPE_METAENROL", "meta");
 define("ATTENDANCEREGISTER_TYPE_CATEGORY", "category");
 define("ATTENDANCEREGISTER_TYPE_GLOBAL", "global");
 
-
 define("ATTENDANCEREGISTER_ACTION_PRINTABLE", "printable");
 define("ATTENDANCEREGISTER_ACTION_RECALCULATE", "recalc");
 define("ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION", "saveoffline");
@@ -86,6 +85,11 @@ define('ATTENDANCEREGISTER_ORPHANED_LOCKS_DELAY_SECONDS', 30 * 60);
 
 // Default completion total duration (in minutes): 1h.
 define('ATTENDANCEREGISTER_DEFAULT_COMPLETION_TOTAL_DURATION_MINS', 60);
+
+// Ugly hack to make 3.11 and 4.0 work seamlessly.
+if (!defined('FEATURE_MOD_PURPOSE')) {
+    define('FEATURE_MOD_PURPOSE', 'mod_purpose');
+}
 
 /**
  * Setup a new instance
@@ -216,7 +220,7 @@ function attendanceregister_supports($feature) {
         case FEATURE_SHOW_DESCRIPTION:
             return false;
         case FEATURE_MOD_PURPOSE:
-            return MOD_PURPOSE_ASSESSMENT;
+            return MOD_PURPOSE_OTHER;
         default:
             return null;
     }
