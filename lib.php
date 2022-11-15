@@ -215,7 +215,8 @@ function attendanceregister_supports($feature) {
             return true;
         case FEATURE_SHOW_DESCRIPTION:
             return false;
-
+        case FEATURE_MOD_PURPOSE:
+            return MOD_PURPOSE_ASSESSMENT;
         default:
             return null;
     }
