@@ -46,7 +46,7 @@ class mod_attendanceregister_generator extends testing_module_generator {
         $record = (array)$record;
         $record['showdescription'] = 1;
         $record['offlinesessions'] = 1;
-        $return  = parent::create_instance($record, $options);
+        $return = parent::create_instance($record, $options);
         // Add 2 sessions.
         $session = new stdClass();
         $session->register = $return->cmid;

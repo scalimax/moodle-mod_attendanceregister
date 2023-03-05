@@ -27,10 +27,10 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
     'mod/attendanceregister:addinstance' => [
-        'riskbitmask'  => RISK_XSS,
-        'captype'      => 'write',
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes'   => ['editingteacher' => CAP_ALLOW, 'manager'  => CAP_ALLOW],
+        'archetypes' => ['editingteacher' => CAP_ALLOW, 'manager' => CAP_ALLOW],
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ],
     'mod/attendanceregister:tracked' => [

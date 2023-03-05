@@ -39,7 +39,7 @@ $PAGE->set_pagelayout('incourse');
 
 $strregister = get_string("modulename", "attendanceregister");
 $strregisters = get_string("modulenameplural", "attendanceregister");
-$strsectionname  = get_string('sectionname', 'format_' . $course->format);
+$strsectionname = get_string('sectionname', 'format_' . $course->format);
 $PAGE->set_title($strregisters);
 $PAGE->set_heading($course->fullname);
 $PAGE->navbar->add($strregisters);
@@ -58,11 +58,11 @@ $timenow = time();
 $table = new html_table();
 
 if ($usesections) {
-    $table->head  = [$strsectionname, $strregister, get_string('registertype', 'attendanceregister'),
+    $table->head = [$strsectionname, $strregister, get_string('registertype', 'attendanceregister'),
        get_string("tracked_users", 'attendanceregister')];
     $table->align = ["center", "left", "left", "center"];
 } else {
-    $table->head  = [$strregister, get_string('registertype', 'attendanceregister'),
+    $table->head = [$strregister, get_string('registertype', 'attendanceregister'),
         get_string("tracked_users", 'attendanceregister')];
     $table->align = ["left", "left", "center"];
 }
