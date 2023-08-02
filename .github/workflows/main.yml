@@ -44,13 +44,12 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, pgsql, mysqli, gd, xmlrpc, zip
           ini-values: max_input_vars=5000
-          coverage: xdebug
+          coverage: pcov
  
       - name: composer
         run: |
-           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci dev-master
+           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
            echo $(cd ci/bin; pwd) >> $GITHUB_PATH
            echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
            sudo locale-gen en_AU.UTF-8
