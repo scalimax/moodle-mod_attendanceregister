@@ -82,7 +82,7 @@ class attendanceregister_user_sessions {
             get_string('count', 'attendanceregister'),
             get_string('start', 'attendanceregister'),
             get_string('end', 'attendanceregister'),
-            get_string('online_offline', 'attendanceregister')];
+            get_string('online_offline', 'attendanceregister'), ];
         $table->align = ['left', 'left', 'left', 'right'];
 
         if ($this->register->offlinesessions) {
@@ -121,7 +121,7 @@ class attendanceregister_user_sessions {
                    $rowcountstr,
                    attendanceregister__formatdate($session->login),
                    attendanceregister__formatdate($session->logout),
-                   $duration]);
+                   $duration, ]);
 
                 $tablerow->attributes['class'] .= ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
 

@@ -59,11 +59,11 @@ $table = new html_table();
 
 if ($usesections) {
     $table->head = [$strsectionname, $strregister, get_string('registertype', 'attendanceregister'),
-       get_string("tracked_users", 'attendanceregister')];
+       get_string("tracked_users", 'attendanceregister'), ];
     $table->align = ["center", "left", "left", "center"];
 } else {
     $table->head = [$strregister, get_string('registertype', 'attendanceregister'),
-        get_string("tracked_users", 'attendanceregister')];
+        get_string("tracked_users", 'attendanceregister'), ];
     $table->align = ["left", "left", "center"];
 }
 

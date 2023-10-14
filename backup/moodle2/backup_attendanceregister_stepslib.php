@@ -44,7 +44,7 @@ class backup_attendanceregister_activity_structure_step extends backup_activity_
         $attendanceregister = new backup_nested_element('attendanceregister', ['id'],
             ['name', 'intro', 'introformat' , 'type', 'offlinesessions', 'sessiontimeout', 'dayscertificable',
              'offlinecomments', 'mandatoryofflinecomm', 'offlinespecifycourse', 'mandofflspeccourse', 'timemodified',
-             'completiontotaldurationmins']);
+             'completiontotaldurationmins', ]);
         $sessions = new backup_nested_element('sessions');
         $session = new backup_nested_element('session', ['id'],
             ['userid', 'login', 'logout', 'duration', 'onlinesess', 'refcourseshortname', 'comments', 'addedbyuserid']);

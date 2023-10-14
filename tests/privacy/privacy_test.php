@@ -24,8 +24,8 @@
  */
 namespace mod_attendanceregister\privacy;
 
-use \core_privacy\tests\provider_testcase;
-use \stdClass;
+use core_privacy\tests\provider_testcase;
+use stdClass;
 
 /**
  * Unit tests privacy

@@ -69,7 +69,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
                 20 => ('20' . $minutes),
                 30 => ('30' . $minutes),
                 45 => ('45' . $minutes),
-                60 => ('60' . $minutes)];
+                60 => ('60' . $minutes), ];
         $mform->addElement('select', 'sessiontimeout',
             get_string('sessiontimeout', 'attendanceregister'), $sessionchoices);
         $mform->addHelpButton('sessiontimeout', 'sessiontimeout', 'attendanceregister');
@@ -101,7 +101,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
             90 => ('90' . $days),
             120 => ('120' . $days),
             180 => ('180' . $days),
-            365 => ('365'. $days)];
+            365 => ('365'. $days), ];
         $mform->addElement('select', 'dayscertificable', get_string('dayscertificable', 'attendanceregister'), $dayscertificable);
         $mform->addHelpButton('dayscertificable', 'dayscertificable', 'attendanceregister');
         $mform->setDefault('dayscertificable', ATTENDANCEREGISTER_DEFAULT_DAYS_CERTIFICABLE);

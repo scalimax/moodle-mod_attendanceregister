@@ -243,7 +243,7 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
             echo $OUTPUT->single_button(attendanceregister_makeurl($register),
                 get_string('back_to_tracked_user_list', 'attendanceregister'), 'get');
             $logurl = new moodle_url('/report/log/index.php', ['chooselog' => 1, 'showusers' => 1,
-               'showcourses' => 1, 'id' => 1, 'user' => $userid, 'logformat' => 'showashtml']);
+               'showcourses' => 1, 'id' => 1, 'user' => $userid, 'logformat' => 'showashtml', ]);
             echo $OUTPUT->single_button($logurl, 'Logs', 'get');
         }
         echo $OUTPUT->container_end();

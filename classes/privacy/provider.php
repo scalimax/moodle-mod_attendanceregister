@@ -26,14 +26,14 @@
 
 namespace mod_attendanceregister\privacy;
 
-use \core_privacy\local\request\approved_contextlist;
-use \core_privacy\local\request\writer;
-use \core_privacy\local\request\helper;
-use \core_privacy\local\request\deletion_criteria;
-use \core_privacy\local\metadata\collection;
-use \core_privacy\local\request\transform;
-use \core_privacy\local\request\userlist;
-use \core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\writer;
+use core_privacy\local\request\helper;
+use core_privacy\local\request\deletion_criteria;
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\transform;
+use core_privacy\local\request\userlist;
+use core_privacy\local\request\approved_userlist;
 
 
 /**
@@ -61,17 +61,17 @@ class provider implements \core_privacy\local\metadata\provider,
                 'logout' => 'privacy:metadata:attendanceregister_session:logout',
                 'duration' => 'privacy:metadata:attendanceregister_session:duration',
                 'onlinesess' => 'privacy:metadata:attendanceregister_session:onlinesess',
-                'comments' => 'privacy:metadata:attendanceregister_session:comments'];
+                'comments' => 'privacy:metadata:attendanceregister_session:comments', ];
         $collection->add_database_table('attendanceregister_session', $arr, 'privacy:metadata:attendanceregister_session');
         $arr = ['userid' => 'privacy:metadata:attendanceregister_aggregate:userid',
                 'duration' => 'privacy:metadata:attendanceregister_aggregate:duration',
                 'onlinesess' => 'privacy:metadata:attendanceregister_aggregate:onlinesess',
                 'total' => 'privacy:metadata:attendanceregister_aggregate:total',
                 'grandtotal' => 'privacy:metadata:attendanceregister_aggregate:grandtotal',
-                'lastsessionlogout' => 'privacy:metadata:attendanceregister_aggregate:lastsessionlogout'];
+                'lastsessionlogout' => 'privacy:metadata:attendanceregister_aggregate:lastsessionlogout', ];
         $collection->add_database_table('attendanceregister_aggregate', $arr, 'privacy:metadata:attendanceregister_aggregate');
         $arr = ['userid' => 'privacy:metadata:attendanceregister_lock:userid',
-                'takenon' => 'privacy:metadata:attendanceregister_lock:takenon'];
+                'takenon' => 'privacy:metadata:attendanceregister_lock:takenon', ];
         $collection->add_database_table('attendanceregister_lock', $arr, 'privacy:metadata:attendanceregister_lock');
         return $collection;
     }
@@ -129,7 +129,7 @@ class provider implements \core_privacy\local\metadata\provider,
                         'logout' => transform::datetime($record->logout),
                         'duration' => $record->duration,
                         'onlinesess' => transform::yesno($record->onlinesess),
-                        'comments' => $record->comments];
+                        'comments' => $record->comments, ];
                 }
 
                 $sql = "SELECT * FROM {attendanceregister_aggregate} WHERE userid = :userid1";
@@ -141,7 +141,7 @@ class provider implements \core_privacy\local\metadata\provider,
                         'onlinesess' => transform::yesno($record->onlinesess),
                         'total' => $record->total,
                         'grandtotal' => $record->grandtotal,
-                        'lastlogout' => transform::datetime($record->lastsessionlogout)
+                        'lastlogout' => transform::datetime($record->lastsessionlogout),
                     ];
                 }
 

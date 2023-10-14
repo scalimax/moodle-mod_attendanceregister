@@ -30,4 +30,4 @@ $logs = [['module' => 'attendanceregister', 'action' => 'recalculate', 'mtable' 
          ['module' => 'attendanceregister', 'action' => 'add offline', 'mtable' => 'attendanceregister', 'field' => 'name'],
          ['module' => 'attendanceregister', 'action' => 'delete offline', 'mtable' => 'attendanceregister', 'field' => 'name'],
          ['module' => 'attendanceregister', 'action' => 'view', 'mtable' => 'attendanceregister', 'field' => 'name'],
-         ['module' => 'attendanceregister', 'action' => 'view all', 'mtable' => 'attendanceregister', 'field' => 'name']];
+         ['module' => 'attendanceregister', 'action' => 'view all', 'mtable' => 'attendanceregister', 'field' => 'name'], ];
