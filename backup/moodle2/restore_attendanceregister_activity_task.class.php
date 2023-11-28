@@ -81,36 +81,4 @@ class restore_attendanceregister_activity_task extends restore_activity_task {
             '/mod/attendanceregister/view.php?a=$1&userid=$2', ['attendanceregister', 'user']);
         return $rules;
     }
-
-    /**
-     * Define the restore log rules that will be applied
-     */
-    public static function define_restore_log_rules() {
-        $rules = [];
-        $rules[] = new restore_log_rule('attendanceregister', ATTENDANCEREGISTER_LOGACTION_VIEW,
-            'view.php?id={course_module}&userid={user}', '{attendanceregister}');
-        $rules[] = new restore_log_rule('attendanceregister', ATTENDANCEREGISTER_LOGACTION_VIEW_ALL,
-            'view.php?id={course_module}', '{attendanceregister}');
-        $rules[] = new restore_log_rule('attendanceregister', ATTENDANCEREGISTER_LOGACTION_ADD_OFFLINE,
-            'view.php?id={course_module}&userid={user}&action='. ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION,
-            '{attendanceregister}');
-        $rules[] = new restore_log_rule('attendanceregister', ATTENDANCEREGISTER_LOGACTION_DELETE_OFFLINE,
-            'view.php?id={course_module}&userid={user}&action='. ATTENDANCEREGISTER_ACTION_DELETE_OFFLINE_SESSION,
-            '{attendanceregister}');
-        $rules[] = new restore_log_rule('attendanceregister', ATTENDANCEREGISTER_LOGACTION_RECALCULTATE,
-            'view.php?id={course_module}&action=' . ATTENDANCEREGISTER_ACTION_RECALCULATE,
-            '{attendanceregister}');
-        return $rules;
-    }
-
-    /**
-     * Define the restore log rules that will be applied
-     *
-     * Note this rules are applied when restoring course logs
-     * by the restore final task, but are defined here at
-     * activity level. All them are rules not linked to any module instance (cmid = 0)
-     */
-    public static function define_restore_log_rules_for_course() {
-        return [];
-    }
 }

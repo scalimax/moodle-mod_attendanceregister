@@ -24,8 +24,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Attendance register user sessions
  *
@@ -35,7 +33,7 @@ defined('MOODLE_INTERNAL') || die;
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class attendanceregister_user_sessions  {
+class attendanceregister_user_sessions {
 
     /** @var attendanceregister_session $usersessions */
     public $usersessions;
@@ -84,7 +82,7 @@ class attendanceregister_user_sessions  {
             get_string('count', 'attendanceregister'),
             get_string('start', 'attendanceregister'),
             get_string('end', 'attendanceregister'),
-            get_string('online_offline', 'attendanceregister')];
+            get_string('online_offline', 'attendanceregister'), ];
         $table->align = ['left', 'left', 'left', 'right'];
 
         if ($this->register->offlinesessions) {
@@ -123,7 +121,7 @@ class attendanceregister_user_sessions  {
                    $rowcountstr,
                    attendanceregister__formatdate($session->login),
                    attendanceregister__formatdate($session->logout),
-                   $duration]);
+                   $duration, ]);
 
                 $tablerow->attributes['class'] .= ($rowcount % 2) ? ' attendanceregister_oddrow' : ' attendanceregister_evenrow';
 

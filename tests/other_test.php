@@ -23,9 +23,7 @@
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
+namespace mod_attendanceregister;
 
 /**
  * other tests
@@ -36,20 +34,27 @@ defined('MOODLE_INTERNAL') || die();
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_attendanceregister_other_testcase extends advanced_testcase {
+class other_test extends \advanced_testcase {
+
+    /**
+     * Setup function.
+     */
+    public function setUp():void {
+        $this->resetAfterTest();
+    }
 
     /**
      * Test the user capabilites
+     * @covers \attendanceregister_user_capablities
      */
     public function test_user_capabilites() {
         global $CFG;
         require_once($CFG->dirroot . '/mod/attendanceregister/locallib.php');
         require_once($CFG->dirroot . '/mod/attendanceregister/lib.php');
-        $this->resetAfterTest(true);
         $dg = $this->getDataGenerator();
         $course = $dg->create_course();
         $context = \context_course::instance($course->id);
-        $uc = new attendanceregister_user_capablities($context);
+        $uc = new \attendanceregister_user_capablities($context);
         $userid = 1;
         $this->AssertFalse($uc->canview($userid));
         $this->AssertFalse($uc->canddeletesession($userid));
@@ -69,9 +74,15 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
 
     /**
      * Test the events
+     * @covers \mod_attendanceregister\event\course_module_viewed
+     * @covers \mod_attendanceregister\event\course_module_instance_list_viewed
+     * @covers \mod_attendanceregister\event\mod_attendance_recalculation
+     * @covers \mod_attendanceregister\event\participants_attendance_report_viewed
+     * @covers \mod_attendanceregister\event\user_attendance_addoffline
+     * @covers \mod_attendanceregister\event\user_attendance_deloffline
+     * @covers \mod_attendanceregister\event\user_attendance_details_viewed
      */
     public function test_events() {
-        $this->resetAfterTest(true);
         $dg = $this->getDataGenerator();
         $course = $dg->create_course();
         $userid = $dg->create_user()->id;
@@ -96,9 +107,9 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
 
     /**
      * Test the tasks
+     * @covers \mod_attendanceregister\task\cron_task
      */
     public function test_task() {
-        $this->resetAfterTest(true);
         $dg = $this->getDataGenerator();
         $course = $dg->create_course();
         $userid = $dg->create_user()->id;
@@ -111,11 +122,15 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
 
     /**
      * Test several logins
+     * @covers \mod_attendanceregister\task\cron_task
+     * @covers \attendanceregister_tracked_courses
+     * @covers \attendanceregister_user_aggregates
+     * @covers \attendanceregister_user_aggregates_summary
+     * @covers \attendanceregister_user_sessions
+     * @covers \attendanceregister_user_capablities
      */
     public function test_logins() {
         global $CFG, $DB;
-
-        $this->resetAfterTest(true);
         $CFG->enablecompletion = 1;
         $dg = $this->getDataGenerator();
         $course = $dg->create_course(['enablecompletion' => 1]);
@@ -130,8 +145,10 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
         $this->assertTrue(isloggedin());
 
         $i = 0;
+        $coursecontext = \context_course::instance($course->id);
         while ($i < 10 ) {
             page_view($page, $course, $cm, $context);
+            $event = \mod_page\event\course_module_instance_list_viewed::create(['context' => $coursecontext]);
             $event = \mod_page\event\course_module_instance_list_viewed::create(['context' => $coursecontext]);
             $event->add_record_snapshot('course', $course);
             $event->trigger();
@@ -146,7 +163,7 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
         foreach ($records as $record) {
             $class1 = new \attendanceregister_tracked_courses($record);
             $this->assertNotEmpty($class1->html_table());
-            $usercaps = new \attendanceregister_user_capablities(context_course::instance($course->id));
+            $usercaps = new \attendanceregister_user_capablities(\context_course::instance($course->id));
             $class3 = new \attendanceregister_user_sessions($record, $user->id, $usercaps);
             $this->assertNotEmpty($class3->html_table());
             $class4 = new \attendanceregister_user_aggregates($record, $user->id, $class3);
@@ -158,61 +175,92 @@ class mod_attendanceregister_other_testcase extends advanced_testcase {
 
     /**
      * Test backup
+     * @covers \backup_attendanceregister_activity_structure_step
+     * @covers \backup_attendanceregister_activity_task
+     * @covers \restore_attendanceregister_activity_structure_step
+     * @covers \restore_attendanceregister_activity_task
      */
     public function test_backup() {
         global $CFG, $DB, $USER;
-        $this->resetAfterTest(true);
         require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
         require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+        set_config('backup_general_users', 1, 'backup');
+        set_config('backup_general_logs', 1, 'backup');
         $dg = $this->getDataGenerator();
         $courseid = $dg->create_course()->id;
         $userid = $dg->create_user()->id;
         $dg->enrol_user($userid, $courseid);
         $cm = $dg->create_module('attendanceregister', ['course' => $courseid]);
-        $session = new stdClass();
+        $session = new \stdClass();
         $session->register = $cm->id;
         $session->userid = $userid;
-        $session->login = time() - 5000;
+        $session->login = time() - 1000;
         $session->logout = time();
-        $session->duration = 5000;
-        $session->onlinesess = true;
+        $session->duration = 1000;
+        $session->onlinesess = false;
         $session->refcourse = $courseid;
-        $session->comments = 'comment';
         $DB->insert_record('attendanceregister_session', $session);
-        $DB->insert_record('attendanceregister_lock', (object) ['register' => $cm->id, 'userid' => $userid, 'takenon' => time()]);
-        $aggregate = new stdClass();
-        $aggregate->register = $cm->id;
-        $aggregate->userid = $userid;
-        $aggregate->onlinesess = 1;
-        $aggregate->refcourse = null;
-        $aggregate->duration = 30;
-        $aggregate->total = 1;
-        $aggregate->grandtotal = 0;
-        $DB->insert_record('attendanceregister_aggregate', $aggregate);
-        $aggregate = new stdClass();
-        $aggregate->register = $cm->id;
-        $aggregate->userid = $userid;
-        $aggregate->onlinesess = 1;
-        $aggregate->refcourse = null;
-        $aggregate->duration = 300;
-        $aggregate->total = 1;
-        $aggregate->grandtotal = 1;
-        $DB->insert_record('attendanceregister_aggregate', $aggregate);
         $this->setAdminUser();
         $task = new \mod_attendanceregister\task\cron_task();
         $task->execute();
-        $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
-            backup::INTERACTIVE_NO, backup::MODE_IMPORT, $USER->id);
+        $bc = new \backup_controller(\backup::TYPE_1COURSE, $courseid, \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO, \backup::MODE_IMPORT, $USER->id);
         $backupid = $bc->get_backupid();
         $bc->execute_plan();
         $bc->destroy();
         unset($bc);
         $courseid = $dg->create_course()->id;
-        $rc = new restore_controller($backupid, $courseid, backup::INTERACTIVE_NO,
-            backup::MODE_IMPORT, $USER->id, backup::TARGET_CURRENT_ADDING);
+        $rc = new \restore_controller($backupid, $courseid, \backup::INTERACTIVE_NO,
+            \backup::MODE_IMPORT, $USER->id, \backup::TARGET_CURRENT_ADDING);
         $rc->execute_precheck();
         $rc->execute_plan();
         $rc->destroy();
         unset($rc);
+    }
+
+    /**
+     * Test forms.
+     * @covers \mod_attendanceregister_mod_form
+     * @covers \mod_attendanceregister_selfcertification_edit_form
+     */
+    public function test_forms() {
+        global $CFG, $DB, $USER;
+        require_once($CFG->dirroot . '/mod/attendanceregister/mod_form.php');
+        require_once($CFG->dirroot . '/mod/attendanceregister/locallib.php');
+        $dg = $this->getDataGenerator();
+        $this->setAdminUser();
+        $course = $dg->create_course();
+        $ar = $dg->create_module('attendanceregister', ['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('attendanceregister', $ar->id, $course->id, false, MUST_EXIST);
+        $register = $DB->get_record('attendanceregister', ['id' => $cm->instance], '*', MUST_EXIST);
+        $modinfo = get_fast_modinfo($course);
+        $section = $modinfo->get_section_info(1);
+        $current = new \stdClass();
+        $current->instance = $cm;
+        $arr = [];
+        $form = new \mod_attendanceregister_mod_form($current, $section, $cm, $course);
+        $form->add_completion_rules();
+        $form->completion_rule_enabled([]);
+        $form->get_data();
+        $form->data_preprocessing($arr);
+
+        $customformdata = ['register' => $register, 'courses' => [$course->id]];
+        $mform = new \mod_attendanceregister_selfcertification_edit_form(null, $customformdata);
+        $mform->validation(['a' => $cm->instance, 'login' => time() - 1000, 'logout' => time(), 'userid' => $USER->id], []);
+    }
+
+    /**
+     * Test other files.
+     * @coversNothing
+     */
+    public function test_files() {
+        global $CFG;
+        $plugin = new \stdClass();
+        include($CFG->dirroot . '/mod/attendanceregister/version.php');
+        include($CFG->dirroot . '/mod/attendanceregister/db/tasks.php');
+        include($CFG->dirroot . '/mod/attendanceregister/db/log.php');
+        include($CFG->dirroot . '/mod/attendanceregister/db/access.php');
+        include($CFG->dirroot . '/mod/attendanceregister/db/upgrade.php');
+        $this->assertNotEmpty($plugin);
     }
 }

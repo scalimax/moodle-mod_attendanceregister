@@ -22,11 +22,10 @@
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_attendanceregister\privacy;
 
-defined('MOODLE_INTERNAL') || die();
-
-use \core_privacy\tests\provider_testcase;
-use \mod_attendanceregister\privacy\provider;
+use core_privacy\tests\provider_testcase;
+use stdClass;
 
 /**
  * Unit tests privacy
@@ -37,7 +36,7 @@ use \mod_attendanceregister\privacy\provider;
  * @author  Renaat Debleu <info@eWallah.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_attendanceregister_privacy_testcase extends provider_testcase {
+class privacy_test extends provider_testcase {
 
     /** @var stdClass context context */
     private $context;
@@ -55,7 +54,7 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
         $course = $dg->create_course();
         $cm = $dg->create_module('attendanceregister', ['course' => $course->id]);
         $cm2 = $dg->create_module('attendanceregister', ['course' => $course->id]);
-        $this->context = \context_module::instance($cm->cmid);
+        $this->context = \context_system::instance();
         $this->user = $dg->create_user();
         $dg->enrol_user($this->user->id, $course->id);
 
@@ -121,14 +120,16 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
 
     /**
      * Test returning metadata.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_get_metadata() {
         $collection = new \core_privacy\local\metadata\collection('mod_attendanceregister');
-        $collection = mod_attendanceregister\privacy\provider::get_metadata($collection);
+        $collection = \mod_attendanceregister\privacy\provider::get_metadata($collection);
         $this->assertNotEmpty($collection);
     }
     /**
      * Test getting the context for the user ID related to this plugin.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_get_contexts_for_userid() {
         $contextlist = \mod_attendanceregister\privacy\provider::get_contexts_for_userid($this->user->id);
@@ -137,6 +138,7 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
 
     /**
      * Check the exporting of sessions for a user.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_export_sessions() {
         $this->export_context_data_for_user($this->user->id, $this->context, 'mod_attendanceregister');
@@ -146,51 +148,55 @@ class mod_attendanceregister_privacy_testcase extends provider_testcase {
 
     /**
      * Tests the deletion of all sessions.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_delete_sessions_for_all_users_in_context() {
         global $DB;
-        $this->assertEquals(3, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(7, $DB->count_records('attendanceregister_session'));
         \mod_attendanceregister\privacy\provider::delete_data_for_all_users_in_context($this->context);
-        $list = new core_privacy\tests\request\approved_contextlist($this->user, 'mod_attendanceregister', []);
+        $list = new \core_privacy\tests\request\approved_contextlist($this->user, 'mod_attendanceregister', []);
         $this->assertEmpty($list);
-        $this->assertEquals(1, $DB->count_records('attendanceregister_session'));
-        $this->assertEquals(1, $DB->count_records('attendanceregister_aggregate'));
+        $this->assertEquals(0, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(0, $DB->count_records('attendanceregister_aggregate'));
         $this->assertEquals(0, $DB->count_records('attendanceregister_lock'));
     }
 
     /**
      * Tests deletion of sessions for a specified user.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_delete_sessions_for_user() {
         global $DB;
-        $list = new core_privacy\tests\request\approved_contextlist($this->user, 'mod_attendanceregister', [$this->context->id]);
+        $list = new \core_privacy\tests\request\approved_contextlist($this->user, 'mod_attendanceregister', [$this->context->id]);
         $this->assertNotEmpty($list);
         \mod_attendanceregister\privacy\provider::delete_data_for_user($list);
         $this->export_context_data_for_user($this->user->id, $this->context, 'mod_attendanceregister');
         $writer = \core_privacy\local\request\writer::with_context($this->context);
         $this->assertTrue($writer->has_any_data());
-        $this->assertEquals(2, $DB->count_records('attendanceregister_session'));
-        $this->assertEquals(2, $DB->count_records('attendanceregister_aggregate'));
-        $this->assertEquals(1, $DB->count_records('attendanceregister_lock'));
+        $this->assertEquals(6, $DB->count_records('attendanceregister_session'));
+        $this->assertEquals(6, $DB->count_records('attendanceregister_aggregate'));
+        $this->assertEquals(5, $DB->count_records('attendanceregister_lock'));
     }
 
     /**
      * Tests get users in context.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_get_users_in_context() {
         $userlist = new \core_privacy\local\request\userlist($this->context, 'mod_attendanceregister');
-        provider::get_users_in_context($userlist);
+        \mod_attendanceregister\privacy\provider::get_users_in_context($userlist);
         $this->assertCount(2, $userlist);
     }
 
     /**
      * Tests delete data for users.
+     * @covers \mod_attendanceregister\privacy\provider
      */
     public function test_delete_data_for_users_in_context() {
         $approved = new \core_privacy\local\request\approved_userlist($this->context, 'mod_attendanceregister', [$this->user->id]);
-        provider::delete_data_for_users($approved);
+        \mod_attendanceregister\privacy\provider::delete_data_for_users($approved);
         $userlist = new \core_privacy\local\request\userlist($this->context, 'mod_attendanceregister');
-        provider::get_users_in_context($userlist);
+        \mod_attendanceregister\privacy\provider::get_users_in_context($userlist);
         $this->assertCount(1, $userlist);
     }
 }

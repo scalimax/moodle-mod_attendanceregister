@@ -48,7 +48,6 @@ define("ATTENDANCEREGISTER_TYPE_METAENROL", "meta");
 define("ATTENDANCEREGISTER_TYPE_CATEGORY", "category");
 define("ATTENDANCEREGISTER_TYPE_GLOBAL", "global");
 
-
 define("ATTENDANCEREGISTER_ACTION_PRINTABLE", "printable");
 define("ATTENDANCEREGISTER_ACTION_RECALCULATE", "recalc");
 define("ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION", "saveoffline");
@@ -86,6 +85,11 @@ define('ATTENDANCEREGISTER_ORPHANED_LOCKS_DELAY_SECONDS', 30 * 60);
 
 // Default completion total duration (in minutes): 1h.
 define('ATTENDANCEREGISTER_DEFAULT_COMPLETION_TOTAL_DURATION_MINS', 60);
+
+// Ugly hack to make 3.11 and 4.0 work seamlessly.
+if (!defined('FEATURE_MOD_PURPOSE')) {
+    define('FEATURE_MOD_PURPOSE', 'mod_purpose');
+}
 
 /**
  * Setup a new instance
@@ -215,7 +219,8 @@ function attendanceregister_supports($feature) {
             return true;
         case FEATURE_SHOW_DESCRIPTION:
             return false;
-
+        case FEATURE_MOD_PURPOSE:
+            return MOD_PURPOSE_OTHER;
         default:
             return null;
     }
@@ -282,7 +287,7 @@ function attendanceregister_get_extra_capabilities() {
         ATTENDANCEREGISTER_CAPABILITY_VIEW_OWN_REGISTERS,
         ATTENDANCEREGISTER_CAPABILITY_ADD_OWN_OFFLINE_SESSIONS,
         ATTENDANCEREGISTER_CAPABILITY_DELETE_OTHER_OFFLINE_SESSIONS,
-        ATTENDANCEREGISTER_CAPABILITY_RECALC_SESSIONS];
+        ATTENDANCEREGISTER_CAPABILITY_RECALC_SESSIONS, ];
 }
 
 /**
@@ -303,7 +308,7 @@ function attendanceregister_cron() {
             continue;
         }
         // Added by Renaat.
-        if ($course->enddate > 0 and ($course->enddate > time() + (2 * 7 * 24 * 3600))) {
+        if ($course->enddate > 0 && ($course->enddate > time() + (2 * 7 * 24 * 3600))) {
             continue;
         }
         if ($register->pendingrecalc) {
@@ -378,7 +383,7 @@ function attendanceregister_get_register_types() {
         ATTENDANCEREGISTER_TYPE_COURSE => get_string('type_' . ATTENDANCEREGISTER_TYPE_COURSE, 'attendanceregister'),
         ATTENDANCEREGISTER_TYPE_CATEGORY => get_string('type_' . ATTENDANCEREGISTER_TYPE_CATEGORY, 'attendanceregister'),
         ATTENDANCEREGISTER_TYPE_METAENROL => get_string('type_' . ATTENDANCEREGISTER_TYPE_METAENROL, 'attendanceregister'),
-        ATTENDANCEREGISTER_TYPE_GLOBAL => 'global'];
+        ATTENDANCEREGISTER_TYPE_GLOBAL => 'global', ];
 }
 
 /**

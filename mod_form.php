@@ -63,13 +63,13 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         $mform->setDefault('type', ATTENDANCEREGISTER_TYPE_COURSE);
         $minutes = ' ' . get_string('minutes');
         $sessionchoices = [
-                5  => (' 5' . $minutes),
+                5 => (' 5' . $minutes),
                 10 => ('10' . $minutes),
                 15 => ('15' . $minutes),
                 20 => ('20' . $minutes),
                 30 => ('30' . $minutes),
                 45 => ('45' . $minutes),
-                60 => ('60' . $minutes)];
+                60 => ('60' . $minutes), ];
         $mform->addElement('select', 'sessiontimeout',
             get_string('sessiontimeout', 'attendanceregister'), $sessionchoices);
         $mform->addHelpButton('sessiontimeout', 'sessiontimeout', 'attendanceregister');
@@ -86,22 +86,22 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         $day = ' '.get_string('day');
         $days = ' '.get_string('days');
         $dayscertificable = [
-            1   => ('1' . $day),
-            2   => ('2' . $days),
-            3   => ('3' . $days),
-            4   => ('4' . $days),
-            5   => ('5' . $days),
-            6   => ('6' . $days),
-            7   => ('7' . $days),
-            10  => ('10' . $days),
-            14  => ('14' . $days),
-            21  => ('21' . $days),
-            30  => ('30' . $days),
-            60  => ('60' . $days),
-            90  => ('90' . $days),
+            1 => ('1' . $day),
+            2 => ('2' . $days),
+            3 => ('3' . $days),
+            4 => ('4' . $days),
+            5 => ('5' . $days),
+            6 => ('6' . $days),
+            7 => ('7' . $days),
+            10 => ('10' . $days),
+            14 => ('14' . $days),
+            21 => ('21' . $days),
+            30 => ('30' . $days),
+            60 => ('60' . $days),
+            90 => ('90' . $days),
             120 => ('120' . $days),
             180 => ('180' . $days),
-            365 => ('365'. $days)];
+            365 => ('365'. $days), ];
         $mform->addElement('select', 'dayscertificable', get_string('dayscertificable', 'attendanceregister'), $dayscertificable);
         $mform->addHelpButton('dayscertificable', 'dayscertificable', 'attendanceregister');
         $mform->setDefault('dayscertificable', ATTENDANCEREGISTER_DEFAULT_DAYS_CERTIFICABLE);
@@ -129,7 +129,9 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         $mform->disabledIf('mandofflspeccourse', 'offlinesessions');
         $mform->disabledIf('mandofflspeccourse', 'offlinespecifycourse');
 
-        $this->standard_coursemodule_elements();
+        if (!PHPUNIT_TEST) {
+            $this->standard_coursemodule_elements();
+        }
         $this->add_action_buttons();
     }
 

@@ -24,8 +24,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Backup activity structure steptask
  *
@@ -43,11 +41,10 @@ class backup_attendanceregister_activity_structure_step extends backup_activity_
      * @return restore_path_element $structure
      */
     protected function define_structure() {
-        $userinfo = $this->get_setting_value('userinfo');
         $attendanceregister = new backup_nested_element('attendanceregister', ['id'],
             ['name', 'intro', 'introformat' , 'type', 'offlinesessions', 'sessiontimeout', 'dayscertificable',
              'offlinecomments', 'mandatoryofflinecomm', 'offlinespecifycourse', 'mandofflspeccourse', 'timemodified',
-             'completiontotaldurationmins']);
+             'completiontotaldurationmins', ]);
         $sessions = new backup_nested_element('sessions');
         $session = new backup_nested_element('session', ['id'],
             ['userid', 'login', 'logout', 'duration', 'onlinesess', 'refcourseshortname', 'comments', 'addedbyuserid']);
@@ -56,14 +53,6 @@ class backup_attendanceregister_activity_structure_step extends backup_activity_
         $attendanceregister->add_child($sessions);
         $sessions->add_child($session);
         $attendanceregister->set_source_table('attendanceregister', ['id' => backup::VAR_ACTIVITYID]);
-        if ($userinfo) {
-            $session->set_source_sql('
-            SELECT s.id, s.register, s.userid, s.login, s.logout, s.duration, s.onlinesess, s.comments,
-                c.shortname AS refcourseshortname, s.addedbyuserid
-              FROM {attendanceregister_session} s LEFT JOIN {course} c ON c.id = s.refcourse
-              WHERE s.register = ? AND s.onlinesess = 0
-            ', [backup::VAR_PARENTID]);
-        }
         $session->annotate_ids('user', 'userid');
         $session->annotate_ids('user', 'addedbyuserid');
         $attendanceregister->annotate_files('mod_attendanceregister', 'intro', null);

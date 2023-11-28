@@ -24,8 +24,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Holds all tracked Users of an Attendance Register
  *
@@ -77,7 +75,7 @@ class attendanceregister_tracked_users {
             // Retain only tracked users.
             if (in_array($aggregate->userid, $ids)) {
                 // Create User's attendanceregister_user_aggregates_summary instance if not exists.
-                if (!isset($this->usersaggregates[ $aggregate->userid])) {
+                if (!isset($this->usersaggregates[$aggregate->userid])) {
                     $this->usersaggregates[$aggregate->userid] = new attendanceregister_user_aggregates_summary();
                 }
                 // Populate attendanceregister_user_aggregates_summary fields.

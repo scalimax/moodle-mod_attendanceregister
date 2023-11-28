@@ -298,15 +298,14 @@ function attendanceregister__get_tracked_users_need_update($register) {
         list($esql, $params) = get_enrolled_sql($context, ATTENDANCEREGISTER_CAPABILITY_TRACKED);
         $sql = "SELECT u.* FROM {user} u JOIN ($esql) je ON je.id = u.id
                 WHERE u.lastaccess + (:sesstimeout * 60) < :now
-                  AND (NOT EXISTS (SELECT * FROM {attendanceregister_session} as3
-                                     WHERE as3.userid = u.id AND as3.register = :registerid1 AND as3.onlinesess = 1)
+                  AND (NOT EXISTS (SELECT * FROM {attendanceregister_session} as3 WHERE as3.userid = u.id AND as3.register = :registerid1 AND as3.onlinesess = 1)
                        OR NOT EXISTS (SELECT * FROM {attendanceregister_aggregate} aa4 WHERE aa4.userid=u.id AND
                            aa4.register=:registerid2  AND aa4.grandtotal = 1)
-                       OR EXISTS (SELECT * FROM {attendanceregister_aggregate} aa2, {log} l2
+                       OR EXISTS (SELECT * FROM {attendanceregister_aggregate} aa2, {logstore_standard_log} l2
                                     WHERE aa2.userid = u.id AND aa2.register = :registerid3
-                                      AND l2.course = :courseid AND l2.userid = aa2.userid
+                                      AND l2.courseid = :courseid AND l2.userid = aa2.userid
                                       AND aa2.grandtotal = 1
-                                      AND l2.time > aa2.lastsessionlogout))";
+                                      AND l2.timecreated > aa2.lastsessionlogout))";
         $params['sesstimeout'] = $register->sessiontimeout;
         $params['now'] = time();
         $params['registerid1'] = $register->id;
@@ -558,7 +557,7 @@ function attendanceregister__delete_user_aggregates($register, $userid) {
  */
 function attendanceregister__get_user_oldest_log_entry_timestamp($userid) {
     global $DB;
-    $obj = $DB->get_record_sql('SELECT MIN(time) as oldestlogtime FROM {log} WHERE userid = :userid',
+    $obj = $DB->get_record_sql('SELECT MIN(time) as oldestlogtime FROM {logstore_standard_log} WHERE userid = :userid',
        [ 'userid' => $userid], IGNORE_MISSING);
     if ($obj) {
         return $obj->oldestlogtime;

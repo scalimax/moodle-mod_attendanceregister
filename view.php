@@ -59,7 +59,7 @@ if ($inputsessionid) {
 require_course_login($course, false, $cm);
 
 if (!($context = context_module::instance($cm->id))) {
-    print_error('badcontext');
+    throw new \moodle_exception('badcontext');
 }
 
 $usercaps = new attendanceregister_user_capablities($context);
@@ -127,7 +127,7 @@ $dodeleteofflinesession = false;
 if ($sessiontodelete) {
     // Check if logged-in-as Session Delete.
     if (session_is_loggedinas() && !ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION) {
-        print_error('onlyrealusercandeleteofflinesessions', 'attendanceregister');
+        throw new \moodle_exception('onlyrealusercandeleteofflinesessions', 'attendanceregister');
     } else if (attendanceregister__iscurrentuser($userid)) {
         require_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OWN_OFFLINE_SESSIONS, $context);
         $dodeleteofflinesession = true;
@@ -243,7 +243,7 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
             echo $OUTPUT->single_button(attendanceregister_makeurl($register),
                 get_string('back_to_tracked_user_list', 'attendanceregister'), 'get');
             $logurl = new moodle_url('/report/log/index.php', ['chooselog' => 1, 'showusers' => 1,
-               'showcourses' => 1, 'id' => 1, 'user' => $userid, 'logformat' => 'showashtml']);
+               'showcourses' => 1, 'id' => 1, 'user' => $userid, 'logformat' => 'showashtml', ]);
             echo $OUTPUT->single_button($logurl, 'Logs', 'get');
         }
         echo $OUTPUT->container_end();
