@@ -78,7 +78,7 @@ class attendanceregister_tracked_users {
                 if (!isset($this->usersaggregates[$aggregate->userid])) {
                     $this->usersaggregates[$aggregate->userid] = new attendanceregister_user_aggregates_summary();
                 }
-                // Populate attendanceregister_user_aggregates_summary fields.
+                // Populate  fields.
                 if ($aggregate->grandtotal) {
                     $this->usersaggregates[$aggregate->userid]->grandtotal = $aggregate->duration;
                     $this->usersaggregates[$aggregate->userid]->lastlogout = $aggregate->lastsessionlogout;

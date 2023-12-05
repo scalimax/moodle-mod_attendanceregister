@@ -25,6 +25,9 @@
  */
 namespace mod_attendanceregister;
 
+use context_course;
+use context_module;
+
 /**
  * other tests
  *

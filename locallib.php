@@ -77,6 +77,10 @@ function attendanceregister__calculate_last_user_online_session_logout($register
  * @return int                 number of new sessions found
  */
 function attendanceregister__build_new_user_sessions($register, $userid, $fromtime = 0, progress_bar $progressbar = null) {
+    // $sessionstart_formatted = date("Y-m-d H:i:s", $sessionstart);
+    mtrace("Deleting last session for user {$userid} in register {$register->id}");
+    attendanceregister__delete_user_in_progress_sessions($register, $userid);
+
     $course = attendanceregister__get_register_course($register);
     $user = attendanceregister__getuser($userid);
     $trackedcids = attendanceregister__get_tracked_courses_ids($register, $course);
@@ -101,6 +105,11 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
 
             // Check if between prev and current log, last more than Session Timeout
             // if so, the Session ends on the _prev_ log entry.
+            /*
+            TODO:
+            Se la sessione è aperta non viene registrata e quindi l'attività non si completa e il partecipante non può
+            scaricare l'attestato: come risolvere questo problema?
+            */
             if (($entry->timecreated - $prevlog->timecreated) > $sessiontimeout) {
                 $newsessionscount++;
 
@@ -124,16 +133,19 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
             $prevlog = $entry;
         }
 
-        // If le last log entry is not the end of the last calculated session and is older than SessionTimeout
+        // If the last log entry is not the end of the last calculated session and is older than SessionTimeout
         // create a last session.
-        if ($entry->timecreated > $sessionlast && (time() - $entry->timecreated) > $sessiontimeout) {
+        if ($entry->timecreated > $sessionlast /* && (time() - $entry->timecreated) > $sessiontimeout */) {
             $newsessionscount++;
             // In this case entry (and not prevlog is the last entry of the Session).
             $sessionlast = $entry->timecreated;
             $estimatedend = $sessionlast; // + $sessiontimeout / 2;
-
-            // Save a new session to the prev entry.
-            attendanceregister__save_session($register, $userid, $sessionstart, $estimatedend);
+            if ( time() - $entry->timecreated > $sessiontimeout ) {
+                // Save a new session to the prev entry.
+                attendanceregister__save_session($register, $userid, $sessionstart, $estimatedend);
+            } else {
+                attendanceregister__save_session($register, $userid, $sessionstart, $estimatedend, true, null, 'in_progress');
+            }
 
             // Update the progress bar, if any.
             if ($progressbar) {
@@ -237,16 +249,20 @@ function attendanceregister__update_user_aggregates($register, $userid) {
     }
 
     if (attendanceregister__iscondition($register)) {
-        $cm = get_coursemodule_from_instance('attendanceregister', $register->id, $register->course, null, MUST_EXIST);
-        $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-        $completion = new completion_info($course);
-        if ($completion->is_enabled($cm)) {
-            $completiontracked = ['totaldurationsecs' => $grandtotalaggregate->duration];
-            if (attendanceregister__iscomplete($register, $completiontracked)) {
-                $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
-            } else {
-                $completion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
+        try {
+            $cm = get_coursemodule_from_instance('attendanceregister', $register->id, $register->course, null, MUST_EXIST);
+            $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+            $completion = new completion_info($course);
+            if ($completion->is_enabled($cm)) {
+                $completiontracked = ['totaldurationsecs' => $grandtotalaggregate->duration];
+                if (attendanceregister__iscomplete($register, $completiontracked)) {
+                    $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
+                } else {
+                    $completion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
+                }
             }
+        } catch (Exception $e) {
+            mtrace("Caught Exception ('{$e->getMessage()}')\n{$e}\n");
         }
     }
 }
@@ -296,25 +312,37 @@ function attendanceregister__get_tracked_users_need_update($register) {
     foreach ($trackedcoursesids as $courseid) {
         $context = context_course::instance($courseid);
         list($esql, $params) = get_enrolled_sql($context, ATTENDANCEREGISTER_CAPABILITY_TRACKED);
-        $sql = "SELECT u.* FROM {user} u JOIN ($esql) je ON je.id = u.id
-                WHERE u.lastaccess + (:sesstimeout * 60) < :now
-                  AND (NOT EXISTS (SELECT * FROM {attendanceregister_session} as3 WHERE as3.userid = u.id AND as3.register = :registerid1 AND as3.onlinesess = 1)
-                       OR NOT EXISTS (SELECT * FROM {attendanceregister_aggregate} aa4 WHERE aa4.userid=u.id AND
-                           aa4.register=:registerid2  AND aa4.grandtotal = 1)
-                       OR EXISTS (SELECT * FROM {attendanceregister_aggregate} aa2, {logstore_standard_log} l2
-                                    WHERE aa2.userid = u.id AND aa2.register = :registerid3
-                                      AND l2.courseid = :courseid AND l2.userid = aa2.userid
-                                      AND aa2.grandtotal = 1
-                                      AND l2.timecreated > aa2.lastsessionlogout))";
+        $sql = "SELECT u.* FROM {user} u 
+                    JOIN ($esql) je ON je.id = u.id
+                 JOIN {user_lastaccess} ula ON ula.userid = je.id
+                WHERE u.lastaccess > 0 AND u.lastaccess + (:sesstimeout * 60 * 0) < :now
+                AND ula.courseid = :courseid_ula
+                AND (NOT EXISTS (SELECT * FROM {attendanceregister_session} as3 WHERE as3.userid = u.id AND as3.register = :registerid1 AND as3.onlinesess = 1)
+                    OR NOT EXISTS (SELECT * FROM {attendanceregister_aggregate} aa4 WHERE aa4.userid=u.id AND
+                        aa4.register=:registerid2  AND aa4.grandtotal = 1)
+                    OR EXISTS (SELECT * FROM {attendanceregister_aggregate} aa2, {logstore_standard_log} l2
+                                WHERE aa2.userid = u.id AND aa2.register = :registerid3
+                                AND l2.courseid = :courseid AND l2.userid = aa2.userid
+                                AND aa2.grandtotal = 1
+                                AND l2.timecreated > aa2.lastsessionlogout) )";
         $params['sesstimeout'] = $register->sessiontimeout;
         $params['now'] = time();
         $params['registerid1'] = $register->id;
         $params['registerid2'] = $register->id;
         $params['registerid3'] = $register->id;
         $params['courseid'] = $courseid;
+        $params['courseid_ula'] = $courseid;
         $trackedusersincourse = $DB->get_records_sql($sql, $params);
         $trackedusers = array_merge($trackedusers, $trackedusersincourse);
     }
+    $users_count = count($trackedusers);
+    if ($users_count > 0) {
+        mtrace("Found {$users_count} users that need the register {$register->id} to be updated on course {$thiscourse->shortname}");
+        foreach($trackedusers as $tracked) {
+            mtrace("{$tracked->username}");
+        }
+    }
+
     return attendanceregister__unique_object_array_by_id($trackedusers);
 }
 
@@ -511,7 +539,7 @@ function attendanceregister__save_session($register, $userid, $login, $logout, $
     $session->onlinesess = $online;
     $session->refcourse = $refid;
     $session->comments = $comments;
-    $DB->insert_record('attendanceregister_session', $session);
+    if ($session->duration >= 1) $DB->insert_record('attendanceregister_session', $session);
 }
 
 /**
@@ -536,6 +564,13 @@ function attendanceregister__delete_user_online_sessions($register, $userid, $on
     }
 }
 
+function attendanceregister__delete_user_in_progress_sessions($register, $userid) {
+    global $DB;
+    $where = 'userid = :userid AND register = :register AND onlinesess = :onlinesess AND comments = :comments';
+    $params = ['userid' => $userid, 'register' => $register->id, 'onlinesess' => 1, 'comments' => 'in_progress'];
+    $DB->delete_records_select('attendanceregister_session', $where, $params);
+}
+
 /**
  * Delete all User's Aggrgates of a given User
  *
@@ -557,7 +592,7 @@ function attendanceregister__delete_user_aggregates($register, $userid) {
  */
 function attendanceregister__get_user_oldest_log_entry_timestamp($userid) {
     global $DB;
-    $obj = $DB->get_record_sql('SELECT MIN(time) as oldestlogtime FROM {logstore_standard_log} WHERE userid = :userid',
+    $obj = $DB->get_record_sql('SELECT MIN(timecreated) as oldestlogtime FROM {logstore_standard_log} WHERE userid = :userid',
        [ 'userid' => $userid], IGNORE_MISSING);
     if ($obj) {
         return $obj->oldestlogtime;

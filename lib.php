@@ -302,6 +302,7 @@ function attendanceregister_cron() {
     $DB->delete_records_select('attendanceregister_lock', 'takenon < :takenon', [ 'takenon' => $orphanbefore]);
     $registers = $DB->get_records('attendanceregister');
     foreach ($registers as $register) {
+        mtrace("Register: {$register->id}, {$register->course}");
         $course = get_course($register->course);
         // Added by Renaat.
         if (!$course->visible) {
@@ -538,8 +539,8 @@ function attendanceregister_check_user_sessions_need_update($register, $userid, 
         $lastlogout = 0;
         return true;
     }
-    if (($user->currentlogin > $aggregate->lastsessionlogout) &&
-        ((time() - $user->currentlogin) > ($register->sessiontimeout * 60))) {
+    if (($user->lastaccess > $aggregate->lastsessionlogout) &&
+        ((time() - $user->lastaccess) > 0 * ($register->sessiontimeout * 60))) {
         $lastlogout = $aggregate->lastsessionlogout;
         return true;
     } else {

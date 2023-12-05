@@ -260,6 +260,11 @@ if ($doshowcontents && ($dorecalc||$doschedrecalc)) {
         if ($usercaps->canrecalc && !$printable) {
             echo groups_allgroups_course_menu($course, $url, true, $groupid);
         }
+        var_dump($register);
+        var_dump($usercaps);
+        var_dump($printable);
+        var_dump(!attendanceregister__didcronran($cm));
+        // TODO: perché mostra uno di questi messaggi anche se non serve?
         if ($register->pendingrecalc && $usercaps->canrecalc && !$printable) {
             echo $OUTPUT->notification(get_string('recalc_scheduled_on_next_cron', 'attendanceregister'));
         } else if (!attendanceregister__didcronran($cm)) {
