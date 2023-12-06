@@ -29,6 +29,8 @@ defined('MOODLE_INTERNAL') || die;
 require_once("$CFG->libdir/formslib.php");
 require_once("$CFG->libdir/completionlib.php");
 
+define("IN_PROGRESS", 'in_progress');
+
 /**
  * Retrieve the Course object instance of the Course where the Register is
  *
@@ -144,7 +146,7 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
                 // Save a new session to the prev entry.
                 attendanceregister__save_session($register, $userid, $sessionstart, $estimatedend);
             } else {
-                attendanceregister__save_session($register, $userid, $sessionstart, $estimatedend, true, null, 'in_progress');
+                attendanceregister__save_session($register, $userid, $sessionstart, $estimatedend, true, null, IN_PROGRESS);
             }
 
             // Update the progress bar, if any.
@@ -539,7 +541,7 @@ function attendanceregister__save_session($register, $userid, $login, $logout, $
     $session->onlinesess = $online;
     $session->refcourse = $refid;
     $session->comments = $comments;
-    if ($session->duration >= 1) $DB->insert_record('attendanceregister_session', $session);
+    if ($session->duration > 60) $DB->insert_record('attendanceregister_session', $session);
 }
 
 /**
@@ -567,7 +569,7 @@ function attendanceregister__delete_user_online_sessions($register, $userid, $on
 function attendanceregister__delete_user_in_progress_sessions($register, $userid) {
     global $DB;
     $where = 'userid = :userid AND register = :register AND onlinesess = :onlinesess AND comments = :comments';
-    $params = ['userid' => $userid, 'register' => $register->id, 'onlinesess' => 1, 'comments' => 'in_progress'];
+    $params = ['userid' => $userid, 'register' => $register->id, 'onlinesess' => 1, 'comments' => IN_PROGRESS];
     $DB->delete_records_select('attendanceregister_session', $where, $params);
 }
 
@@ -812,18 +814,6 @@ function attendanceregister__iscomplete($register, $trackedvalues) {
     } else {
         return false;
     }
-}
-
-/**
- * Check if the Cron form this module ran after the creation of an instance
- *
- * @param  object $cm Course-Module instance
- * @return bool TRUE if the Cron run on this module after instance creation
- */
-function attendanceregister__didcronran($cm) {
-    global $DB;
-    $module = $DB->get_record('modules', ['name' => 'attendanceregister'], '*', MUST_EXIST);
-    return ($cm->added < $module->lastcron);
 }
 
 /**
