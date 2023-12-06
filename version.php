@@ -21,14 +21,15 @@
  * @copyright 2016 CINECA
  * @author  Lorenzo Nicora <fad@nicus.it>
  * @author  Renaat Debleu <info@eWallah.net>
+ * @author  Massimo Scali <massimo.scali@ardea.srl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
 $plugin->version = 2023112700;
-$plugin->requires = 2022041200;
+$plugin->requires = 2023042402;
 $plugin->component = 'mod_attendanceregister';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->supported = [401, 402];
-$plugin->release = 'v4.0.1';
+$plugin->release = 'v4.0.2';
