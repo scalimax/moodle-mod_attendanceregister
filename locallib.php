@@ -118,7 +118,7 @@ function attendanceregister__build_new_user_sessions($register, $userid, $fromti
                 // Estimate Session ended half the Session Timeout after the prev log entry
                 // (prev log entry is the last entry of the Session).
                 $sessionlast = $prevlog->timecreated;
-                $estimatedend = $sessionlast; // + $sessiontimeout / 2;
+                $estimatedend = $sessionlast + $sessiontimeout / 2;
 
                 // Save a new session to the prev entry.
                 attendanceregister__save_session($register, $userid, $sessionstart, $estimatedend);
