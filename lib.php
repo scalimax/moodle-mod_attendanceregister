@@ -436,6 +436,8 @@ function attendanceregister_update_user_sessions($register, $userid, progress_ba
         $lastlogout = 0;
         $needupdate = true;
     } else {
+        mtrace("Deleting in progress session for user {$userid} in register {$register->id}");
+        attendanceregister__delete_user_in_progress_sessions($register, $userid);
         $lastlogout = 0;
         $needupdate = attendanceregister_check_user_sessions_need_update($register, $userid, $lastlogout);
     }
@@ -539,9 +541,10 @@ function attendanceregister_check_user_sessions_need_update($register, $userid, 
         $lastlogout = 0;
         return true;
     }
-    if (($user->lastaccess > $aggregate->lastsessionlogout) &&
+    $lastSessionLogout = attendanceregister__calculate_last_user_online_session_logout($register, $userid);
+    if (($user->lastaccess > $lastSessionLogout) &&
         ((time() - $user->lastaccess) > 0 * ($register->sessiontimeout * 60))) {
-        $lastlogout = $aggregate->lastsessionlogout;
+        $lastlogout = $lastSessionLogout;
         return true;
     } else {
         return false;

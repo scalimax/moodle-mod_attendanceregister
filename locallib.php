@@ -54,8 +54,8 @@ function attendanceregister__get_register_course($register) {
 function attendanceregister__calculate_last_user_online_session_logout($register, $userid) {
     global $DB;
     $params = ['register' => $register->id, 'userid' => $userid];
-    $last = $DB->get_field_sql('SELECT MAX(logout) FROM {attendanceregister_session}
-        WHERE register = ? AND userid = ? AND onlinesess = 1', $params);
+    $last = $DB->get_field_sql("SELECT MAX(logout) FROM {attendanceregister_session}
+        WHERE register = ? AND userid = ? AND onlinesess = 1 ", $params); //AND (comments IS NULL OR comments <=> '{IN_PROGRESS})'
     if ($last === false) {
         $last = 0;
     }
@@ -80,8 +80,6 @@ function attendanceregister__calculate_last_user_online_session_logout($register
  */
 function attendanceregister__build_new_user_sessions($register, $userid, $fromtime = 0, progress_bar $progressbar = null) {
     // $sessionstart_formatted = date("Y-m-d H:i:s", $sessionstart);
-    mtrace("Deleting last session for user {$userid} in register {$register->id}");
-    attendanceregister__delete_user_in_progress_sessions($register, $userid);
 
     $course = attendanceregister__get_register_course($register);
     $user = attendanceregister__getuser($userid);
@@ -326,7 +324,7 @@ function attendanceregister__get_tracked_users_need_update($register) {
                                 WHERE aa2.userid = u.id AND aa2.register = :registerid3
                                 AND l2.courseid = :courseid AND l2.userid = aa2.userid
                                 AND aa2.grandtotal = 1
-                                AND l2.timecreated > aa2.lastsessionlogout) )";
+                                AND (l2.timecreated > aa2.lastsessionlogout OR aa2.lastsessionlogout is null)) )";
         $params['sesstimeout'] = $register->sessiontimeout;
         $params['now'] = time();
         $params['registerid1'] = $register->id;
