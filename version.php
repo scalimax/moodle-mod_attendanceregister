@@ -27,9 +27,9 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2023121400;
-$plugin->requires = 2023042402;
+$plugin->version = 2024011003;
+$plugin->requires = 2023100902.02;
 $plugin->component = 'mod_attendanceregister';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->supported = [401, 402];
-$plugin->release = 'v4.0.2';
+//$plugin->supported = [403];
+$plugin->release = 'v4.0.3';

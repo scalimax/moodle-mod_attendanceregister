@@ -143,14 +143,18 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
     public function add_completion_rules() {
         $mform =& $this->_form;
         $group = [];
-        $group[] =& $mform->createElement('checkbox', 'completiontotaldurationenabled', ' ',
+        $group[] =& $mform->createElement('checkbox', $this->get_suffixed_name('completiontotaldurationenabled'), ' ',
             get_string('completiontotalduration', 'attendanceregister'));
-        $group[] =& $mform->createElement('text', 'completiontotaldurationmins', ' ', ['size' => 4]);
+        $group[] =& $mform->createElement('text', $this->get_suffixed_name('completiontotaldurationmins'), ' ', ['size' => 4]);
         $mform->setType('completiontotaldurationmins', PARAM_INT);
-        $mform->addGroup($group, 'completiondurationgroup', get_string('completiondurationgroup', 'attendanceregister'),
+        $mform->addGroup($group, $this->get_suffixed_name('completiondurationgroup'), get_string('completiondurationgroup', 'attendanceregister'),
             [' '], false);
-        $mform->disabledIf('completiontotaldurationmins', 'completiontotaldurationenabled', 'notchecked');
+        $mform->disabledIf($this->get_suffixed_name('completiontotaldurationmins'), $this->get_suffixed_name('completiontotaldurationenabled'), 'notchecked');
         return ['completiondurationgroup'];
+    }
+
+    protected function get_suffixed_name(string $fieldname): string {
+        return $fieldname . $this->get_suffix();
     }
 
     /**
@@ -160,7 +164,7 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
      * @return bool
      */
     public function completion_rule_enabled($data) {
-        return((!empty($data['completiontotaldurationenabled']) && $data['completiontotaldurationmins'] != 0));
+        return((!empty($data[$this->get_suffixed_name('completiontotaldurationenabled')]) && $data[$this->get_suffixed_name('completiontotaldurationmins')] != 0));
     }
 
     /**
@@ -175,8 +179,8 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
         }
         if (!empty($data->completionunlocked)) {
             $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-            if (empty($data->completiontotaldurationenabled) || !$autocompletion) {
-                $data->completiontotaldurationmins = 0;
+            if (empty($data->{$this->get_suffixed_name('completiontotaldurationenabled')}) || !$autocompletion) {
+                $data->{$this->get_suffixed_name('completiontotaldurationmins')} = 0;
             }
         }
         return $data;
@@ -188,9 +192,9 @@ class mod_attendanceregister_mod_form extends moodleform_mod {
      */
     public function data_preprocessing(&$defaultvalues) {
         parent::data_preprocessing($defaultvalues);
-        $defaultvalues['completiontotaldurationenabled'] = !empty($defaultvalues['completiontotaldurationmins']) ? 1 : 0;
-        if (empty($defaultvalues['completiontotaldurationmins'])) {
-            $defaultvalues['completiontotaldurationmins'] = ATTENDANCEREGISTER_DEFAULT_COMPLETION_TOTAL_DURATION_MINS;
+        $defaultvalues[$this->get_suffixed_name('completiontotaldurationenabled')] = !empty($defaultvalues[$this->get_suffixed_name('completiontotaldurationmins')]) ? 1 : 0;
+        if (empty($defaultvalues[$this->get_suffixed_name('completiontotaldurationmins')])) {
+            $defaultvalues[$this->get_suffixed_name('completiontotaldurationmins')] = ATTENDANCEREGISTER_DEFAULT_COMPLETION_TOTAL_DURATION_MINS;
         }
     }
 }

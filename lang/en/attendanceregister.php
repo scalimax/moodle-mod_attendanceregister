@@ -229,6 +229,6 @@ $string['logout_is_future'] = 'May not be in the future';
 $string['tracked_users'] = 'Tracked Users';
 
 // Activity Completion tracking.
-$string['completiontotalduration'] = 'Require time [minutes]';
+$string['completiontotalduration'] = 'Require time {$a} [minutes]';
 $string['completiondurationgroup'] = 'Total tracked time';
 $string['search:activity'] = 'Search attendance register';

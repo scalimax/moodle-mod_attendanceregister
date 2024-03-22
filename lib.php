@@ -197,32 +197,19 @@ function attendanceregister_delete_instance($id) {
  */
 function attendanceregister_supports($feature) {
     switch ($feature) {
-        case FEATURE_GROUPS:
-            return false;
-        case FEATURE_GROUPINGS:
-            return false;
-        case FEATURE_GROUPMEMBERSONLY:
-            return false;
-        case FEATURE_MOD_INTRO:
-            return true;
-        case FEATURE_COMPLETION_TRACKS_VIEWS:
-            return true;
-        case FEATURE_COMPLETION_HAS_RULES:
-            return true;
-        case FEATURE_GRADE_HAS_GRADE:
-            return false;
-        case FEATURE_GRADE_OUTCOMES:
-            return false;
-        case FEATURE_RATE:
-            return false;
-        case FEATURE_BACKUP_MOODLE2:
-            return true;
-        case FEATURE_SHOW_DESCRIPTION:
-            return false;
-        case FEATURE_MOD_PURPOSE:
-            return MOD_PURPOSE_OTHER;
-        default:
-            return null;
+        case FEATURE_GROUPS: return false;
+        case FEATURE_GROUPINGS: return false;
+        case FEATURE_GROUPMEMBERSONLY: return false;
+        case FEATURE_MOD_INTRO: return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
+        case FEATURE_COMPLETION_HAS_RULES: return true;
+        case FEATURE_GRADE_HAS_GRADE: return false;
+        case FEATURE_GRADE_OUTCOMES: return false;
+        case FEATURE_RATE: return false;
+        case FEATURE_BACKUP_MOODLE2: return true;
+        case FEATURE_SHOW_DESCRIPTION: return true;
+        case FEATURE_MOD_PURPOSE: return MOD_PURPOSE_OTHER;
+        default: return null;
     }
 }
 
@@ -238,13 +225,44 @@ function attendanceregister_supports($feature) {
 function attendanceregister_get_coursemodule_info($coursemodule) {
     global $DB;
     if (!$register = $DB->get_record('attendanceregister', ['id' => $coursemodule->instance],
-        'id, name, intro, introformat, type')) {
-        return false;
+        '*')) {
+        return false; //'id, name, intro, introformat, type'
     }
 
-    $info = new stdClass();
+    $info = new cached_cm_info();
     $info->name = $register->name;
+
+    if ($coursemodule->showdescription) {
+        // Convert intro to html. Do not filter cached version, filters run at display time.
+        $info->content = format_module_intro('attendanceregister', $register, $coursemodule->id, false);
+    }
+
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $info->customdata['customcompletionrules']['completiontotaldurationmins'] = $register->completiontotaldurationmins;
+    }
+    
     return $info;
+}
+
+function mod_attendanceregister_get_completion_active_rule_descriptions($cm) {
+    var_dump($cm);
+    if (empty($cm->customdata['customcompletionrules']) || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
+        return [];
+    }
+
+    $descriptions = [];
+    foreach ($cm->customdata['customcompletionrules'] as $key => $val) {
+        switch ($key) {
+            case 'completiontotaldurationmins':
+                if (!empty($val)) {
+                    $descriptions[] = get_string('completiontotalduration', 'attendanceregister', $val);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return $descriptions;
 }
 
 /**
@@ -309,9 +327,9 @@ function attendanceregister_cron() {
             continue;
         }
         // Added by Renaat.
-        if ($course->enddate > 0 && ($course->enddate > time() + (2 * 7 * 24 * 3600))) {
-            continue;
-        }
+        // if ($course->enddate > 0 && ($course->enddate > time() + (2 * 7 * 24 * 3600))) {
+        //     continue;
+        // }
         if ($register->pendingrecalc) {
              attendanceregister_force_recalc_all($register);
              attendanceregister_set_pending_recalc($register, false);
