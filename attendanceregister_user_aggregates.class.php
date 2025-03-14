@@ -54,7 +54,7 @@ class attendanceregister_user_aggregates {
     public $lastlogout = 0;
 
     /** @var attendanceregister_user_sessions $sessions */
-    private $sessions;
+    public $usersessions;
 
     /** @var stdClass $user User instance */
     public $user;
@@ -69,7 +69,6 @@ class attendanceregister_user_aggregates {
     public function __construct($register, $userid, attendanceregister_user_sessions $sessions) {
         $this->usersessions = $sessions;
         $this->user = attendanceregister__getuser($userid);
-        $this->sessions = $sessions;
         $aggregates = attendanceregister__get_user_aggregates($register, $userid);
         foreach ($aggregates as $aggregate) {
             if ($aggregate->grandtotal) {

@@ -279,6 +279,7 @@ function attendanceregister__update_user_aggregates($register, $userid) {
  * @return array of users
  */
 function attendanceregister__get_tracked_users($register, $groupid = '') {
+    log_object($register);
     $userids = [];
     $course = attendanceregister__get_register_course($register);
     $courseids = attendanceregister__get_tracked_courses_ids($register, $course);
