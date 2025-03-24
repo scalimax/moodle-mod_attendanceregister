@@ -245,7 +245,7 @@ function attendanceregister_get_coursemodule_info($coursemodule) {
 }
 
 function mod_attendanceregister_get_completion_active_rule_descriptions($cm) {
-    var_dump($cm);
+    //var_dump($cm);
     if (empty($cm->customdata['customcompletionrules']) || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
         return [];
     }

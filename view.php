@@ -31,7 +31,7 @@ require_once('lib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 
-function make_view_helper() {
+function make_view_helper($OUTPUT) {
     global $DB;
 
     $cm_id = optional_param('id', 0, PARAM_INT);
@@ -48,6 +48,8 @@ function make_view_helper() {
         $view_helper->cm = get_coursemodule_from_instance('attendanceregister', $register_id, $view_helper->register->course, false, MUST_EXIST);
         $view_helper->course = $DB->get_record('course', ['id' => $view_helper->cm->course], '*', MUST_EXIST);
     }
+    $view_helper->OUTPUT = $OUTPUT;
+
     return $view_helper;
 }
 
@@ -60,22 +62,107 @@ function get_user_id($usercaps) {
     return $userid; 
 }
 
+function racalc_single_user() {
+    $userid = optional_param('userid', 0, PARAM_INT);
+    $inputaction = optional_param('action', '', PARAM_ALPHA);
+    return $userid && $inputaction == ATTENDANCEREGISTER_ACTION_RECALCULATE;
+}
+
+class ViewState {
+
+    protected $OUTPUT;
+
+    function __construct($OUTPUT) {
+        $this->OUTPUT = $OUTPUT;
+    }
+
+    function should_save_offline_sessions($userid, $context, $view_helper, $inputaction) {
+
+    }
+
+    function show_offline_sessions_form($userid, $usersessions, $view_helper) {
+
+    }
+}
+
+class Printable extends ViewState {
+
+}
+
+class DisplayOnScreen extends ViewState {
+
+    public $doshowofflinesessionform;
+
+    public $dosaveofflinesession;
+
+    public $mform;
+
+    // function __construct($OUTPUT) {
+    //     parent::__construct($OUTPUT);
+    // }
+
+    function should_save_offline_sessions($userid, $context, $view_helper, $inputaction) {
+        if ($view_helper->register->offlinesessions) {
+            // Only if User is NOT logged-in-as, or ATTENDANCEREGISTER_ALLOW_LOGINAS_OFFLINE_SESSIONS is enabled.
+            if (!\core\session\manager::is_loggedinas() || ATTENDANCEREGISTER_ALLOW_LOGINAS_OFFLINE_SESSIONS) {
+        
+                // If user is on his own Register and may save own Sessions
+                // or is on other's Register and may save other's Sessions..
+                if ($view_helper->usercaps->canaddsession($view_helper->register, $userid)) {
+                    // Do show Offline Sessions Form.
+                    $this->doshowofflinesessionform = true;
+        
+                    // If action is saving Offline Session...
+                    if ($inputaction == ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION) {
+                        // Check Capabilities, to show an error if a security violation attempt occurs.
+                        if (attendanceregister__iscurrentuser($userid)) {
+                            require_capability(ATTENDANCEREGISTER_CAPABILITY_ADD_OWN_OFFLINE_SESSIONS, $context);
+                        } else {
+                            require_capability(ATTENDANCEREGISTER_CAPABILITY_ADD_OTHER_OFFLINE_SESSIONS, $context);
+                        }
+                        // Do save Offline Session.
+                        $this->dosaveofflinesession = true;
+                    }
+                }
+            }
+        }
+    }
+
+    function show_offline_sessions_form($userid, $usersessions, $view_helper) {
+        if ($userid && $this->doshowofflinesessionform) {
+            // Prepare form.
+            $customformdata = ['register' => $view_helper->register, 'courses' => $usersessions->trackedcourses->courses];
+            // Also pass userid only if is saving for another user.
+            if (!attendanceregister__iscurrentuser($userid)) {
+                $customformdata['userid'] = $userid;
+            }
+            $this->mform = new mod_attendanceregister_selfcertification_edit_form(null, $customformdata);
+        
+        
+            // Process Self.Cert Form submission.
+            if ($this->mform->is_cancelled()) {
+                redirect($PAGE->url);
+            } else if ($this->dosaveofflinesession && ($formdata = $this->mform->get_data())) {
+                attendanceregister_save_offline_session($view_helper->register, $formdata);
+                echo $this->OUTPUT->notification(get_string('offline_session_saved', 'attendanceregister'), 'notifysuccess');
+                echo $this->OUTPUT->continue_button(attendanceregister_makeurl($view_helper->register, $userid));
+                $doshowcontents = false;
+            }
+        }
+    }
+}
+
 
 
 // Main parameters.
 
 $groupid = optional_param('group', 0, PARAM_INT);
 
-$view_helper = make_view_helper();
+$view_helper = make_view_helper($OUTPUT);
 
 // Other parameters.
 $inputaction = optional_param('action', '', PARAM_ALPHA);
 $inputsessionid = optional_param('session', null, PARAM_INT);
-
-$sessiontodelete = null;
-if ($inputsessionid) {
-    $sessiontodelete = attendanceregister_get_session($inputsessionid);
-}
 
 require_course_login($view_helper->course, false, $view_helper->cm);
 
@@ -86,76 +173,38 @@ if (!($context = context_module::instance($view_helper->cm->id))) {
 
 $view_helper->usercaps = new attendanceregister_user_capablities($context);
 $userid = get_user_id($view_helper->usercaps);
-$active_user = new \mod_attendanceregister\view\active_user($userid);
+$active_user = new \mod_attendanceregister\view\active_user($userid, $OUTPUT);
 
 $active_user->can_view_some_registers($context);
 
 // Require capability to recalculate.
-$dorecalc = $view_helper->can_do_recalc($context);
-$doschedrecalc = $view_helper->can_do_sched_recalc($context);
+$dorecalc = $view_helper->can_do_recalc($context, $inputaction, racalc_single_user());
+$doschedrecalc = $view_helper->can_do_sched_recalc($context, $inputaction);
+
 
 // Printable version?
 $printable = false;
 if ($inputaction == ATTENDANCEREGISTER_ACTION_PRINTABLE) {
     $printable = true;
+    $state = new Printable($OUTPUT);
+} else {
+    $state = new DisplayOnScreen($OUTPUT);
 }
 
-// Check permissions and ownership for showing offline session form or saving them.
-$doshowofflinesessionform = false;
-$dosaveofflinesession = false;
 // Only if Offline Sessions are enabled (and No printable-version action).
-if ($view_helper->register->offlinesessions &&  !$printable) {
-    // Only if User is NOT logged-in-as, or ATTENDANCEREGISTER_ALLOW_LOGINAS_OFFLINE_SESSIONS is enabled.
-    if (!\core\session\manager::is_loggedinas() || ATTENDANCEREGISTER_ALLOW_LOGINAS_OFFLINE_SESSIONS) {
-
-        // If user is on his own Register and may save own Sessions
-        // or is on other's Register and may save other's Sessions..
-        if ($view_helper->usercaps->canaddsession($view_helper->register, $userid)) {
-            // Do show Offline Sessions Form.
-            $doshowofflinesessionform = true;
-
-            // If action is saving Offline Session...
-            if ($inputaction == ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION) {
-                // Check Capabilities, to show an error if a security violation attempt occurs.
-                if (attendanceregister__iscurrentuser($userid)) {
-                    require_capability(ATTENDANCEREGISTER_CAPABILITY_ADD_OWN_OFFLINE_SESSIONS, $context);
-                } else {
-                    require_capability(ATTENDANCEREGISTER_CAPABILITY_ADD_OTHER_OFFLINE_SESSIONS, $context);
-                }
-                // Do save Offline Session.
-                $dosaveofflinesession = true;
-            }
-        }
-    }
+if (!$printable) {
+    $state->should_save_offline_sessions($userid, $context, $view_helper, $inputaction);
 }
 
-
-// Check capabilities to delete self cert (in the meanwhile retrieve the record to delete).
-$dodeleteofflinesession = false;
-if ($sessiontodelete) {
-    // Check if logged-in-as Session Delete.
-    if (session_is_loggedinas() && !ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION) {
-        throw new \moodle_exception('onlyrealusercandeleteofflinesessions', 'attendanceregister');
-    } else if (attendanceregister__iscurrentuser($userid)) {
-        require_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OWN_OFFLINE_SESSIONS, $context);
-        $dodeleteofflinesession = true;
-    } else {
-        require_capability(ATTENDANCEREGISTER_CAPABILITY_DELETE_OTHER_OFFLINE_SESSIONS, $context);
-        $dodeleteofflinesession = true;
-    }
-}
+$active_user->session_deleter->delete($context);
 
 // Retrieve Course Completion info object.
 $completion = new completion_info($view_helper->course);
 
-$usertoprocess = null;
 $usersessions = null;
-$view_helper->trackedusers = null;
 $str = '';
-if ($userid) {
-    $usertoprocess = attendanceregister__getuser($userid);
+if ($active_user->userid) {
     $usersessions = new attendanceregister_user_sessions($view_helper->register, $userid, $view_helper->usercaps);
-    $str = ': ' . fullname($usertoprocess);
 } else {
     $view_helper->trackedusers = new attendanceregister_tracked_users($view_helper->register, $view_helper->usercaps, $groupid);
 }
@@ -163,74 +212,41 @@ if ($userid) {
 $url = attendanceregister_makeurl($view_helper->register, $userid, $groupid, $inputaction);
 $PAGE->set_url($url->out());
 $PAGE->set_context($context);
-$PAGE->set_title(format_string($view_helper->course->shortname . ': ' . $view_helper->register->name . $str));
+$PAGE->set_title(format_string($view_helper->course->shortname . ': ' . $view_helper->register->name . $active_user->fullname()));
 
 $PAGE->set_heading($view_helper->course->fullname);
 if ($printable) {
     $PAGE->set_pagelayout('print');
 }
 
-$params = ['context' => $context, 'objectid' => $view_helper->register->id];
-$event = \mod_attendanceregister\event\course_module_viewed::create($params);
-$event->add_record_snapshot('course_modules', $view_helper->cm);
-$event->add_record_snapshot('course', $view_helper->course);
-$event->trigger();
+$view_helper->trigger_event($context);
 
 if ($userid == $USER->id && $completion->is_enabled($view_helper->cm)) {
     $completion->set_module_viewed($view_helper->cm, $userid);
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($view_helper->register->name . $str));
+echo $OUTPUT->heading(format_string($view_helper->register->name . $active_user->fullname()));
 
 $doshowcontents = true;
-$mform = null;
-if ($userid && $doshowofflinesessionform && !$printable) {
-
-    // Prepare form.
-    $customformdata = ['register' => $view_helper->register, 'courses' => $usersessions->trackedcourses->courses];
-    // Also pass userid only if is saving for another user.
-    if (!attendanceregister__iscurrentuser($userid)) {
-        $customformdata['userid'] = $userid;
-    }
-    $mform = new mod_attendanceregister_selfcertification_edit_form(null, $customformdata);
-
-
-    // Process Self.Cert Form submission.
-    if ($mform->is_cancelled()) {
-        redirect($PAGE->url);
-    } else if ($dosaveofflinesession && ($formdata = $mform->get_data())) {
-        attendanceregister_save_offline_session($view_helper->register, $formdata);
-        echo $OUTPUT->notification(get_string('offline_session_saved', 'attendanceregister'), 'notifysuccess');
-        echo $OUTPUT->continue_button(attendanceregister_makeurl($view_helper->register, $userid));
-        $doshowcontents = false;
-    }
+if (!$printable) {
+    $state->show_offline_sessions_form($userid, $usersessions, $view_helper);
 }
 
+
+$recalc = false;
 if ($doshowcontents) {
-    $dorecalc($view_helper->register, $view_helper->usercaps);
+    $recalc = $dorecalc() || $doschedrecalc();
 }
 
-if ($doshowcontents && ($doschedrecalc)) {
-    if ($usertoprocess) {
-        $progressbar = new progress_bar('recalcbar', 500, true);
-        attendanceregister_force_recalc_user_sessions($view_helper->register, $userid, $progressbar);
-        $usersessions = new attendanceregister_user_sessions($view_helper->register, $userid, $view_helper->usercaps);
-    } else {
-        if ($doschedrecalc) {
-            if (!$view_helper->register->pendingrecalc) {
-                attendanceregister_set_pending_recalc($view_helper->register, true);
-            }
-            echo $OUTPUT->notification(get_string('recalc_scheduled', 'attendanceregister'), 'notifysuccess');
-        }
-    }
+
+if ($doshowcontents && $recalc) {
+    $active_user->recalculate($view_helper);
 
     echo $OUTPUT->continue_button(attendanceregister_makeurl($view_helper->register, $userid));
     $doshowcontents = false;
-} else if ($doshowcontents && $dodeleteofflinesession) {
-    attendanceregister_delete_offline_session($view_helper->register, $sessiontodelete->userid, $sessiontodelete->id);
-    echo $OUTPUT->notification(get_string('offline_session_deleted', 'attendanceregister'), 'notifysuccess');
-    echo $OUTPUT->continue_button(attendanceregister_makeurl($view_helper->register, $userid));
+} else if ($doshowcontents && $active_user->session_deleter->dodeleteofflinesession) {
+    $active_user->session_deleter->delete_offline_sessions($view_helper);
     $doshowcontents = false;
 } else if ($doshowcontents) {
     if ($userid) {
@@ -244,10 +260,10 @@ if ($doshowcontents && ($doschedrecalc)) {
         }
         echo $OUTPUT->container_end();
         echo '<br />';
-        if ($mform && $view_helper->register->offlinesessions && !$printable) {
+        if ($state->mform && $view_helper->register->offlinesessions && !$printable) {
             echo "<br />";
             echo $OUTPUT->box_start('generalbox attendanceregister_offlinesessionform');
-            $mform->display();
+            $state->mform->display();
             echo $OUTPUT->box_end();
         }
         echo html_writer::div(html_writer::table($usersessions->useraggregates->html_table()), 'table-responsive');
