@@ -31,42 +31,10 @@ require_once('lib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 
-function make_view_helper($OUTPUT) {
-    global $DB;
 
-    $cm_id = optional_param('id', 0, PARAM_INT);
-    $register_id = optional_param('a', 0, PARAM_INT);
 
-    if ($cm_id) {
-        $view_helper = new \mod_attendanceregister\view\view_by_module_id();
-        $view_helper->cm = get_coursemodule_from_id('attendanceregister', $cm_id, 0, false, MUST_EXIST);
-        $view_helper->course = $DB->get_record('course', ['id' => $view_helper->cm->course], '*', MUST_EXIST);
-        $view_helper->register = $DB->get_record('attendanceregister', ['id' => $view_helper->cm->instance], '*', MUST_EXIST);
-    } else {
-        $view_helper = new \mod_attendanceregister\view\view_by_register_id();
-        $view_helper->register = $DB->get_record('attendanceregister', ['id' => $register_id], '*', MUST_EXIST);
-        $view_helper->cm = get_coursemodule_from_instance('attendanceregister', $register_id, $view_helper->register->course, false, MUST_EXIST);
-        $view_helper->course = $DB->get_record('course', ['id' => $view_helper->cm->course], '*', MUST_EXIST);
-    }
-    $view_helper->OUTPUT = $OUTPUT;
 
-    return $view_helper;
-}
 
-function get_user_id($usercaps) {
-    global $USER;
-    $userid = optional_param('userid', 0, PARAM_INT);
-    if (!$userid && !$usercaps->canviewother) {
-        $userid = $USER->id;
-    }
-    return $userid; 
-}
-
-function racalc_single_user() {
-    $userid = optional_param('userid', 0, PARAM_INT);
-    $inputaction = optional_param('action', '', PARAM_ALPHA);
-    return $userid && $inputaction == ATTENDANCEREGISTER_ACTION_RECALCULATE;
-}
 
 class ViewState {
 
@@ -81,7 +49,7 @@ class ViewState {
     }
 
     function show_offline_sessions_form($userid, $usersessions, $view_helper) {
-
+        return true;
     }
 }
 
@@ -146,9 +114,10 @@ class DisplayOnScreen extends ViewState {
                 attendanceregister_save_offline_session($view_helper->register, $formdata);
                 echo $this->OUTPUT->notification(get_string('offline_session_saved', 'attendanceregister'), 'notifysuccess');
                 echo $this->OUTPUT->continue_button(attendanceregister_makeurl($view_helper->register, $userid));
-                $doshowcontents = false;
+                return false;
             }
         }
+        return true;
     }
 }
 
@@ -158,112 +127,89 @@ class DisplayOnScreen extends ViewState {
 
 $groupid = optional_param('group', 0, PARAM_INT);
 
-$view_helper = make_view_helper($OUTPUT);
+$view_helper = \mod_attendanceregister\view\view_helper::make_view_helper($OUTPUT);
 
-// Other parameters.
-$inputaction = optional_param('action', '', PARAM_ALPHA);
-$inputsessionid = optional_param('session', null, PARAM_INT);
-
-require_course_login($view_helper->course, false, $view_helper->cm);
-
-
-if (!($context = context_module::instance($view_helper->cm->id))) {
-    throw new \moodle_exception('badcontext');
-}
-
-$view_helper->usercaps = new attendanceregister_user_capablities($context);
-$userid = get_user_id($view_helper->usercaps);
-$active_user = new \mod_attendanceregister\view\active_user($userid, $OUTPUT);
-
-$active_user->can_view_some_registers($context);
-
-// Require capability to recalculate.
-$dorecalc = $view_helper->can_do_recalc($context, $inputaction, racalc_single_user());
-$doschedrecalc = $view_helper->can_do_sched_recalc($context, $inputaction);
-
-
-// Printable version?
+$view_helper->active_user->can_view_some_registers($view_helper->context);
 $printable = false;
-if ($inputaction == ATTENDANCEREGISTER_ACTION_PRINTABLE) {
-    $printable = true;
-    $state = new Printable($OUTPUT);
-} else {
-    $state = new DisplayOnScreen($OUTPUT);
+$state = new DisplayOnScreen($OUTPUT);
+$command = function () {return true;};
+$inputaction = optional_param('action', '', PARAM_ALPHA);
+switch ($inputaction) {
+    case ATTENDANCEREGISTER_ACTION_RECALCULATE:
+        $command = $view_helper->can_do_recalc();
+        break;
+    case ATTENDANCEREGISTER_ACTION_SCHEDULERECALC:
+        $command = $view_helper->can_do_sched_recalc();
+        break;
+    case ATTENDANCEREGISTER_ACTION_PRINTABLE:
+        $printable = true;
+        $state = new Printable($OUTPUT);
+    
+        break;
+    case ATTENDANCEREGISTER_ACTION_SAVE_OFFLINE_SESSION:
+        $command = $view_helper->prepare_show_offline_session_form();
+        break;
+    case ATTENDANCEREGISTER_ACTION_DELETE_OFFLINE_SESSION:
+        $command = $view_helper->prepare_delete_offline_session();
+        break;
+    default:
+
+        
 }
 
 // Only if Offline Sessions are enabled (and No printable-version action).
 if (!$printable) {
-    $state->should_save_offline_sessions($userid, $context, $view_helper, $inputaction);
+    $view_helper->prepare_show_offline_session_form();
+    //$state->should_save_offline_sessions($view_helper->active_user->userid, $view_helper->context, $view_helper, $inputaction);
 }
 
-$active_user->session_deleter->delete($context);
+//$view_helper->active_user->session_deleter->delete($view_helper->context);
 
 // Retrieve Course Completion info object.
 $completion = new completion_info($view_helper->course);
 
 $usersessions = null;
-$str = '';
-if ($active_user->userid) {
-    $usersessions = new attendanceregister_user_sessions($view_helper->register, $userid, $view_helper->usercaps);
+if ($view_helper->userid()) {
+    $usersessions = new attendanceregister_user_sessions($view_helper->register, $view_helper->userid(), $view_helper->usercaps);
 } else {
     $view_helper->trackedusers = new attendanceregister_tracked_users($view_helper->register, $view_helper->usercaps, $groupid);
 }
 
-$url = attendanceregister_makeurl($view_helper->register, $userid, $groupid, $inputaction);
+$url = attendanceregister_makeurl($view_helper->register, $view_helper->userid(), $groupid, $inputaction);
 $PAGE->set_url($url->out());
-$PAGE->set_context($context);
-$PAGE->set_title(format_string($view_helper->course->shortname . ': ' . $view_helper->register->name . $active_user->fullname()));
+$PAGE->set_context($view_helper->context);
+$PAGE->set_title(format_string($view_helper->course->shortname . ': ' . $view_helper->register->name . $view_helper->active_user->fullname()));
 
 $PAGE->set_heading($view_helper->course->fullname);
 if ($printable) {
     $PAGE->set_pagelayout('print');
 }
 
-$view_helper->trigger_event($context);
+$view_helper->trigger_event();
 
-if ($userid == $USER->id && $completion->is_enabled($view_helper->cm)) {
-    $completion->set_module_viewed($view_helper->cm, $userid);
+if ($view_helper->userid() == $USER->id && $completion->is_enabled($view_helper->cm)) {
+    $completion->set_module_viewed($view_helper->cm, $view_helper->userid());
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($view_helper->register->name . $active_user->fullname()));
+echo $OUTPUT->heading(format_string($view_helper->register->name . $view_helper->active_user->fullname()));
 
-$doshowcontents = true;
-if (!$printable) {
-    $state->show_offline_sessions_form($userid, $usersessions, $view_helper);
-}
+// if (!$printable) {
+//     $doshowcontents = $state->show_offline_sessions_form($view_helper->userid(), $usersessions, $view_helper);
+// }
 
 
-$recalc = false;
+$doshowcontents = $command();
+
+
 if ($doshowcontents) {
-    $recalc = $dorecalc() || $doschedrecalc();
-}
-
-
-if ($doshowcontents && $recalc) {
-    $active_user->recalculate($view_helper);
-
-    echo $OUTPUT->continue_button(attendanceregister_makeurl($view_helper->register, $userid));
-    $doshowcontents = false;
-} else if ($doshowcontents && $active_user->session_deleter->dodeleteofflinesession) {
-    $active_user->session_deleter->delete_offline_sessions($view_helper);
-    $doshowcontents = false;
-} else if ($doshowcontents) {
-    if ($userid) {
-        echo $OUTPUT->container_start('attendanceregister_buttonbar btn-group');
-        if ($view_helper->usercaps->canviewother && !$printable) {
-            echo $OUTPUT->single_button(attendanceregister_makeurl($view_helper->register),
-                get_string('back_to_tracked_user_list', 'attendanceregister'), 'get');
-            $logurl = new moodle_url('/report/log/index.php', ['chooselog' => 1, 'showusers' => 1,
-               'showcourses' => 1, 'id' => 1, 'user' => $userid, 'logformat' => 'showashtml', ]);
-            echo $OUTPUT->single_button($logurl, 'Logs', 'get');
-        }
-        echo $OUTPUT->container_end();
+    if ($view_helper->userid()) {
+        $view_helper->display_log_button();
         echo '<br />';
-        if ($state->mform && $view_helper->register->offlinesessions && !$printable) {
+        if ($view_helper->mform && $view_helper->register->offlinesessions && !$printable) {
             echo "<br />";
             echo $OUTPUT->box_start('generalbox attendanceregister_offlinesessionform');
-            $state->mform->display();
+            $view_helper->mform->display();
             echo $OUTPUT->box_end();
         }
         echo html_writer::div(html_writer::table($usersessions->useraggregates->html_table()), 'table-responsive');
@@ -277,12 +223,7 @@ if ($doshowcontents && $recalc) {
             echo $OUTPUT->notification(get_string('recalc_scheduled_on_next_cron', 'attendanceregister'));
         }
         
-        echo $OUTPUT->container_start('attendanceregister_buttonbar btn-group');
-        if ($view_helper->usercaps->istracked) {
-            $linkurl = attendanceregister_makeurl($view_helper->register, $USER->id);
-            echo $OUTPUT->single_button($linkurl, get_string('show_my_sessions', 'attendanceregister'), 'get');
-        }
-        echo $OUTPUT->container_end();
+        $view_helper->display_show_my_sessions_button();
         $view_helper->display_trackedusers();
     }
 }
