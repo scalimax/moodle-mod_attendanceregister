@@ -99,10 +99,23 @@ class view_helper {
         };
     }
 
+    function choose_view_type() {
+        if ($this->userid()) {
+            $this->usersessions = new \attendanceregister_user_sessions($this->register, $this->userid(), $this->usercaps);
+        } else {
+            $this->trackedusers = new \attendanceregister_tracked_users($this->register, $this->usercaps, $groupid);
+        }
+    }
+
     function display_trackedusers() {
         echo '<br />';
         echo \html_writer::div(\html_writer::table($this->trackedusers->trackedcourses->html_table()), 'table-responsive');
         echo \html_writer::div(\html_writer::table($this->trackedusers->html_table()), 'table-responsive');
+    }
+
+    function display_usersessions() {
+        echo \html_writer::div(\html_writer::table($this->usersessions->useraggregates->html_table()), 'table-responsive');
+        echo \html_writer::div(\html_writer::table($this->usersessions->html_table()), 'table-responsive');
     }
 
     function can_do_sched_recalc() {
