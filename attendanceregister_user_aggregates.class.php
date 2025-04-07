@@ -108,29 +108,32 @@ class attendanceregister_user_aggregates {
         $row->cells[] = $label;
         $row->cells[] = new html_table_cell(attendanceregister__formatdate($this->user->lastlogin));
         $table->data[] = $row;
-
         $row = new html_table_row();
         $label = new html_table_cell(get_string('last_site_login', 'attendanceregister'));
         $label->colspan = 2;
         $row->cells[] = $label;
         $row->cells[] = new html_table_cell(attendanceregister__formatdate($this->user->currentlogin));
         $table->data[] = $row;
-
+        
         $row = new html_table_row();
         $label = new html_table_cell(get_string('last_site_access', 'attendanceregister'));
         $label->colspan = 2;
         $row->cells[] = $label;
         $row->cells[] = new html_table_cell(attendanceregister__formatdate($this->user->lastaccess));
         $table->data[] = $row;
-
+        
         $row = new html_table_row();
         $label = new html_table_cell(get_string('last_calc_online_session_logout', 'attendanceregister'));
         $label->colspan = 2;
         $row->cells[] = $label;
         $row->cells[] = new html_table_cell(attendanceregister__formatdate($this->lastlogout));
         $table->data[] = $row;
-
-        $table->data[] = 'hr';
+        
+        // $row = new html_table_row();
+        // $divider = new html_table_cell(html_writer::div('','tabledivider'));
+        // $divider->colspan = 3;
+        // $row->cells[] = $divider;
+        // $table->data[] = $row;
 
         $row = new html_table_row();
         $row->attributes['class'] .= ' attendanceregister_onlinesubtotal success';
@@ -139,8 +142,15 @@ class attendanceregister_user_aggregates {
         $row->cells[] = $label;
         $row->cells[] = new html_table_cell(attendanceregister_format_duration($this->onlinetotal));
         $table->data[] = $row;
+        
         if ($this->offlinetotal) {
-            $table->data[] = 'hr';
+            //$table->data[] = 'hr';
+            $row = new html_table_row();
+            $divider = new html_table_cell(html_writer::div('','tabledivider'));
+            $divider->colspan = 3;
+            $row->cells[] = $divider;
+            $table->data[] = $row;
+
             foreach ($this->percourse as $refcourseid => $offlinesessions) {
                 $row = new html_table_row();
                 $row->cells[] = new html_table_cell(get_string('offline_refcourse_duration', 'attendanceregister'));
@@ -174,6 +184,7 @@ class attendanceregister_user_aggregates {
             $row->cells[] = new html_table_cell(attendanceregister_format_duration($this->grandtotal));
             $table->data[] = $row;
         }
+        
         return $table;
     }
 }

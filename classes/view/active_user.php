@@ -22,7 +22,7 @@ class active_user {
     }
 
     function fullname() {
-        return $this->usertoprocess ? ': ' . fullname($this->usertoprocess) : '';
+        return $this->usertoprocess ? fullname($this->usertoprocess) : '';
     }
 
     function recalculate($view_helper) {

@@ -15,6 +15,8 @@ class view_helper {
 
     public $trackedusers = null;
 
+    public $usersessions = null;
+
     public $active_user;
 
     public $mform;
@@ -62,6 +64,10 @@ class view_helper {
         $view_helper->active_user = new \mod_attendanceregister\view\active_user($userid, $OUTPUT);
 
         return $view_helper;
+    }
+
+    function user_fullname() {
+        return $this->active_user->fullname();
     }
 
     private function recalc_single_user() {
@@ -114,8 +120,11 @@ class view_helper {
     }
 
     function display_usersessions() {
-        echo \html_writer::div(\html_writer::table($this->usersessions->useraggregates->html_table()), 'table-responsive');
-        echo \html_writer::div(\html_writer::table($this->usersessions->html_table()), 'table-responsive');
+        //echo \html_writer::div(\html_writer::table($this->usersessions->useraggregates->html_table()), 'table-responsive');
+        //echo \html_writer::div(\html_writer::table($this->usersessions->html_table()), 'table-responsive');
+
+        echo \html_writer::table($this->usersessions->useraggregates->html_table());
+        echo \html_writer::table($this->usersessions->html_table());
     }
 
     function can_do_sched_recalc() {
@@ -151,7 +160,7 @@ class view_helper {
                 // If user is on his own Register and may save own Sessions
                 // or is on other's Register and may save other's Sessions..
                 if ($this->usercaps->canaddsession($this->register, $this->userid())) {
-                    $customformdata = ['register' => $this->register, 'courses' => $usersessions->trackedcourses->courses];
+                    $customformdata = ['register' => $this->register, 'courses' => $this->usersessions->trackedcourses->courses];
                     // Also pass userid only if is saving for another user.
                     if (!attendanceregister__iscurrentuser($this->userid())) {
                         $customformdata['userid'] = $this->userid();

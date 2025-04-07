@@ -8,6 +8,8 @@ class delete_session {
 
     public $dodeleteofflinesession;
 
+    private $inputsessionid;
+
     private $OUTPUT;
 
     public function __construct($OUTPUT) {
